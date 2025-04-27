@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
+    <link rel="stylesheet" href="{% static 'css/menu.css' %}">
+    <script src="{% static 'js/menu.js' %}"></script>
+</head>
+<header>
+    <img src="{% static 'image/logo.png' %}" alt="" class="logo">
+    <nav>
+        <ul>
+            <li><a href="http://127.0.0.1:8000/restaurant/">Accueil</a></li> 
+            <li><a href="http://127.0.0.1:8000/restaurant/M">Menu</a></li>
+            <li><a href="http://127.0.0.1:8000/restaurant/R">Réservation</a></li> 
+          <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
+          <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre Promo</a></li>
+          <li><a href="/restaurant/panier/" id="cart-icon">
+            <img src="{% static 'image/paniers.png' %}" alt=""style="width: 20px; color:yellow;">
+            <span id="cart-count">0</span>
+          </a></li>
+        </ul>
+    </nav>
+</header>
+<body>
+    <div class="restaurant-selection">
+        <h2>Choisissez votre restaurant</h2>
+        <div class="restaurant-container">
+            {% for restaurant in restaurants %}
+                <div class="restaurant-item" data-restaurant-id="{{ restaurant.id }}">
+                    <p>{{ restaurant.name }}</p>
+                    <p class="restaurant-address">{{ restaurant.address }}</p>
+                    <!-- Bouton corrigé avec la classe select-restaurant-btn et data-id -->
+                    <button class="select-restaurant-btn" data-id="{{ restaurant.id }}">Voir le menu</button>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    <div class="catégorie" id="categories-container" style="display: none;">
+        <h2>Nos catégories</h2>
+        <div class="categories-wrapper">
+            {% for categorie in categories %}
+                <div class="categorie-item" data-categorie-id="{{ categorie.id }}">
+                    {% if categorie.image %}
+                        <img src="{{ categorie.image.url }}" alt="{{ categorie.name }}">
+                    {% else %}
+                        <img src="{% static 'image/pizzamenu.jpg' %}" alt="Image par défaut">
+                    {% endif %}
+                    <p>{{ categorie.name }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    <div class="plats" id="plats-section" style="display: none;">
+        <h1>Nos Plats</h1>
+        <div id="plats-container">
+            {% include 'plats.html' %}
+        </div>
+    </div>
+    
+    <footer>
+        <div class="footer-container">
+            <img src="{% static 'image/logo.png' %}" alt="" class="logof">
+            <div class="footer-section">
+                <h3>Navigation</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Accueil</a></li>
+                    <li><a href="#">Menu</a></li>
+                    <li><a href="#">Réservation</a></li>
+                    <li><a href="#">Historique</a></li>
+                    <li><a href="#">Offre Promo</a></li>
+                </ul>
+            </div>
+    
+            
+            <div class="footer-section">
+                <h3>Suivez-nous</h3>
+                <div class="social-icons">
+                    <a href="#"><img src="{% static 'image/facebook.png' %}" alt="Facebook"></a>
+                    <a href="#"><img src="{% static 'image/instagram.png' %}" alt="Instagram"></a>
+                    <a href="#"><img src="{% static 'image/twitter.png' %}" alt="Twitter"></a>
+                </div>
+            </div>
+        </div>
+        <p class="footer-bottom">© 2025 The LFS Spot Restaurant. Tous droits réservés.</p>
+    </footer>
+    
+   
+</body>
+</html>

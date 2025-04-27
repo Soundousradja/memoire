@@ -1,0 +1,33 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Admin</title>
+    <link rel="stylesheet" href="{% static 'css/ajouteradmin.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Nom de l'admin :</h1>
+
+        <form id="adminForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}  <!-- ✅ Protection CSRF -->
+
+            <input type="text" id="adminName" placeholder="Entrez le nom" required>
+
+            <input type="file" id="fileInput" accept="image/*">
+            <label for="fileInput" class="upload-btn">Insérer une photo</label>
+
+            <h1>Numéro de téléphone :</h1>
+            <input type="tel" id="adminPhone" placeholder="Entrez le numéro" required>
+            
+            <button type="button" id="addAdmin">Ajouter</button>  
+        </form>
+    </div>
+
+    <script src="{% static 'js/ajouteradmin.js' %}" defer></script>
+</body>
+</html>

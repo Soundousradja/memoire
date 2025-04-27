@@ -1,0 +1,317 @@
+> Lamisse:
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        #loader-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    background: #1c1c1c;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+.loader {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #f5b041;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Page */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: url("../images/login2.jpg") no-repeat center center fixed;
+    background-size: cover;
+    color: #fff;
+    overflow: hidden;
+    position: relative;
+  
+}
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Ajuste l'opacité ici */
+    z-index: -1; /* Pour que ça reste derrière le contenu */
+}
+
+/* Main container */
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 100vh;
+    padding: 30px 70px;
+    margin-top: -30px;
+    box-shadow: 1px 1px 15px 15px rgb(54, 56, 56);
+}
+
+/* Left panel with logo */
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;     /* Centre horizontalement */
+    justify-content: center; /* Centre verticalement */
+    text-align: center;
+    height: 100vh;           /* S'étend sur toute la hauteur */
+    padding: 20px;
+    flex: 1;
+    color: #fff;
+   
+    animation: fadeIn 1s ease;
+
+}
+
+.logo {
+    max-width: 180px;
+    margin-top: 25px; 
+   
+}
+
+
+
+
+/* Login form */
+.login-container {
+    background-color: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(6px);
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(172, 164, 164, 0.6);
+    text-align: center;
+    width: 350px;
+    animation: fadeIn 1s ease;
+}
+
+.login-container h2 {
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 90%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 10px;
+    background-color: #2e2e2e;
+    color: white;
+    transition: 0.3s;
+}
+
+input:focus {
+    background-color: #3d3d3d;
+}
+
+button {
+    width: 80%;
+    padding: 12px;
+    margin-top: 10px;
+    background-color: #f5b041;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    color: black;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #000;
+    color: white;
+}
+
+.forgot, .signup {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.forgot a, .signup a {
+    color: #ccc;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.forgot a:hover, .signup a:hover {
+    color: #f5b041;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+        padding: 30px;
+    }
+
+    .left-panel {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .login-container {
+        width: 90%;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    } to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.welcome-title {
+    font-size: 32px;
+    margin-bottom: 10px;
+    font-weight: 700;
+    color: #f5b041;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+    animation: fadeIn 1s ease;
+}
+
+.welcome-text {
+    font-size: 18px;
+    line-height: 1.6;
+    color: #f0f0f0;
+    max-width: 400px;
+    animation: fadeIn 1.2s ease;
+}
+.signup a {
+    color: #f5b041;
+    text-decoration: none; 
+}
+.social-icons {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.social-icons i {
+    font-size: 24px;
+    color: #888;
+    margin: 0 10px;
+    transition: color 0.3s ease;
+    cursor: pointer;
+}
+
+.social-icons i:hover {
+    color: #000;
+}
+    </style>
+</head>
+<body>
+
+<div id="loader-wrapper">
+    <div class="loader"></div>
+</div>
+
+<div class="container">
+    <div class="left-panel">
+        <img src="{% static 'images/logo_transparent.png' %}" alt="Logo" class="logo">
+        <h2 class="welcome-title">Bienvenue au The LFS Spot ! </h2>
+        <p class="welcome-text">Ravi de te revoir ! Connecte-toi pour accéder à ton tableau de bord personnalisé.</p>
+    </div>
+
+    <div class="login-container">
+        <h2>Connexion</h2>
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+
+            <div class="input-wrapper">
+                <input type="text" name="username" placeholder="Nom d'utilisateur" required autocomplete="off">
+            </div>
+
+            <div class="input-wrapper">
+                <input type="password" name="password" placeholder="Mot de passe" required autocomplete="off">
+            </div>
+
+            <button type="submit">Se connecter</button>
+        </form>
+        <div class="forgot">
+            <a href="{% url 'forgot_password' %}">Mot de passe oublié ?</a>
+        </div>
+        <div class="signup">
+            <p>Pas encore inscrit ? <a href="{% url 'client_register' %}">Créer un compte</a></p>
+        </div>
+        <div class="social-icons">
+            <i class="fab fa-instagram"></i>
+            <i class="fab fa-facebook"></i>
+            <i class="fab fa-twitter"></i>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/login.js' %}"></script>
+
+
+<script>
+const loginForm = document.querySelector('form');
+if (loginForm) {
+    loginForm.addEventListener('submit', function (e) {
+        console.log("Form found and listener attached.");
+        // Petit effet ou validation JS si nécessaire
+        console.log("Tentative de connexion...");
+    });
+} else {
+    console.error("Form element not found!");
+}
+
+window.addEventListener("load", () => {
+    const loader = document.getElementById("loader-wrapper");
+    loader.style.display = "none";
+
+
+    const usernameInput = document.querySelector('input[name="username"]');
+    const passwordInput = document.querySelector('input[name="password"]');
+
+    if (usernameInput) {
+        usernameInput.value = '';
+    }
+    if (passwordInput) {
+        passwordInput.value = '';
+    }
+});
+
+
+
+const usernameContainer = document.querySelector('#username-container'); // Create a container in your HTML
+const passwordContainer = document.querySelector('#password-container'); 
+
+if (usernameContainer) {
+    const shadowRoot = usernameContainer.attachShadow({ mode: 'open' });
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = 'username';
+    input.placeholder = 'Nom d\'utilisateur';
+    input.required = true;
+    shadowRoot.appendChild(input);
+}
+
+// Similar for password input
+</script>
+</body>
+</html>

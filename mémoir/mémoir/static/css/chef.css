@@ -1,0 +1,9 @@
+body{
+    background-color: blue;
+    background-size: cover;
+    font-family: Arial, sans-serif;
+    color: white;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}

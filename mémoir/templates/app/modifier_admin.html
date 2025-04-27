@@ -1,0 +1,32 @@
+{% load static %}            
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier un Admin</title>
+    <link rel="stylesheet" href="{% static 'css/modifieradmin.css' %}">
+    <script src="{% static 'js/modifieradmin.js' %}" defer></script>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Modifier l'Admin</h1>
+
+        <form id="adminForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="text" id="adminName" name="name" value="{{ admin.name }}" required>
+            
+            <input type="file" id="fileInput" accept="image/*">
+            <label for="fileInput" class="upload-btn">Changer la photo</label>
+            <br>                                   
+            <img id="imagePreview" class="preview" src="{{ admin.image.url }}" alt="Aperçu de la photo">
+            
+            <h1>Numéro de téléphone :</h1>
+            <input type="tel" id="adminPhone" name="phone" value="{{ admin.phone }}" required>
+            
+            <button type="submit" id="updateAdmin">Mettre à jour</button>
+        </form>
+    </div>                                              
+</body>
+</html>

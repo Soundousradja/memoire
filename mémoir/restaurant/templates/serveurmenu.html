@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu</title>
+    <link rel="stylesheet" href="{% static 'css/menuserveur.css' %}">
+    <script src="{% static 'js/serveur.js' %}"></script>
+</head>
+<body>
+    <header>
+        <div class="sortie">
+            <a href="http://127.0.0.1:8000/restaurant/serveur"><img src="{% static 'image\sortie.png'%}" alt=""></a> 
+         </div>
+        THE LFS SPOT MENU
+    </header>
+
+    <div class="container">
+        <div class="left">
+            <h1>Menu</h1>
+            <div class="categories-filter">
+                {% for categorie in categories %}
+                    <button class="category-btn {% if forloop.first %}active{% endif %}" data-category="{{ categorie.id }}">{{ categorie.nom }}</button>
+                {% endfor %}
+            </div>
+          
+
+            <div class="plats-container">
+                {% for categorie in categories %}
+                    {% for plat in categorie.plats.all %}
+                        <div class="plat" data-category="{{ categorie.id }}">
+                            <p><strong>{{ plat.name }}</strong></p>
+                            <p>{{ plat.price }} DA</p>
+                            <button onclick="ajouterAuPanier('{{ plat.id }}', '{{ plat.name }}', '{{ plat.price }}')">Ajouter</button>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+    
+       
+      <div class="right">
+          <h1>Panier</h1>
+          <div class="panier-container">
+            <div class="table-container">
+            <label for="table">Table :</label>
+            <select id="table">
+                {% for table in tables %}
+                    <option value="{{ table.id }}">Table {{ table.numéro }} ({{ table.capacité }} pers.)</option>
+                {% endfor %}
+            </select>
+          </div>
+            <div id="panier">
+                
+            </div>
+           
+           
+        </div>
+            <div class="actions">
+                <button onclick="envoyerCommande()">Envoyer Commande</button>
+                <button onclick="annulerCommande()">Annuler</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

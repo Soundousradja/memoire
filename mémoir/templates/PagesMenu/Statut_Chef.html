@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des commandes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #000;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: yellow;
+            padding: 30px;
+           
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 20px;
+            text-align: center;
+            background-color: white;
+        }
+        th{
+            background-color: yellow;
+        }
+        .pret {
+            color: green;
+        }
+        .en-preparation {
+            color: red;
+        }
+        select {
+            padding: 5px;
+        }
+        button {
+            padding: 5px 10px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .modal {
+    display: none; /* caché par défaut */
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #000;
+}
+
+.close {
+    color: red;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+ul{
+list-style: none;
+}
+h1{
+    color:white;
+}
+button{
+    background-color: yellow;
+    border: 1px solid black;
+    border-radius:15px;
+    padding: 5px;
+    width:150px;
+} 
+select{
+    width:300px;
+    background-color: yellow;
+    border: 1px solid black;
+    height: 35px;
+    border-radius: 15px;
+}
+option{
+    background-color: white;
+}
+    </style>
+</head>
+<body>
+
+    <h1>État des commandes</h1>
+
+    <table>
+        <tr>
+            <th>Commande</th>
+            <th>Action</th>
+            <th>Temps</th>
+            <th>Statut</th>
+        </tr>
+        <tbody id="commandeTable">
+            <!-- Les commandes seront ajoutées ici dynamiquement -->
+        </tbody>
+    </table>
+   <!-- 💬 MODALE POUR LES PLATS -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fermerModal()">&times;</span>
+        <h2 id="modal-titre">Plats de la commande</h2>
+        <ul id="modal-liste-plats"></ul>
+    </div>
+</div>
+
+
+    <script>
+        async function fetchCommandes() {
+            const response = await fetch('/menu/commandes/liste/');
+            const commandes = await response.json();
+            const tableBody = document.getElementById('commandeTable');
+            tableBody.innerHTML = '';
+
+            commandes.forEach(cmd => {
+                let row = `<tr>
+                    <td>${cmd.id} <br> <br>
+
+
+                        <button onclick="afficherDetails(${cmd.id})">Voir les plats</button></td>
+                    <td>
+                        <select id="statut-${cmd.id}" onchange="updateStatut(${cmd.id})">
+                            <option value="En cours de préparation" ${cmd.statut === "En cours de préparation" ? "selected" : ""}>En cours de préparation</option>
+                            <option value="Prête" ${cmd.statut === "Prête" ? "selected" : ""}>Prête</option>
+                             <option value="En attente" ${cmd.statut === "En attente" ? "selected" : ""}>En attente</option>
+
+                        </select>
+                        
+                    </td>
+                     <td>${cmd.temps}</td>
+                    <td class="${cmd.statut === 'Prête' ? 'pret' : cmd.statut === 'En préparation' ? 'en-preparation' : 'en-attente'}">
+    <span id="statut-text-${cmd.id}">${cmd.statut}</span>
+</td>
+
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        async function updateStatut(commandeId) {
+            const newStatut = document.getElementById(`statut-${commandeId}`).value;
+            const response = await fetch(`/menu/commandes/update-statut/${commandeId}/`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ statut: newStatut })
+            });
+
+            if (response.ok) {
+                document.getElementById(`statut-text-${commandeId}`).textContent = newStatut;
+                document.getElementById(`statut-text-${commandeId}`).className = 
+    (newStatut === "Prête") 
+        ? "pret" 
+        : (newStatut === "En préparation") 
+            ? "en-preparation" 
+            : "en-attente";
+            } else {
+                alert("Erreur lors de la mise à jour");
+            }
+        }
+
+        fetchCommandes();
+        function afficherDetails(id) {
+    fetch(`/menu/commande-details/${id}/`)
+        .then(res => res.json())
+        .then(data => {
+            const liste = document.getElementById("modal-liste-plats");
+            liste.innerHTML = "";
+
+            data.plats.forEach(plat => {
+                let item = document.createElement("li");
+                item.textContent = `${plat.nom} (x${plat.quantite})`;
+                liste.appendChild(item);
+            });
+              // 🆕 Afficher le numéro de la commande dans le titre
+              const titre = document.getElementById("modal-titre");
+            titre.textContent = `${data.num_commande}`;
+
+            document.getElementById("modal").style.display = "block";
+        });
+}
+
+function fermerModal() {
+    document.getElementById("modal").style.display = "none";
+}
+
+// Optionnel : fermer la modale si on clique en dehors
+window.onclick = function(event) {
+    const modal = document.getElementById("modal");
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+}
+
+// Charger automatiquement à l'ouverture
+window.onload = chargerCommandes;
+    </script>
+
+</body>
+</html>

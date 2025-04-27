@@ -1,0 +1,141 @@
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: url('/static/images/exemple.jpg') no-repeat center center fixed;
+    background-size: cover;
+    
+}
+h3{
+    color: white;
+}
+
+.header1 {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    background-color: rgb(211, 150, 38);
+    padding: 15px 30px;
+    margin: 30px auto 20px;
+    width: fit-content;
+    border-radius: 30px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+/* Container for all cards */
+.pizza-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    padding: 20px;
+}
+
+/* Each card */
+.pizza-card {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    width: 250px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 0 20px black;
+    backdrop-filter: blur(10px);
+    position: relative;
+}
+
+/* Image wrapper */
+.pizza-image {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+/* Name */
+.plat-nom {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Price */
+.pizza-price {
+    background-color: white;
+    color: black;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 8px 0;
+    border-radius: 20px;
+    margin: 10px 0;
+}
+
+/* Ingredients list */
+.ingredients-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+    color: white;
+}
+
+.ingredients-list li {
+    font-size: 14px;
+    text-transform: lowercase;
+    color: white;
+}
+
+/* Buttons */
+.action-button {
+    display: inline-block;
+    background-color: black;
+    color: white;
+    padding: 10px 15px;
+    margin: 8px 5px 0;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.action-button:hover {
+    background-color: rgb(211, 150, 38);
+    color: black;
+}
+
+/* Floating add (+) button */
+.add-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: rgb(211, 150, 38);
+    color: white;
+    font-size: 36px;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    line-height: 60px;
+    border-radius: 50%;
+    text-decoration: none;
+    box-shadow: 0 0 15px black;
+    transition: background 0.3s;
+}
+
+.add-button:hover {
+    background-color: black;
+    color: rgb(211, 150, 38);
+}
+.plat-description {
+    margin-top: 10px;
+    color: white;
+    font-size: 14px;
+    margin: 10px 0;
+    line-height: 1.4;
+    word-break: break-word;
+}
+.dispo {
+    color: lightgreen;
+    font-weight: bold;
+}
+.indispo {
+    color: red;
+    font-weight: bold;
+}

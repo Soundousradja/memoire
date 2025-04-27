@@ -1,0 +1,66 @@
+body {
+    background: url("../images/backf.jpg") no-repeat center center fixed;
+    background-size: cover;
+    color: rgb(49, 45, 45);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100vh;
+    padding: 0 50px;
+}
+
+.menu-container {
+    background-color: transparent;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    position: absolute;
+    right: 100px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    height: 400px;
+    width: 300px;
+    box-shadow: 1px 1px 15px 15px rgb(54, 56, 56);
+    
+}
+
+.menu-container .login, .menu-container .button {
+    border: none;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 20px;
+    font-size: 1.2em;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s;
+}
+
+.menu-container .login {
+    background-color: #f5b041;
+    color: black;
+}
+
+.menu-container .login:hover {
+    background-color: #8C6239;
+}
+
+.menu-container .button {
+    background-color: rgb(42, 39, 39);
+    color: white;
+}
+
+.menu-container .button:hover {
+    background-color:#f5b041;
+    color: black;
+}
+
+.logo {
+    width: 200px; /* Or your desired width */
+    margin-bottom: 20px; /* Your existing margin */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}

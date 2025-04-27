@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu chef</title>
+    <link rel="stylesheet" href="{% static 'css/menuchef.css' %}"> 
+</head>
+<body>
+    <div class="total">
+        <div class="contenu">
+            <div class="titre"><h2>Menu</h2></div>
+            <a href="javascript:history.back()">
+                <img src="{% static 'image/sortie.png' %}" alt="Retour" style="cursor: pointer;">
+            </a>
+        </div>
+        <div class="point"></div>
+    </div>
+    <div class="contenu1">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <div class="container">
+        {% for categorie in categories %}
+        <div class="category1">
+                {% if categorie.image %}
+                    <img src="{{ categorie.image.url }}" alt="{{ categorie.nom }}">
+                {% else %}
+                    <img src="{% static 'image/default1.jpg' %}" alt="Image par défaut">
+                {% endif %}
+                <button onclick="redirigerVersPlats('{{ categorie.nom }}')">{{ categorie.nom }}</button>
+                     
+                </button>
+            
+                
+            </div>
+        {% endfor %}
+    </div>
+</div>
+</div>
+<script>
+    function redirigerVersPlats(categorie) {
+    console.log("Redirection vers catégorie:", categorie);
+    try {
+        window.location.href = `/menu/plat_chef/?categorie=${encodeURIComponent(categorie)}`;
+    } catch (error) {
+        console.error("Erreur de redirection:", error);
+        alert("Erreur lors de la redirection: " + error.message);
+    }
+}
+
+     </script>
+    
+</body>
+</html>

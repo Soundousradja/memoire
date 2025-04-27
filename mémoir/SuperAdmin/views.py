@@ -1,0 +1,512 @@
+from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse
+from django.urls import reverse
+from .forms import AdminForm 
+from .models import Restaurant
+from .models import Admin
+from django.utils.text import slugify
+
+from .forms import PlatForm
+
+from decimal import Decimal, InvalidOperation
+from django.http import JsonResponse
+from django.shortcuts import render
+from SuperAdmin.models import Plat, Categorie, Ingredient, PlatIngredient
+from django.http import JsonResponse
+from decimal import Decimal, InvalidOperation
+from .forms import RestaurantForm
+from .forms import RestaurantForm  
+
+def supadmin(request):
+ return render(request, 'app/supadmin.html')
+
+
+def gestion_restaurants(request): # Restaurant.objects.all() returns a QuerySet containing every restaurant stored in the database.
+    restaurants = Restaurant.objects.all()
+    return render(request, 'app/gestion_restaurants.html', {'restaurants': restaurants})
+
+def supprimer_restaurant(request, id):
+    if request.method == "POST":  # On utilise POST au lieu de DELETE
+        restaurant = get_object_or_404(Restaurant, id=id)
+        restaurant.delete()
+        return JsonResponse({"success": True})
+    
+    return JsonResponse({"success": False}, status=400)
+
+
+
+
+
+def ajouter_restaurant(request):
+    if request.method == "POST":
+        form = RestaurantForm(request.POST, request.FILES)
+        if form.is_valid():
+            restaurant = form.save()
+            return JsonResponse({"success": True, "restaurant_id": restaurant.id})
+        return JsonResponse({"success": False, "errors": form.errors})
+
+    return render(request, "app/ajouter_restaurant.html")
+
+from django.shortcuts import render, get_object_or_404
+
+def modifier_restaurant(request, id):
+    restaurant = get_object_or_404(Restaurant, id=id)
+
+    if request.method == "POST":
+        restaurant.name = request.POST.get("name", restaurant.name)
+        restaurant.address = request.POST.get("address", restaurant.address)
+        
+        if "image" in request.FILES:
+            restaurant.image = request.FILES["image"]
+
+        restaurant.save()
+        return JsonResponse({"success": True})
+
+    return render(request, "app/modifier_restaurant.html", {"restaurant": restaurant})
+
+
+
+def gestion_admin(request): 
+    admins = Admin.objects.all()
+    return render(request, 'app/gestion_admin.html', {'admins': admins})
+
+
+
+
+from django.http import JsonResponse
+
+def ajouter_admin(request):
+    if request.method == "POST":
+        form = AdminForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({"success": True})  # ✅ Retourne du JSON
+        else:
+            return JsonResponse({"success": False, "errors": form.errors})  # ✅ Retourne les erreurs
+    return render(request, "app/ajouter_admin.html", {"form": AdminForm()})
+
+def supprimer_admin(request, id):
+    # Retrieve the admin object to delete
+    admin = get_object_or_404(Admin, id=id)
+
+    # Check if the request method is POST
+    if request.method == "POST":
+        try:
+            # Attempt to delete the admin
+            admin.delete()
+            return JsonResponse({"success": True})
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=400)
+
+    return JsonResponse({"success": False}, status=400)
+
+
+
+def modifier_admin(request, id):
+    admin = get_object_or_404(Admin, id=id)
+
+    if request.method == "POST":
+        # Update admin details
+        admin.name = request.POST.get("name", admin.name)
+        admin.phone = request.POST.get("phone", admin.phone)
+        
+        # Check for new image upload
+        if "image" in request.FILES:
+            admin.image = request.FILES["image"]
+
+        admin.save()
+
+        # After saving the admin, redirect to the admin list page (this prevents form resubmission)
+        return redirect('gestion_admin')  # Redirect to the page that shows the list of admins
+
+    return render(request, "app/modifier_admin.html", {"admin": admin})
+
+def modifier_admin(request, id):
+    admin = get_object_or_404(Admin, id=id)
+
+    if request.method == "POST":
+        admin.name = request.POST.get("name", admin.name)
+        admin.phone = request.POST.get("phone", admin.phone)
+
+        if "image" in request.FILES:
+            admin.image = request.FILES["image"]
+
+        try:
+            admin.save()
+            return JsonResponse({"success": True})  # This sends the success response in JSON format
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)})  # Send a failure response with an error message
+
+    return render(request, "app/modifier_admin.html", {"admin": admin})
+def supprimer_restaurant(request, id):
+    if request.method == "POST":
+        restaurant = get_object_or_404(Restaurant, id=id)
+        restaurant.delete()
+        return JsonResponse({"success": True})  # ✅ Réponse JSON correcte
+    return JsonResponse({"success": False, "error": "Méthode non autorisée"}, status=400)
+
+def menu_interface(request):
+    return render(request, 'app/menuinterface.html')
+ 
+
+from .models import Plat, PlatIngredient
+
+def menu_view(request):
+    plats = Plat.objects.all()
+    plats_data = []
+
+    for plat in plats:
+        ingredients_data = []
+        for pi in PlatIngredient.objects.filter(plat=plat):
+            ingredients_data.append({
+                'name': pi.ingredient.name,
+                'quantite': pi.quantite_par_plat  # Utilisez ici `quantite_par_plat`
+            })
+
+        plats_data.append({
+            'id': plat.id,
+            'name': plat.name,
+            'image': plat.image,
+            'price': plat.price,
+            'description':plat.description,
+            'ingredients': ingredients_data,
+            'is_available' : plat.is_available
+        })
+
+    return render(request, 'app/menu_management.html', {'plats': plats_data})
+from .models import Categorie  # Assure-toi que ce modèle est bien importé
+
+from decimal import Decimal, InvalidOperation
+from django.http import JsonResponse
+from django.shortcuts import render
+from .models import Plat, Ingredient, Categorie, PlatIngredient
+
+
+from .models import Plat, PlatIngredient
+
+def plats_par_categorie(request, categorie):
+    categorie_nom = categorie.replace('-', ' ')  # ← déslugifie
+    # Correction ici: utiliser "name" au lieu de "nom"
+    plats_queryset = Plat.objects.filter(categorie__name__iexact=categorie_nom)
+   
+    plats_data = []
+
+    for plat in plats_queryset:
+        ingredients_data = []
+        for pi in PlatIngredient.objects.filter(plat=plat):
+            ingredients_data.append({
+                'name': pi.ingredient.name,
+                'quantite': pi.quantite_par_plat
+            })
+
+        plats_data.append({
+            'id': plat.id,
+            'name': plat.name,
+            'image': plat.image,
+            'price': plat.price,
+            'description': plat.description,
+            'ingredients': ingredients_data,
+            'is_available': plat.is_available
+        })
+
+    return render(request, 'app/menu_management.html', {
+        'plats': plats_data,
+        'categorie': categorie
+    })
+
+def categories_view(request):
+    if request.method == "POST":
+        nom = request.POST.get("nom")
+        image = request.FILES.get("image")
+
+        if nom:
+            # Correction: utiliser "name" au lieu de "nom"
+            Categorie.objects.create(name=nom, image=image)
+            return redirect("category_selection")
+    categories = Categorie.objects.all()
+    return render(request, 'app/category_selection.html', {'categories': categories})
+
+
+from django.shortcuts import render, redirect
+from .models import Categorie
+
+def category_selection(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        image = request.FILES.get('image')  # récupérer l'image envoyée
+        
+        if name:
+            Categorie.objects.create(name=name, image=image)
+        
+        return redirect('categories')  # Rediriger pour recharger la page proprement
+
+    # Si GET : juste afficher la liste
+    categories = Categorie.objects.all()
+    return render(request, 'app/category_selection.html', {
+        'categories': categories
+    })
+
+
+
+    
+
+
+# Vue pour afficher les plats d'une catégorie dans un restaurant
+def categorie_plats(request, categorie_id):
+    categorie = get_object_or_404(Categorie, id=categorie_id)
+    
+    # Récupérer les plats de cette catégorie
+    plats = Plat.objects.filter(categorie=categorie)
+    
+    plats_data = []
+    for plat in plats:
+        ingredients_data = []
+        for pi in PlatIngredient.objects.filter(plat=plat):
+            ingredients_data.append({
+                'name': pi.ingredient.name,
+                'quantite': pi.quantite_par_plat
+            })
+        
+        plats_data.append({
+            'id': plat.id,
+            'name': plat.name,
+            'image': plat.image,
+            'price': plat.price,
+            'description': plat.description,
+            'ingredients': ingredients_data,
+            'is_available': plat.is_available
+        })
+    
+    return render(request, 'app/category_selection.html', {
+        'categorie': categorie,
+        'categorie_id': categorie.id,
+        'plats': plats_data
+    })
+
+# Vue pour modifier un plat
+def ajouter_plat(request, categorie_id):
+    categorie = get_object_or_404(Categorie, id=categorie_id)
+    
+    if request.method == "POST":
+        try:
+            name = request.POST.get('name')
+            description = request.POST.get('description')
+            price = request.POST.get('price')
+            is_available = request.POST.get('is_available') == 'true'
+            
+            plat = Plat(
+                name=name,
+                description=description,
+                price=price,
+                is_available=is_available,
+                categorie=categorie
+            )
+            
+            if 'image' in request.FILES:
+                plat.image = request.FILES['image']
+            
+            plat.save()
+            
+            for key in request.POST:
+                if key.startswith("ingredients[") and key.endswith("][ingredient]"):
+                    index = key.split("[")[1].split("]")[0]
+                    ingredient_id = request.POST.get(f"ingredients[{index}][ingredient]")
+                    quantity = request.POST.get(f"ingredients[{index}][quantity]")
+                    
+                    if ingredient_id and quantity:
+                        PlatIngredient.objects.create(
+                            plat=plat,
+                            ingredient_id=int(ingredient_id),
+                            quantite_par_plat=int(quantity)
+                        )
+
+            return JsonResponse({
+                'success': True,
+                'redirect_url': reverse('categorie_plats', kwargs={
+                    'categorie_id': categorie_id
+                })
+            })
+            
+        except Exception as e:
+            import traceback
+            print(f"Error adding dish: {e}")
+            print(traceback.format_exc())
+            return JsonResponse({'success': False, 'errors': {'general': str(e)}})
+            
+    else:  # GET request
+        ingredients = Ingredient.objects.all()
+        
+        return render(request, 'app/ajouter_plat.html', {
+            'ingredients': ingredients,
+            'categorie_id': categorie_id,
+            'categorie': categorie
+        })
+
+
+def modifier_plat(request, plat_id):
+    plat = get_object_or_404(Plat, id=plat_id)
+    categorie_id = plat.categorie.id
+    
+    if request.method == "POST":
+        form = PlatForm(request.POST, request.FILES, instance=plat)
+        if form.is_valid():
+            form.save()
+            # Rediriger vers la page des plats de cette catégorie
+            return redirect('categorie_plats', 
+                          categorie_id=plat.categorie.id)
+        else:
+            all_ingredients = Ingredient.objects.all()
+            return render(request, 'app/modifier_plat.html', {
+                'form': form, 
+                'plat': plat,
+                'all_ingredients': all_ingredients,
+                'errors': form.errors
+            })
+    else:
+        form = PlatForm(instance=plat)
+        all_ingredients = Ingredient.objects.all()
+        return render(request, 'app/modifier_plat.html', {
+            'form': form, 
+            'plat': plat,
+            'all_ingredients': all_ingredients
+        })
+
+def supprimer_plat(request, plat_id):
+    if request.method == "POST":
+        plat = get_object_or_404(Plat, id=plat_id)
+        categorie_id = plat.categorie.id
+        plat.delete()
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False}, status=400)
+
+    
+from django.http import JsonResponse
+from .models import Ingredient
+
+def ajouter_ingredient(request):
+    if request.method == "POST":
+        nom = request.POST.get("nom", "").strip()
+
+        if not nom:
+            return JsonResponse({"success": False, "error": "Nom requis."})
+
+        # Empêcher les doublons (optionnel)
+        if Ingredient.objects.filter(nom__iexact=nom).exists():
+            return JsonResponse({"success": False, "error": "Ingrédient déjà existant."})
+
+        Ingredient.objects.create(nom=nom)
+        return JsonResponse({"success": True})
+
+    return JsonResponse({"success": False, "error": "Méthode non autorisée."})
+def ajouter_ingredient(request):
+ return render(request, 'app/ingredient_management.html')
+ 
+def ajouter_ing(request):
+    if request.method == "POST":
+        name = request.POST.get("plat_name")
+        price = request.POST.get("price")
+        description = request.POST.get("description")
+        image = request.FILES.get("image")
+
+        plat = Plat.objects.create(nom=name, prix=price, description=description, image=image)
+
+        for key in request.POST:
+            if key.startswith("ingredients[") and key.endswith("][id]"):
+                index = key.split("[")[1].split("]")[0]
+                ingredient_id = request.POST.get(f"ingredients[{index}][id]")
+                quantity = request.POST.get(f"ingredients[{index}][quantity]")
+
+                ingredient = Ingredient.objects.get(id=ingredient_id)
+                
+
+        return JsonResponse({"success": True})
+
+    else:
+        ingredients = Ingredient.objects.all()
+        return render(request, "app/ajouter_plat.html", {"ingredients": ingredients})
+def ajouter_plat_complet(request):
+    if request.method == "POST":
+        # Traitement à ajouter ici
+        return JsonResponse({"success": True})
+    return render(request, "app/ajouter_plat_complet.html")
+def gestion_ingredient(request):
+    # Get all ingredients
+    ingredients = Ingredient.objects.all()
+    
+    if request.method == 'POST':
+        # Check if it's an AJAX request to add a new ingredient
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            nom = request.POST.get('nom')
+            if nom:
+                # Create new ingredient
+                ingredient = Ingredient.objects.create(nom=nom)
+                # Return JSON response with the new ingredient details
+                return JsonResponse({
+                    'success': True,
+                    'id': ingredient.id,
+                    'nom': ingredient.nom
+                })
+            return JsonResponse({'success': False, 'error': 'Le nom de l\'ingrédient est requis'})
+    
+    # Render the template with all ingredients
+    return render(request, 'app/ingredient_management.html', {'ingredients': ingredients})
+
+
+def ajouter_ingredient(request):
+    if request.method == "POST":
+        nom = request.POST.get("name")
+        if nom:
+            ingredient, created = Ingredient.objects.get_or_create(name=nom)
+            return JsonResponse({"success": True, "id": ingredient.id, "name": ingredient.name})
+        else:
+            return JsonResponse({"success": False, "error": "Nom d'ingrédient manquant."})
+    return JsonResponse({"success": False, "error": "Méthode non autorisée."})
+
+def gestion_ingredients(request):
+    if request.method == 'POST':
+        ingredient_name = request.POST.get('name')
+        # Effectue des actions avec ingredient_name (par exemple, enregistrer l'ingrédient)
+        return JsonResponse({'message': 'Ingrédient ajouté', 'name': ingredient_name})
+    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+
+def ingredient_management(request):
+    if request.method == 'POST':
+        ingredient_name = request.POST.get('name')
+        if ingredient_name:
+            # Enregistre l'ingrédient dans la base de données (ou autre logique)
+            return JsonResponse({'message': 'Ingrédient ajouté', 'ingredient': ingredient_name})
+        return JsonResponse({'error': 'Nom de l\'ingrédient manquant'}, status=400)
+    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+def ingredient_management(request):
+    if request.method == 'POST':
+        # Récupérer le nom de l'ingrédient envoyé via le formulaire
+        ingredient_name = request.POST.get('name', '').strip()
+
+        if ingredient_name:
+            # Créer et enregistrer l'ingrédient dans la base de données
+            ingredient = Ingredient(name=ingredient_name)
+            ingredient.save()
+
+            # Retourner la réponse JSON avec le message et l'ingrédient
+            return JsonResponse({
+                'message': 'Ingrédient ajouté',
+                'ingredient': ingredient.name  # Nom de l'ingrédient ajouté
+            })
+        else:
+            return JsonResponse({'message': 'Nom d\'ingrédient invalide'}, status=400)
+
+    # Si c'est une requête GET, récupérer tous les ingrédients et les passer au template
+    ingredients = Ingredient.objects.all()  # Récupérer tous les ingrédients
+    return render(request, 'ingredient_management.html', {'ingredients': ingredients})
+def pizza_view(request):
+    return render(request, 'app/pizza.html')  
+
+def dessert_view(request):
+    return render(request, 'app/dessert.html')  
+
+def boisson_view(request):
+    return render(request, 'app/boisson.html')  
+
+

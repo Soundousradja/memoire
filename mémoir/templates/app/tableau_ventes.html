@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Tableau de Bord des Ventes</title>
+    <link rel="stylesheet" href="{% static 'css/tableau_ventes.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Tableau de Bord des Ventes</h2>
+        <div class="filter-box">
+            <label for="restaurant">Restaurant</label>
+            <select id="restaurant">
+                <option value="1">The LFS Spot Constantine</option>
+                <option value="2">The LFS Spot Alger</option>
+                <option value="3">The LFS Spot Oran</option>
+            </select>
+
+            <label for="startDate">Début</label>
+            <input type="date" id="startDate">
+
+            <label for="endDate">Fin</label>
+            <input type="date" id="endDate">
+
+            <button id="filtrer">Filtrer</button>
+        </div>
+
+        <div class="details">
+            <div class="card">
+                <h3>Montant (DA)</h3>
+                <p id="montant">-</p>
+            </div>
+            <div class="card">
+                <h3>Dépensé (DA)</h3>
+                <p id="depense">-</p>
+            </div>
+            <div class="card">
+                <h3>Retenu (DA)</h3>
+                <p id="retenu">-</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/tableau_ventes.js' %}"></script>
+</body>
+</html>

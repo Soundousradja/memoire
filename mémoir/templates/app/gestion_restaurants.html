@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% csrf_token %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Restaurants</title>
+    <link rel="stylesheet" href="{% static 'css/restaurant.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="header">Les Restaurants</div>
+    <button class="back-button" onclick="window.location.href='{% url 'supadmin' %}'">Retour a l'acceil</button>
+    <div class="restaurant-container" id="restaurantContainer">
+    
+        {% for restaurant in restaurants %}
+            <div class="restaurant-card">
+                <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+                <h2>{{ restaurant.name }}</h2>
+                <p class="address">Adresse : {{ restaurant.address }}</p>
+
+                <div class="btn-group">
+                    <a href="{% url 'modifier_restaurant' restaurant.id %}" class="btn">Modifier</a>
+                    <button class="btn" onclick="deleteRestaurant('{{ restaurant.id }}')">Supprimer</button>
+                </div>
+            </div>
+        {% empty %}
+            <p>Aucun restaurant disponible.</p>
+        {% endfor %}
+    </div>
+    <a href="{% url 'ajouter_restaurant' %}" class="add-button">
+        <span>+</span>
+    </a>
+
+    <!-- Inclusion des fichiers JavaScript pour gérer l'ajout, la modification et la suppression -->
+    <script src="{% static 'js/restaurant.js' %}"></script>
+    <script src="{% static 'js/ajouterrest.js' %}"></script>
+    <script src="{% static 'js/modifierrest.js' %}"></script>
+</body>
+</html>

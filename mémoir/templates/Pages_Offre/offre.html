@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The LFS Spot</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
+    <style>
+      * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+
+        h1{
+            color:#ddd;
+        }
+        .container{
+            text-align: center;
+        }
+        /* Conteneur principal des offres */
+        .offers-container {
+            width: 100%;
+            margin-left: 0; /* Modifié car déjà positionné dans .container */
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Style de la table */
+        .offers-table {
+            width: 100%; /* Ajustez la largeur selon votre besoin */
+            border-collapse: collapse;
+            
+        }
+
+        /* En-tête de la table */
+        .offers-table thead {
+            background: rgb(236, 143, 3);
+            color: rgb(19, 19, 19);
+            font-weight: bold;
+        }
+
+        /* Colonnes */
+        .offers-table th, .offers-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            width: 20%; /* Chaque colonne prend 20% */
+        }
+
+        /* Contenu de la table */
+        .offers-table tbody tr {
+            background: #f9f9f9;
+            transition: background 0.2s;
+        }
+        .offers-table td {
+            white-space: nowrap;
+        }
+
+        .offers-table td button {
+            margin-right: 5px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .offers-table tbody tr:hover {
+            background: #e8f0ff;
+        }
+
+        /* Bouton Supprimer */
+        .delete-btn, .modifier {
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+            margin: 2px;
+            display: inline-block;
+            width: auto; /* Permettre au texte de définir la largeur */
+        }
+        .delete-btn {
+            background: #ff4d4d;
+            color: white;
+        }
+
+        .modifier {
+            background: rgb(236, 143, 3);
+            color: rgb(10, 10, 10);
+        }
+
+        .delete-btn:hover {
+            background: #cc0000;
+        }
+        .modifier:hover {
+            background: rgb(236, 143, 3);
+        }
+        .button1{
+            width:200px;
+            padding:10x;
+            height: 40px;
+            background-color: rgb(236, 143, 3);
+            margin-bottom: 20px;
+            margin-top: 10px;
+            border: none;
+            margin-right: 5px;
+            
+            
+        }
+        /* Conteneur du formulaire (invisible par défaut) */
+        .form-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            display: none; /* Caché par défaut */
+            z-index: 1000;
+            width: 60%;
+            height: 370px;
+            text-align: center;
+            
+        }
+        
+        /* Fond semi-transparent derrière le formulaire */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none; /* Caché par défaut */
+            z-index: 999;
+        }
+
+        /* Bouton de fermeture */
+        .close-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+           
+            float: right;
+            width:30px;
+        }
+        form{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            color: rgb(252, 249, 246);
+            
+            
+        }
+        input{
+            margin-bottom: 18px;
+            width: 350px;
+            height: 37px;
+            border: 1px solid black;
+            background-color:white;
+            margin-right: 10px;
+            
+        }
+        h3{
+            color:rgb(236, 143, 3);
+            font-size: 25px;
+            margin-bottom: 16px;
+        }
+        label{
+            margin-left: 18px;
+            padding:10px;
+            color:black;
+            font-weight: 700;
+            
+
+        }
+        .champ2{
+            margin-left: 13px;
+        }
+        .champ3{
+            margin-left: 50px;
+            
+            margin-bottom: 13px;
+        }
+        .image{
+            height:35px;
+        }
+        .ajouter{
+            background-color: rgb(236, 143, 3);
+            width: 250px;
+            padding: 10px;
+            border:none;
+            
+            margin-bottom: 20px;
+        }
+
+        a {
+            text-decoration: none;
+        }
+        li {
+            list-style: none;
+        }
+        .side-menu {
+            position: fixed;
+            background-color: rgb(236, 143, 3);
+            min-height: 100vh;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        .brand-name {
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 40px;
+        }
+        
+        .brand-name h1 {
+            color: white;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+        }
+        .side-menu ul {
+            width: 100%;
+        }
+        .side-menu li {
+            font-size: 18px;
+            padding: 16px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        .side-menu li i {
+            margin-right: 15px;
+            font-size: 20px;
+            width: 25px;
+            text-align: center;
+        }
+        .side-menu li:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left: 4px solid white;
+        }
+        .side-menu li.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid white;
+        }
+        .container {
+            
+    display: flex;
+    flex-direction: column;
+    margin-left: 280px; /* Ajusté pour tenir compte du menu latéral */
+    padding: 20px;
+    width: calc(100% - 300px); /* Ajustement pour éviter le débordement */
+    height: auto; /* Remplacez la hauteur fixe par auto */
+    overflow-y: auto;
+    max-height: calc(100vh - 150px);
+}
+.contenu {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    background-color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+    margin-left: 320px;
+    margin-right: 150px;
+}
+        .point{
+            
+            margin-top: 15px;
+            background-color: white;
+            border-bottom:0.5px solid rgb(252, 248, 248);
+        }
+        .total{
+            background-color: white;
+            margin-top: 10px;
+            height:8vw;
+        }
+        button{
+        background-color:rgb(236, 143, 3);
+        padding: 10px;
+        width:158px;
+        height:40px;
+        color:white;
+        font-weight: 500;
+        font-size: 15px;
+        font-family: 'Poppins', sans-serif;
+        border: none;
+        }
+        .partie{
+            display: flex;
+            margin-right: 30px;
+        }
+        a{
+            text-decoration: none;
+            color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="side-menu">
+        <div class="brand-name">
+            <h1>The LFS Spot</h1>
+        </div>
+        <ul>
+            <li >
+                <a href="{% url 'home' %}">
+                <i class="fas fa-users"></i> &nbsp;
+                <span>   Utilisateur</span></a>
+            </li>
+            <li >
+                <a href="{% url 'menu:menu_Journalier' %}">
+                <i class="fas fa-utensils"></i> &nbsp;
+                <span >  Menu Journalier</span></a>
+            </li>
+            <li >  <a href="{% url 'menu:Liste_Achat' %}">
+                <i class="fas fa-shopping-cart"></i> &nbsp;
+                <span>  Liste des achats</span></a>
+            </li>
+            <li> 
+                <a href="{% url 'menu:commande' %}">
+                <i class="fas fa-clipboard-list"></i> &nbsp;
+                <span>Gestion des commandes</span></a>
+            </li>
+            <li>
+                <a href="{% url 'offre' %}">
+                <i class="fas fa-tags"></i>&nbsp; &nbsp;
+                <span>Gestion des offres</span></a>
+            </li>
+        </ul>
+    </div>
+    <div class="total">
+        <div class="contenu">
+             <div class="titre"><h2> Gestion des offres</h2> </div>
+             <button class="button1" id="ajouterOffre">Ajouter une offre</button></div>
+        <div class="point"></div>
+    </div>
+
+    <div class="container">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <div class="offers-container" id="offersContainer">
+            <!-- Les offres seront affichées ici -->
+        </div>
+    </div>
+    
+    <!-- Fond sombre derrière le formulaire -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Formulaire centré -->
+    <div class="form-container" id="formContainer">
+        <button class="close-btn" onclick="toggleForm()">X</button>
+        <h3 id="formTitle">Ajouter une offre</h3>
+        <form id="offreForm" enctype="multipart/form-data">
+            <input type="hidden" id="offreId" value="">
+            <div class="partie">
+                <div class="partie1">
+                    <div class="champ">
+                        <label for="NomOffre">Nom de l'offre:</label> 
+                        <input type="text" id="NomOffre" placeholder="Nom de l'offre">
+                    </div>
+                    <div class="champ">
+                        <label for="Debut">Date de début:</label> 
+                        <input type="date" id="Debut">
+                    </div>
+                    <div class="champ2">
+                        <label for="fin">Date de fin:</label> 
+                        <input type="date" id="fin"> 
+                    </div>
+                </div>
+                <div class="partie2">
+                    <div class="champ3">
+                        <label for="image">Image:</label> 
+                        <input type="file" id="image" class="image" name="image" accept="image/*">
+                    </div>
+                </div>
+            </div>
+            <button type="button" id="submitOffre" class="ajouter">Ajouter offre</button>
+        </form>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Gestionnaire d'événements pour le bouton "Ajouter une offre"
+        document.getElementById("ajouterOffre").addEventListener("click", function() {
+            resetForm();
+            document.getElementById("formTitle").textContent = "Ajouter une offre";
+            document.getElementById("submitOffre").textContent = "Ajouter offre";
+            document.getElementById("submitOffre").onclick = ajouteroffre;
+            toggleForm();
+        });
+
+        // Fonction pour réinitialiser le formulaire
+        function resetForm() {
+            document.getElementById("offreId").value = "";
+            document.getElementById("NomOffre").value = "";
+            document.getElementById("Debut").value = "";
+            document.getElementById("fin").value = "";
+            document.getElementById("image").value = "";
+        }
+
+        // Fonction pour obtenir le token CSRF
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+
+        // Fonction pour ajouter une nouvelle offre
+        function ajouteroffre() {
+            let formData = new FormData();
+            formData.append("Nom_Offre", document.getElementById("NomOffre").value);
+            formData.append("Date_Debut", document.getElementById("Debut").value);
+            formData.append("Date_Fin", document.getElementById("fin").value);
+           
+            let imageInput = document.getElementById("image").files[0];
+            if (imageInput) {
+                formData.append("image", imageInput);
+            } else {
+                formData.append("image", "None");  // Valeur par défaut si aucune image n'est insérée
+            }
+
+            fetch('/ajouter_offre/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Offre ajoutée avec succès !");
+                    toggleForm();
+                    afficheroffre();
+                } else {
+                    alert("Erreur : " + data.error);
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+        }
+
+        // Fonction pour afficher/masquer le formulaire
+        function toggleForm() {
+            let form = document.getElementById("formContainer");
+            let overlay = document.getElementById("overlay");
+            
+            if (form.style.display === "none" || form.style.display === "") {
+                form.style.display = "block";
+                overlay.style.display = "block";
+            } else {
+                form.style.display = "none";
+                overlay.style.display = "none";
+            }
+        }
+
+        // Fonction pour afficher toutes les offres
+        function afficheroffre() {
+            fetch('/afficher/')
+                .then(response => response.json())
+                .then(data => {
+                    let wrapper = document.getElementById("offersContainer");
+                    
+                    if (data.offres && data.offres.length > 0) {
+                        wrapper.innerHTML = `
+                            <table class="offers-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nom de l'offre</th>
+                                        <th>Image</th>
+                                        <th>Début</th>
+                                        <th>Fin</th>
+                                        <th>Statut</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.offres.map(offre => `
+                                        <tr>
+                                            <td>${offre.Nom_Offre || '-'}</td>
+                                            <td>${offre.image ? `<img src="${offre.image}" alt="Image de l'offre" width="50">` : "Aucune image"}</td>
+                                            <td>${offre.Date_Debut || '-'}</td>
+                                            <td>${offre.Date_Fin || '-'}</td>
+                                            <td>${offre.statut || '-'}</td>
+                                            <td>
+                                                <button class="delete-btn" onclick="supprimerOffre(${offre.id})">Supprimer</button>
+                                                <button class="modifier" onclick="modifierOffre(${offre.id})">Modifier</button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        `;
+                    } else {
+                        wrapper.innerHTML = '<p class="no-data">Aucune offre disponible</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la récupération des offres:', error);
+                    document.getElementById("offersContainer").innerHTML = 
+                        '<p class="no-data">Erreur lors du chargement des données</p>';
+                });
+        }
+
+        // Fonction pour modifier une offre
+        function modifierOffre(id) {
+            // Récupérer les détails de l'offre pour préremplir le formulaire
+            fetch(`/afficher/`)
+                .then(response => response.json())
+                .then(data => {
+                    const offre = data.offres.find(o => o.id === id);
+                    if (!offre) {
+                        alert("Offre non trouvée !");
+                        return;
+                    }
+                    
+                    // Mettre à jour le titre et le bouton du formulaire
+                    document.getElementById("formTitle").textContent = "Modifier l'offre";
+                    document.getElementById("submitOffre").textContent = "Enregistrer les modifications";
+                    
+                    // Préremplir le formulaire avec les données de l'offre
+                    document.getElementById("offreId").value = offre.id;
+                    document.getElementById("NomOffre").value = offre.Nom_Offre || '';
+                    document.getElementById("Debut").value = offre.Date_Debut || '';
+                    document.getElementById("fin").value = offre.Date_Fin || '';
+                    
+                    // Changer la fonction du bouton submit pour appeler sauvegarderModifications
+                    document.getElementById("submitOffre").onclick = sauvegarderModifications;
+                    
+                    // Afficher le formulaire
+                    toggleForm();
+                })
+                .catch(error => console.error('Erreur:', error));
+        }
+
+        // Fonction pour enregistrer les modifications d'une offre
+        function sauvegarderModifications() {
+            const offreId = document.getElementById("offreId").value;
+            if (!offreId) {
+                alert("Erreur: ID de l'offre manquant!");
+                return;
+            }
+            
+            let formData = new FormData();
+            formData.append("Nom_Offre", document.getElementById("NomOffre").value);
+            formData.append("Date_Debut", document.getElementById("Debut").value);
+            formData.append("Date_Fin", document.getElementById("fin").value);
+            
+            let imageInput = document.getElementById("image").files[0];
+            if (imageInput) {
+                formData.append("image", imageInput);
+            }
+            
+            fetch(`/modifier_offre/${offreId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Offre modifiée avec succès !");
+                    toggleForm();
+                    afficheroffre();  // Rafraîchir la liste des offres
+                } else {
+                    alert("Erreur : " + data.error);
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+        }
+
+        // Fonction pour supprimer une offre
+        function supprimerOffre(id) {
+            if (!id) {
+                alert("Erreur : ID de l'offre manquant !");
+                return;
+            }
+
+            let confirmation = confirm("Voulez-vous vraiment supprimer cette offre ?");
+            if (!confirmation) return;
+
+            fetch(`/supprimer_offre/${id}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': getCSRFToken()
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Offre supprimée avec succès !");
+                    afficheroffre();  // Rafraîchir la liste des offres
+                } else {
+                    alert("Erreur : " + data.error);
+                }
+            })
+            .catch(error => console.error('Erreur lors de la suppression:', error));
+        }
+
+        // Charger les offres au chargement de la page
+        afficheroffre();
+    </script>
+</body>
+</html>

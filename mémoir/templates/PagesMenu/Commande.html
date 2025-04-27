@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Commande</title>
+    <link rel="stylesheet" href="{% static 'css/commande.css' %}"> 
+    
+</head>
+<body>
+
+   
+    <div class="side-menu">
+        <div class="brand-name">
+            <h1>The LFS Spot</h1>
+        </div>
+        <ul>
+            <li >
+                <a href="{% url 'home' %}">
+                <i class="fas fa-users"></i> &nbsp;
+                <span>   Utilisateur</span></a>
+            </li>
+            <li >
+                <a href="{% url 'menu:menu_Journalier' %}">
+                <i class="fas fa-utensils"></i> &nbsp;
+                <span >  Menu Journalier</span></a>
+            </li>
+            <li >  <a href="{% url 'menu:Liste_Achat' %}">
+                <i class="fas fa-shopping-cart"></i> &nbsp;
+                <span>  Liste des achats</span></a>
+            </li>
+            <li> 
+                <a href="{% url 'menu:commande' %}">
+                <i class="fas fa-clipboard-list"></i> &nbsp;
+                <span>Gestion des commandes</span></a>
+            </li>
+            <li>
+                <a href="{% url 'offre' %}">
+                <i class="fas fa-tags"></i>&nbsp; &nbsp;
+                <span>Gestion des offres</span></a>
+            </li>
+        </ul>
+    </div>
+    <div class="total1">
+        <div class="contenu">
+             <div class="titre"><h2> Gestion des commandes</h2> </div>
+             
+       
+    </div>
+    <div class="container">
+
+    <table>
+        <thead>
+        <tr>
+            <th>Num de Commande</th>
+            
+            <th>Liste des commandes</th>
+            <th colspan="2">Prix</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        {% for commande in commandes %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            
+            <td>
+                {% for cp in commande.commandeplat_set.all %}
+                    {{ cp.quantity }}x {{ cp.plat.name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </td>
+            <td colspan="2">{{ commande.calculer_prix_total }} DA</td>
+            {% comment %}
+            <td class="{% if commande.paiement == 'Paye' %}paid{% else %}unpaid{% endif %}">
+                {{ commande.paiement }}
+            </td>
+            {% endcomment %}
+        </tr>
+        {% endfor %}
+    </tbody>
+        <tr> <td colspan="2" style="background-color: rgb(236, 143, 3);color: #080808;"> Total de la journée : {{ total_journee }} DA</td>
+        <td colspan="1.5" style="background-color:rgb(236, 143, 3);color: #080808;">Prix non payé : {{ total_non_paye }} DA</td>
+        <td colspan="2" style="background-color: rgb(236, 143, 3);color: #080808;">Prix payé : {{ total_paye }} DA</td></tr>
+    </table>
+</div>
+<div class="container">
+    <h2>Dépenses</h2>
+
+    <button class="btn-ajouter" onclick="afficherFormulaire()">➕ Ajouter une dépense</button>
+
+    {% if erreur %}
+        <p class="erreur">{{ erreur }}</p>
+    {% endif %}
+
+    <form id="formulaire" method="post" action="">
+        {% csrf_token %}
+        <input type="text" name="produit" placeholder="Nom du produit" required>
+        <input type="number" step="0.01" name="prix" placeholder="Prix (€)" required>
+        <input type="date" name="date" required>
+        <button type="submit">Enregistrer</button>
+    </form>
+    
+    {% if success %}
+        <p style="color: green; text-align: center;">✅ Dépense enregistrée avec succès.</p>
+    {% endif %}
+
+    <h2>Liste des dépenses</h2>
+
+    {% if depenses %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Prix (€)</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for depense in depenses %}
+                    <tr>
+                        <td>{{ depense.produit }}</td>
+                        <td>{{ depense.prix }}</td>
+                        <td>{{ depense.date }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <p class="total">💰 Total : {{ total }} €</p>
+    {% else %}
+        <p style="text-align: center;">Aucune dépense enregistrée.</p>
+    {% endif %}
+</div>
+
+<script>
+    function afficherFormulaire() {
+        const form = document.getElementById("formulaire");
+        form.style.display = form.style.display === "none" ? "flex" : "none";
+    }
+    
+    // Définir la date par défaut au champ date
+    document.addEventListener("DOMContentLoaded", function() {
+        const dateField = document.querySelector('input[name="date"]');
+        if (dateField) {
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            dateField.value = formattedDate;
+        }
+    });
+</script>
+
+   
+</body>
+</html>

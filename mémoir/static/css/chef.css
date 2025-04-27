@@ -1,0 +1,38 @@
+body{
+    background-image: url('/static/image/img1.png');
+    background-size: cover;
+    font-family: Arial, sans-serif;
+    color: white;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+.container{
+    background-color: rgb(10, 10, 10);
+    width:350px;
+    height:250px;
+    position: relative;
+    top:150px;
+    left:120px;
+    text-align: center;
+    border-radius: 15px;
+
+}
+button{
+    padding:10px;
+    width:270px;
+    height:38px;
+    border:none;
+    border-radius: 15px;
+    background-color: rgb(231, 161, 29);
+    margin-bottom: 50px;
+}
+.button{
+    text-align: center;
+    margin-top: 50px;
+}
+
+
+
+
+

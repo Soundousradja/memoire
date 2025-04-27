@@ -1,0 +1,97 @@
+body {
+    background-image: url('/static/img/Background_Pizza.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    color:rgb(49,45,45);
+    width:100%;
+    height: 100%;
+    background-color: #1f1c1c;
+    
+}
+.conatiner{
+
+    display: flex;
+}
+.box {
+   background-color: rgba(0, 0, 0, 0.5);
+   backdrop-filter: blur(5px); /* Effet de flou derrière */
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 300px;
+    display: flex;
+    flex-direction: column; /* Mettre les boutons en colonne */
+    gap: 10px; /* Espacement entre les boutons */
+    margin-top: 10px;
+    border-radius: 18px;
+    box-shadow: 0px 5px 25px rgba(170, 157, 157, 0.2);
+    margin-left: 30%;
+
+    margin-top: 7%;
+    height: 370px;
+    gap: 8px;
+    border: 1px solid rgb(255, 230, 0)
+    
+}
+.btn{
+    padding: 10px;
+    border: 1px solid rgb(236, 221, 14);
+    background-color: #1f1f1b;
+    border-radius: 15px;
+    width: 90%;
+    margin: auto;
+    margin-top: 20px;
+    color: rgb(255, 255, 255);
+    
+    
+}
+button{
+    margin-top: 15px;
+}
+.btn1{
+    padding: 10px;
+    border: 1px solid #ffe70c ;
+    background-color: #e5e905;
+    color:rgb(0, 0, 0);
+    border-radius: 18px;
+    width: 60%;
+    margin: auto;
+    margin-top: 5px;
+}
+.btn:hover{
+    background-color: #ffe70c;
+    color:black;
+}
+.para{
+    width:200px;
+    height:50px;
+    margin-top: 40px;
+    margin-left: 15%;
+    text-align: center;
+    
+}
+h1{
+    color: #ffee00;
+    font-family: 'Lobster',cursive;
+    font-size: 90px;
+    letter-spacing: 2px;
+    width:500px;
+}
+span{
+    
+    margin-left: 90px;
+    padding-left: 20px;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    font-weight: bold;
+
+}
+p{
+    color: #ffee00;
+    font-size: 10px;   
+}
+
+

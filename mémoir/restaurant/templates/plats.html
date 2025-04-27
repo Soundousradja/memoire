@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/menu.css' %}">
+</head>
+<body>
+    {% for plat in plats %}
+    <div class="plat" data-categorie-id="{{ plat.categorie.id }}" style="display: none;">
+        {% if plat.image %}
+            <img src="{{ plat.image.url }}" alt="{{ plat.nom }}">
+        {% else %}
+            <img src="{% static 'image/pizzamenu.jpg' %} " alt="Image non disponible">
+        {% endif %}
+        <h3>{{ plat.name }}</h3>
+        <p>{{ plat.description }}</p>
+        <p id="prix">{{ plat.price }} DA</p>
+        {% if not plat.is_available %}
+            <span style="color: red; font-weight: bold;">(Indisponible)</span>
+        {% endif %}
+        <div class="add-button">
+            <button class="add-btn" 
+            data-id="{{ plat.id }}" 
+            data-nom="{{ plat.name }}" 
+            data-prix="{{ plat.price}}" 
+            {% if not plat.is_available %}disabled{% endif %}>
+            +
+        </button>
+        </div>
+    </div>
+{% endfor %}
+
+</body>
+</html>

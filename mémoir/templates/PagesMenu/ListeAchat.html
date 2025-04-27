@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Ingrédients</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: gold;
+            text-align: center;
+        }
+        select, input, button {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            width: 370px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: gold;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            border-radius: 18px;
+        }
+        h2{
+            margin-bottom: 50px;
+            margin-top: 50px;
+            font-size: 35px;
+        }
+        label{
+            margin-right: 8px;
+            font-size: 20px;
+        }
+        .container{
+            border: 2px solid yellow;
+            padding:15px;
+            margin-bottom: 25px;
+            width:80%;
+            margin: auto;
+        }
+        table {
+            width: 60%;
+            margin: auto;
+            border-collapse: collapse;
+            display: none; /* Le tableau est caché au début */
+            border:1px solid yellow;
+        }
+        th , tr{
+            border: 1px solid rgb(255, 217, 0);
+            padding: 8px;
+            text-align: center;
+            color:black;
+        }
+        td{
+            color:rgb(240, 205, 11);
+            border:1px solid yellow;
+        }
+        th {
+            background-color: rgb(255, 230, 1);
+        }
+    </style>
+</head>
+<body>
+
+    <h2>📄 Saisir les ingrédients et quantités :</h2>
+    <div class="container">
+    <label for="ingredient">Ingrédient :</label>
+    <select id="ingredient" name="ingredient">
+        <option value="">Sélectionner un ingrédient</option>
+    </select>
+
+    <label for="qte_stock">Quantité restante :</label>
+    <input type="text" id="qte_stock" readonly> <br>
+
+    <label for="qte_saisie">Saisir la Quantité :</label>
+    <input type="number" id="qte_saisie"> <br> </div>
+
+    <button id="ajouter">+ Ajouter</button>
+
+    <h3 id="titre_achats" style="display: none;">📝 Liste des achats :</h3>
+    <table id="table_achats">
+        <thead>
+            <tr>
+                <th>Ingrédient</th>
+                <th>Quantité</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="tbody_achats">
+        </tbody>
+    </table>
+
+    
+
+    <h3>📌 Sélectionner les fournisseurs :</h3> <br>
+    <select id="fournisseur">
+        <option value="">Fournisseur</option>
+        <option value="Fournisseur A">Fournisseur A</option>
+        <option value="Fournisseur B">Fournisseur B</option>
+    </select> <br>
+
+    <button id="envoyer">✉ Envoyer</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ingredientSelect = document.getElementById("ingredient");
+            const qteStockInput = document.getElementById("qte_stock");
+            const qteSaisieInput = document.getElementById("qte_saisie");
+           
+            const ajouterButton = document.getElementById("ajouter");
+            const tbodyAchats = document.getElementById("tbody_achats");
+            const titreAchats = document.getElementById("titre_achats");
+            const tableAchats = document.getElementById("table_achats");
+
+
+            // Charger la liste des ingrédients
+            fetch("/menu/get-ingredients/")
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(ingredient => {
+                        let option = document.createElement("option");
+                        option.value = ingredient.id;
+                        option.textContent = ingredient.name;
+                        option.setAttribute("data-stock", ingredient.qte_total_utilisee);
+                        ingredientSelect.appendChild(option);
+                    });
+                });
+
+            // Mettre à jour la quantité restante quand un ingrédient est sélectionné
+            ingredientSelect.addEventListener("change", function () {
+                let selectedOption = ingredientSelect.options[ingredientSelect.selectedIndex];
+                let qteStock = selectedOption.getAttribute("data-stock");
+                qteStockInput.value = qteStock ? qteStock : "";
+            });
+
+            // Ajouter un ingrédient à la liste des achats
+            ajouterButton.addEventListener("click", function () {
+                let selectedOption = ingredientSelect.options[ingredientSelect.selectedIndex];
+                let ingredientNom = selectedOption.textContent;
+                let qteSaisie = qteSaisieInput.value;
+
+                if (!ingredientNom || qteSaisie <= 0) {
+                    alert("Veuillez sélectionner un ingrédient et saisir une quantité valide.");
+                    return;
+                }
+
+                let exists = false;
+                tbodyAchats.querySelectorAll("tr").forEach(row => {
+                    if (row.dataset.ingredient === selectedOption.value) {
+                        let cellQuantite = row.querySelector(".quantite");
+                        cellQuantite.textContent = parseInt(cellQuantite.textContent) + parseInt(qteSaisie);
+                        exists = true;
+                    }
+                });
+
+                if (!exists) {
+                    let row = document.createElement("tr");
+                    row.dataset.ingredient = selectedOption.value;
+
+                    let cellNom = document.createElement("td");
+                    cellNom.textContent = ingredientNom;
+
+                    let cellQuantite = document.createElement("td");
+                    cellQuantite.textContent = qteSaisie;
+                    cellQuantite.classList.add("quantite");
+
+                    let cellAction = document.createElement("td");
+                    let btnSupprimer = document.createElement("button");
+                    btnSupprimer.textContent = "Supprimer";
+                    btnSupprimer.style.backgroundColor = "red";
+                    btnSupprimer.style.color = "white";
+                    btnSupprimer.style.border = "none";
+                    btnSupprimer.style.cursor = "pointer";
+                    btnSupprimer.style.width = "150px";
+
+
+                    btnSupprimer.addEventListener("click", function () {
+                        tbodyAchats.removeChild(row);
+                        if (tbodyAchats.children.length === 0) {
+                            titreAchats.style.display = "none";
+                            tableAchats.style.display = "none";
+                        }
+                    });
+
+                    cellAction.appendChild(btnSupprimer);
+                    row.appendChild(cellNom);
+                    row.appendChild(cellQuantite);
+                    row.appendChild(cellAction);
+
+                    tbodyAchats.appendChild(row);
+                }
+
+                // Afficher la section Liste des achats
+                titreAchats.style.display = "block";
+                tableAchats.style.display = "table";
+
+                // Réinitialiser le champ de quantité
+                qteSaisieInput.value = "";
+            
+            });
+
+            // Envoyer les données
+            document.getElementById("envoyer").addEventListener("click", function () {
+                let fournisseur = document.getElementById("fournisseur").value;
+                let achats = [];
+                listeAchats.querySelectorAll("li").forEach(item => achats.push(item.textContent));
+
+                if (!fournisseur || achats.length === 0) {
+                    alert("Veuillez sélectionner un fournisseur et ajouter des achats.");
+                    return;
+                }
+
+                let data = {
+                    fournisseur: fournisseur,
+                    achats: achats
+                };
+
+                console.log("Données envoyées :", data);
+                alert("Commande envoyée !");
+            });
+        });
+    </script>
+
+</body>
+</html>

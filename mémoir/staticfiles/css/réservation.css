@@ -1,0 +1,182 @@
+*{
+    margin: 0;
+    text-decoration: none;
+}
+header{
+    text-align: center;
+    padding-top: 60px;
+    height: 80px;
+    background-color: #f5b041;
+    font-weight: bold;
+    font-size: 30px;
+    
+   
+     
+ }
+ .sortie{
+   position: absolute;
+   left: 1220px;
+ 
+ }
+ .sortie img{
+    cursor: pointer;
+    
+ }
+
+
+
+.text {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 1190px;
+    height: 180px;
+    margin-bottom: 20px;
+    margin-top: 40px;
+    margin-left: 40px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.cardliste{
+    height: 380px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 1190px;
+    
+    margin-bottom: 20px;
+    margin-top: 40px;
+    margin-left: 40px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.card-header {
+    padding: 15px;
+    background-color: black;
+    color: white;
+    border-bottom: 1px solid #ddd;
+    color: white;
+   text-align: center;
+  padding-top: 13px;
+  font-size: 17px;
+}
+.card-body {
+    margin-left: 40px;
+   
+    
+    
+  
+}
+.filter{
+    height: 50px;
+    background-color: black;
+    
+}
+.filter h5{
+    color: white;
+   text-align: center;
+  padding-top: 13px;
+  font-size: 17px;
+}
+.form-control{
+    width: 200px;
+    margin-top: 5px;
+    border-radius: 4px;
+    height: 30px;
+
+}
+.button{
+    display: block;
+    
+
+}
+.button button{
+    width: 150px;
+    margin-top: 32px;
+    margin-right: 30px;
+    background-color: #f5b041;
+    border: none;
+    height: 30px;
+    cursor: pointer;
+    border-radius: 20px;
+    font-weight: bold;
+
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+     
+}
+
+.form-select{
+    width: 200px;
+    margin-top: 5px;
+    height: 30px;
+  
+}
+.form-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+.card-header{
+    text-align: center;
+}
+.table th, .table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+.row {
+    display: flex;
+    flex-wrap: wrap;
+   
+    
+}
+.table-responsive{
+    height: 500px;
+}
+form .accepté{
+    width: 100px;
+    background-color: #69ee2f;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    height: 20px;
+    font-weight: bold;
+}
+form .refusé{
+    width: 100px;
+    background-color: #ff1f00;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    height: 20px;
+    font-weight: bold;
+}
+.traité{
+    width: 100px;
+    border-radius: 20px;
+    background-color: black;
+    color: white;
+    font-weight: bold;
+}
+.table-responsive {
+    overflow-x: auto;
+    height: 300px;
+    
+}
+footer{
+    background-color: #f5b041;
+    height: 75px;
+    margin-top: 100px;
+}
+footer p{
+    text-align: center;
+    font-weight: bold;
+    padding-top: 30px;
+}

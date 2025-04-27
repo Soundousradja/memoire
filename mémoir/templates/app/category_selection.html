@@ -1,0 +1,84 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion du Menu</title>
+    <link rel="stylesheet" href="{% static 'css/category.css' %}">
+    <script src="{% static 'js/category.js' %}" defer></script>
+</head>
+<body>
+
+    <div class="container">
+        {% if categorie_id %}
+            <!-- ÉTAPE 3: Affichage des plats pour une catégorie -->
+            <h1>Plats dans {{ categorie.name }}</h1>
+           
+            <div class="plats">
+                {% for plat in plats %}
+                    <div class="plat">
+                        {% if plat.image %}
+                            <img src="{{ plat.image.url }}" alt="{{ plat.name }}">
+                        {% else %}
+                            <img src="{% static 'images/plat-default.jpg' %}" alt="Plat">
+                        {% endif %}
+                        <h3>{{ plat.name }}</h3>
+                        <p>{{ plat.price }} €</p>
+                        <div class="plat-actions">
+                            <button class="modifier-btn" data-plat-id="{{ plat.id }}">Modifier</button>
+
+                            <button onclick="supprimerPlat('{{ plat.id }}')">Supprimer</button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+           
+            <div class="add-plat-button">
+                <a href="{% url 'ajouter_plat'  categorie_id=categorie.id %}" class="button">
+                    Ajouter un plat
+                </a>
+            </div>
+        {% else %}
+            <!-- ÉTAPE 1: Affichage direct des catégories -->
+            <h1>Catégories de plats</h1>
+            <div class="categories">
+                {% for categorie in categories %}
+                    <div class="category">
+                        {% if categorie.image %}
+                            <img src="{{ categorie.image.url }}" alt="{{ categorie.name }}">
+                        {% else %}
+                            <img src="{% static 'images/category-default.jpg' %}" alt="Catégorie">
+                        {% endif %}
+                        <h3>{{ categorie.name }}</h3>
+                        
+                            <button onclick="window.location.href='{% url 'categorie_plats' categorie.id %}'">Voir les plats</button>
+                            
+                        
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Formulaire pour ajouter une nouvelle catégorie -->
+            <div class="add-category-form">
+                <h2>Ajouter une nouvelle catégorie</h2>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="name">Nom de la catégorie:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="image">Image:</label>
+                        <input type="file" id="image" name="image">
+                    </div>
+                    <button type="submit">Ajouter</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>

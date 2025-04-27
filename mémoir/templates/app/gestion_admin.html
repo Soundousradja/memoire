@@ -1,0 +1,43 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Admins</title>
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="header">Les Admins</div>
+    
+    <button class="back-button" onclick="window.location.href='{% url 'supadmin' %}'">Retour à l'accueil</button>
+    
+    <div class="admin-container" id="adminContainer">
+        {% for admin in admins %}
+            <div class="admin-card">
+                <img src="{{ admin.image.url }}" alt="{{ admin.name }}">
+                <h2>{{ admin.name }}</h2>
+                <p class="phone">Téléphone : {{ admin.phone }}</p>
+                <p class="restaurant">Restaurant : {{ admin.restaurant.name }}</p> <!-- Restaurant name -->
+                <div class="btn-group">
+                    <a href="{% url 'modifier_admin' admin.id %}" class="btn">Modifier</a>
+                    <button class="btn" onclick="deleteAdmin('{{ admin.id }}')">Supprimer</button>
+                </div>
+            </div>
+        {% empty %}
+            <p>Aucun admin disponible.</p>
+        {% endfor %}
+    </div>
+
+    <a href="{% url 'ajouter_admin' %}" class="add-button">
+        <span>+</span>
+    </a>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/admin.js' %}"></script>
+    <script src="{% static 'js/ajouteradmin.js' %}"></script>
+    <script src="{% static 'js/modifieradmin.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+{% load static %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des tables</title>
+    <link rel="stylesheet" href="{% static 'css/GestionTable.css' %}"> 
+    <style>
+        .btn-edit, .btn-delete {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .btn-edit { color: #007bff; }
+        .btn-edit:hover { transform: scale(1.2); }
+        .btn-delete { color: red; }
+        .btn-delete:hover { transform: scale(1.2); }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 30%;
+        }
+        .close {
+            float: right;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="side-menu">
+        <div class="brand-name"><h1>The LFS Spot</h1></div>
+        <ul>
+            <li><a href="{% url 'home' %}"><i class="fas fa-users"></i> Utilisateur</a></li>
+            <li><a href="{% url 'menu:menu_Journalier' %}"><i class="fas fa-utensils"></i> Menu Journalier</a></li>
+            <li><a href="{% url 'menu:Liste_Achat' %}"><i class="fas fa-shopping-cart"></i> Liste des achats</a></li>
+            <li><a href="{% url 'menu:commande' %}"><i class="fas fa-clipboard-list"></i> Gestion des commandes</a></li>
+            <li><a href="{% url 'offre' %}"><i class="fas fa-tags"></i> Gestion des offres</a></li>
+            <li><a href="{% url 'menu:Gestiontable' %}"><i class="fas fa-tags"></i> Gestion des tables</a></li>
+        </ul>
+    </div>
+
+    <div class="total">
+        <div class="contenu">
+            <div class="titre"><h2>Gestion des tables</h2></div>
+            <button class="button1" onclick="openModal()"> Ajouter une Table</button>
+        </div> 
+
+        <div class="container">
+            <div class="tablecontainer">
+            <table border="1" cellspacing="0" cellpadding="8" id="table-list">
+                <thead>
+                <tr>
+                    <th>Numéro</th>
+                    <th>Capacité</th>
+                    <th>Disponibles</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+                {% for table in tables %}
+                <tr id="row-{{ table.id }}">
+                    <td class="td-numero">{{ table.numéro }}</td>
+                    <td class="td-capacite">{{ table.capacité }}</td>
+                    <td class="td-disponibles">{{ table.available_tables }}</td>
+                    <td>
+                        <button class="btn-edit" onclick="editTable('{{ table.id }}')" title="Modifier">✏️</button>
+                        <button class="btn-delete" onclick="deleteTable('{{ table.id }}')" title="Supprimer">🗑️</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    </div>
+
+    <!-- Modale Ajouter/Modifier -->
+    <div id="tableModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="form-title">Ajouter une Table</h3>
+            <form id="tableForm">
+                <input type="hidden" name="table_id" id="table_id">
+            
+                <div class="form-row">
+                    <label for="numero">Numéro :</label>
+                    <input type="number" name="numero" id="numero" required>
+                </div>
+            
+                <div class="form-row">
+                    <label for="capacite">Capacité :</label>
+                    <input type="number" name="capacite" id="capacite" required>
+                </div>
+            
+                <div class="form-row">
+                    <label for="available_tables">Disponibles :</label>
+                    <input type="number" name="available_tables" id="available_tables" value="1" required>
+                </div>
+            
+                <div style="text-align: center; margin-top: 10px;">
+                    <button type="submit" class="btn-add">Valider</button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script>
+        function openModal() {
+            document.getElementById('form-title').innerText = "Ajouter une Table";
+            document.getElementById('tableForm').reset();
+            document.getElementById('table_id').value = "";
+            document.getElementById('tableModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('tableModal').style.display = 'none';
+        }
+
+        function editTable(id) {
+            const row = document.getElementById(`row-${id}`);
+            document.getElementById('table_id').value = id;
+            document.getElementById('numero').value = row.querySelector('.td-numero').innerText;
+            document.getElementById('capacite').value = row.querySelector('.td-capacite').innerText;
+            document.getElementById('available_tables').value = row.querySelector('.td-disponibles').innerText;
+            document.getElementById('form-title').innerText = "Modifier la Table";
+            document.getElementById('tableModal').style.display = 'block';
+        }
+
+        document.getElementById('tableForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const form = e.target;
+            const data = new FormData(form);
+            const id = form.table_id.value;
+            const url = id ? `/menu/tables/modifier/${id}/` : `/menu/tables/ajouter/`;
+
+            fetch(url, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                body: data,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const table = data.table;
+                    const rowId = `row-${table.id}`;
+                    const rowContent = `
+                        <td class="td-numero">${table.numéro}</td>
+                        <td class="td-capacite">${table.capacité}</td>
+                        <td class="td-disponibles">${table.available_tables}</td>
+                        <td>
+                            <button class="btn-edit" onclick="editTable('${table.id}')">✏️</button>
+                            <button class="btn-delete" onclick="deleteTable('${table.id}')">🗑️</button>
+                        </td>
+                    `;
+                    const existingRow = document.getElementById(rowId);
+                    if (existingRow) {
+                        existingRow.innerHTML = rowContent;
+                    } else {
+                        const newRow = `<tr id="row-${table.id}">${rowContent}</tr>`;
+                        document.getElementById('table-list').insertAdjacentHTML('beforeend', newRow);
+                    }
+                    closeModal();
+                    form.reset();
+                } else {
+                    alert(data.error || "Erreur lors de l'ajout / modification.");
+                }
+            });
+        });
+
+        function deleteTable(id) {
+            if (confirm("Êtes-vous sûr de vouloir supprimer cette table ?")) {
+                fetch(`/menu/tables/supprimer/${id}/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const row = document.getElementById(`row-${id}`);
+                        if (row) row.remove();
+                    } else {
+                        alert("Erreur lors de la suppression.");
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réservation</title>
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+    <script src="{% static 'js/réservation.js' %}"></script>
+</head>
+<body>
+    <header>
+        <img src="{% static 'image/logo.png' %}" alt="" class="logo">
+        <nav>
+            <ul>
+                <li><a href="http://127.0.0.1:8000/restaurant/">Accueil</a></li> 
+                <li><a href="http://127.0.0.1:8000/restaurant/M">Menu</a></li>
+                <li><a href="http://127.0.0.1:8000/restaurant/R">Réservation</a></li> 
+              <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
+              <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre Promo</a></li>
+              <li><a href="#" id="cart-icon">Panier <span id="cart-count">0</span></a></li>
+            </ul>
+        </nav>
+    </header>
+    <img src="{% static 'image/restable.jpg' %}" alt="">
+    <div class="reservation-container">
+        <h2>Réserver une Table</h2>
+        <form method="POST" action="{% url 'réservation' %}">
+            {% csrf_token %}
+            
+            <label for="name">Nom :</label>
+            <input type="text" id="name" name="name" required><br>
+    
+            <label for="email">Email :</label>
+            <input type="email" id="email" name="email" required><br>
+    
+            <label for="phone">Téléphone :</label>
+            <input type="tel" id="phone" name="phone" required><br>
+    
+            <label for="guests">Nombre de personnes :</label>
+            <input type="number" id="guests" name="guests" min="1" required><br>
+    
+            <label for="date">Date :</label>
+            <input type="date" id="date" name="date" required><br>
+    
+            <label for="time">Heure :</label>
+            <input type="time" id="time" name="time" required><br>
+    
+            <button type="submit">Réserver</button>
+        </form>
+    
+
+        {% if reservation_success %}
+            <p class="success-message">{{ reservation_success }}</p>
+        {% endif %}
+        {% if reservation_error %}
+            <p class="error-message">{{ reservation_error }}</p>
+        {% endif %}
+    </div>
+    
+   
+
+    <footer>
+        <div class="footer-container">
+            <img src="{% static 'image/logo.png' %}" alt="" class="logof">
+            <div class="footer-section">
+                <h3>Navigation</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Accueil</a></li>
+                    <li><a href="#">Menu</a></li>
+                    <li><a href="#">Réservation</a></li>
+                    <li><a href="#">Historique</a></li>
+                    <li><a href="#">Offre Promo</a></li>
+                    
+                </ul>
+            </div>
+    
+            
+            <div class="footer-section">
+                <h3>Suivez-nous</h3>
+                <div class="social-icons">
+                    <a href="#"><img src="{% static 'image/facebook.png' %}" alt="Facebook"></a>
+                    <a href="#"><img src="{% static 'image/instagram.png' %}" alt="Instagram"></a>
+                    <a href="#"><img src="{% static 'image/twitter.png' %}" alt="Twitter"></a>
+                </div>
+            </div>
+        </div>
+        <p class="footer-bottom">© 2025 The LFS Spot Restaurant. Tous droits réservés.</p>
+    </footer>
+</body>
+
+</html>
