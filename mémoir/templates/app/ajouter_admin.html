@@ -11,23 +11,34 @@
 </head>
 <body>
     <div class="form-container">
-        <h1>Nom de l'admin :</h1>
+        <h1>Ajouter un Admin</h1>
 
         <form id="adminForm" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}  <!-- ✅ Protection CSRF -->
+            {% csrf_token %}
 
-            <input type="text" id="adminName" placeholder="Entrez le nom" required>
+            <label for="adminName">Nom de l'admin :</label>
+            <input type="text" id="adminName" name="name" placeholder="Entrez le nom" required>
 
-            <input type="file" id="fileInput" accept="image/*">
+            <label for="fileInput">Photo :</label>
+            <input type="file" id="fileInput" name="image" accept="image/*">
             <label for="fileInput" class="upload-btn">Insérer une photo</label>
 
-            <h1>Numéro de téléphone :</h1>
-            <input type="tel" id="adminPhone" placeholder="Entrez le numéro" required>
-            
-            <button type="button" id="addAdmin">Ajouter</button>  
+            <label for="adminPhone">Numéro de téléphone :</label>
+            <input type="tel" id="adminPhone" name="phone" placeholder="Entrez le numéro" required> <br>
+
+            <label for="restaurantSelect" class="label" >Choisir un restaurant :</label> <br>
+            <select id="restaurantSelect" name="restaurant" required>
+                <option value="">Sélectionnez un restaurant</option>
+                {% for restaurant in restaurants %}
+                    <option value="{{ restaurant.id }}">{{ restaurant.name }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" id="addAdmin">Ajouter</button>  
         </form>
     </div>
 
     <script src="{% static 'js/ajouteradmin.js' %}" defer></script>
 </body>
 </html>
+

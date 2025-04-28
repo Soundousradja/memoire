@@ -82,10 +82,16 @@ def ajouter_admin(request):
         form = AdminForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return JsonResponse({"success": True})  # ✅ Retourne du JSON
+            return JsonResponse({"success": True})
         else:
-            return JsonResponse({"success": False, "errors": form.errors})  # ✅ Retourne les erreurs
-    return render(request, "app/ajouter_admin.html", {"form": AdminForm()})
+            return JsonResponse({"success": False, "errors": form.errors})
+    else:
+        form = AdminForm()
+        restaurants = Restaurant.objects.all()  # ✅ Charger les restaurants pour le menu déroulant
+        return render(request, "app/ajouter_admin.html", {
+            "form": form,
+            "restaurants": restaurants
+        })
 
 def supprimer_admin(request, id):
     # Retrieve the admin object to delete

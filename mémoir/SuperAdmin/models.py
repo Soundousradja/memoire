@@ -10,6 +10,9 @@ class Admin(models.Model):
     name = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
     image = models.ImageField(upload_to='admin_images/')
+    restaurant = models.OneToOneField('Restaurant', on_delete=models.CASCADE)
+
+    
 
 
     def __str__(self):
@@ -18,7 +21,7 @@ class Restaurant(models.Model):
     name = models.CharField(max_length=255)
     address = models.TextField()
     image = models.ImageField(upload_to='restaurants/')
-    admin = models.OneToOneField(Admin,on_delete=models.SET_NULL, null=True, blank=True,  related_name='restaurant')
+    
        
     def str(self):
         return self.name    

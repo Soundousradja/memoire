@@ -34,7 +34,8 @@ def get_plats(request):
     
     # Filtrer par catégorie
     if categorie:
-        plats = Plat.objects.filter(categorie__nom=categorie)
+        plats = Plat.objects.filter(categorie__name=categorie)
+
     else:
         plats = Plat.objects.all()
         
@@ -186,15 +187,15 @@ def afficher_plats(request):
     
     slug = request.GET.get('categorie')  # Ex: "fast-food"
     if slug:
-        categorie_nom = slug.replace('-', ' ')  # ← déslugifie
+        categorie_name = slug.replace('-', ' ')  # ← déslugifie
     else:
-        categorie_nom = None
+        categorie_name = None
         
     # Passer la date d'aujourd'hui au template
     today_date = date.today().strftime('%Y-%m-%d')
     
     return render(request, 'pagesMenu/GérerPlat.html', {
-        'categorie': categorie_nom,
+        'categorie': categorie_name,
         'today_date': today_date
     })
 

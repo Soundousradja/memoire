@@ -42,3 +42,10 @@ button {
     border: none;
     cursor: pointer;
 }
+.label{
+    margin-top:10px;
+}
+option{
+    background-color:white;
+    padding:10px;
+}

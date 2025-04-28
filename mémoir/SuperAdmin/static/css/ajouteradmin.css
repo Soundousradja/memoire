@@ -13,7 +13,7 @@ body {
     background: transparent;
     padding: 30px;
     border-radius: 10px;
-    width: 400px;
+    width: 450px;
     text-align: center;
     box-shadow: 1px 1px 15px 15px rgb(51, 54, 54);
 }
@@ -41,4 +41,7 @@ button {
     font-weight: bold;
     border: none;
     cursor: pointer;
+}
+.label{
+    margin-top:10px;
 }

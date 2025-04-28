@@ -14,7 +14,7 @@ class RestaurantForm(forms.ModelForm):
 class AdminForm(forms.ModelForm):
     class Meta:
         model = Admin  # The form is based on the Admin model.
-        fields = ['name', 'phone', 'image']  # Only include these fields in the form.
+        fields = ['name', 'phone', 'image' ,'restaurant']  # Only include these fields in the form.
 
 from .models import Plat
 

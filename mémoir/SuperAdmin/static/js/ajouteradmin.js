@@ -3,8 +3,9 @@ document.addEventListener("DOMContentLoaded", function() {
         let name = document.getElementById("adminName").value.trim();
         let phone = document.getElementById("adminPhone").value.trim();
         let fileInput = document.getElementById("fileInput").files[0];
+        let restaurant = document.getElementById("restaurantSelect").value; // ✅ récupérer le restaurant choisi
 
-        if (!name || !phone || !fileInput) {
+        if (!name || !phone || !fileInput || !restaurant) {
             alert("Tous les champs sont obligatoires !");
             return;
         }
@@ -13,6 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
         formData.append("name", name);
         formData.append("phone", phone);
         formData.append("image", fileInput);
+        formData.append("restaurant", restaurant); // ✅ ajouter au formData
 
         fetch("/super/ajouter_admin/", {
             method: "POST",
@@ -28,12 +30,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 window.location.href = "/super/gestion_admin/";
             } else {
                 alert("Erreur lors de l'ajout !");
+                console.log(data.errors); // pour debugger si besoin
             }
         })
         .catch(error => console.error("Erreur:", error));
     });
 
-    // Fonction pour récupérer le token CSRF
     function getCSRFToken() {
         return document.querySelector("input[name='csrfmiddlewaretoken']").value;
     }
