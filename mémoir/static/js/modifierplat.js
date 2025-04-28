@@ -45,9 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             body: formData,
         })
-        .then(response => {
-            if (response.ok) {
-                window.location.href = "/super/menu/pizza"; // ✅ redirection après succès
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect_url; // 🔥 Utilise la vraie URL
             } else {
                 alert("Erreur lors de la mise à jour du plat.");
             }

@@ -79,6 +79,48 @@
             </div>
         {% endif %}
     </div>
+    <script>
+        function supprimerPlat(platId) {
+            if (confirm("Es-tu sûr de vouloir supprimer ce plat ?")) {
+                fetch(`/super/plat/supprimer/${platId}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCookie("csrftoken"),  // Important pour la sécurité
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Plat supprimé !");
+                        window.location.reload();  // 🔄 Recharge la page pour actualiser la liste des plats
+                    } else {
+                        alert("Erreur lors de la suppression.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Erreur:", error);
+                    alert("Une erreur est survenue.");
+                });
+            }
+        }
+        
+        // Fonction pour récupérer le token CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        </script>
+        
 
 </body>
 </html>

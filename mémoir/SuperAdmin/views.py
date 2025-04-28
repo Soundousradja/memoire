@@ -354,8 +354,10 @@ def modifier_plat(request, plat_id):
         if form.is_valid():
             form.save()
             # Rediriger vers la page des plats de cette catégorie
-            return redirect('categorie_plats', 
-                          categorie_id=plat.categorie.id)
+            return JsonResponse({
+    'success': True,
+    'redirect_url': reverse('categorie_plats', kwargs={'categorie_id': plat.categorie.id})
+})
         else:
             all_ingredients = Ingredient.objects.all()
             return render(request, 'app/modifier_plat.html', {
@@ -372,14 +374,15 @@ def modifier_plat(request, plat_id):
             'plat': plat,
             'all_ingredients': all_ingredients
         })
-
+from django.views.decorators.csrf import csrf_exempt
+@csrf_exempt
 def supprimer_plat(request, plat_id):
     if request.method == "POST":
         plat = get_object_or_404(Plat, id=plat_id)
-        categorie_id = plat.categorie.id
         plat.delete()
         return JsonResponse({"success": True})
     return JsonResponse({"success": False}, status=400)
+
 
     
 from django.http import JsonResponse

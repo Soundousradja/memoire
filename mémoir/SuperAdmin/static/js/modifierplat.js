@@ -1,9 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const fileInput = document.getElementById("fileInput");
     const imagePreview = document.getElementById("imagePreview");
-    const platForm = document.getElementById("platForm");
 
-    // Preview image change when file is selected
     fileInput.addEventListener("change", function () {
         const file = this.files[0];
         if (file) {
@@ -15,12 +13,30 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Handle form submission
+    // Soumission du formulaire via fetch (AJAX)
+    const platForm = document.getElementById("platForm");
+
     platForm.addEventListener("submit", function (e) {
         e.preventDefault();
 
         const formData = new FormData(platForm);
-        const csrftoken = getCookie('csrftoken'); // Get CSRF token
+
+        // CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
 
         fetch(platForm.action, {
             method: "POST",
@@ -29,11 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             body: formData,
         })
-        .then(response => {
-            if (response.ok) {
-                // Redirect using category ID from hidden input
-                const categorieId = document.getElementById("categorieId").value;
-                window.location.href = `/super/categorie_plats/${categorieId}/`;  // Correct redirection
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect_url; // 🔥 Utilise la vraie URL
             } else {
                 alert("Erreur lors de la mise à jour du plat.");
             }
@@ -43,20 +58,4 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Une erreur est survenue.");
         });
     });
-
-    // Utility function to get the CSRF token from cookies
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let cookie of cookies) {
-                cookie = cookie.trim();
-                if (cookie.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
 });
