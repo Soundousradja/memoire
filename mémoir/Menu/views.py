@@ -1,4 +1,5 @@
 import datetime
+from decimal import Decimal
 from django.shortcuts import get_object_or_404, render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -13,8 +14,9 @@ from restaurant.models import  total_journee
 from django.utils.timesince import timesince
 from restaurant.models import CommandePlat
 from django.shortcuts import render, redirect
-from .models import  Restaurant
+from .models import  Depense, Restaurant
 from datetime import datetime
+from django.contrib.auth import logout
 #from .models import total_paye, total_non_paye
 
 from django.shortcuts import render
@@ -367,6 +369,84 @@ def supprimer_table(request, table_id):
         except Table.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Table non trouvée'})
     return JsonResponse({'success': False, 'error': 'Méthode non autorisée'})
+def logout_view(request):
+    # Stocker le chemin actuel avant la déconnexion
+    current_url = request.META.get('HTTP_REFERER', '')
+    
+    # Déconnecter l'utilisateur
+    logout(request)
+    
+    # Rediriger vers la même page
+    if current_url:
+        return redirect(current_url)
+    else:
+        return redirect('menu:Gestiontable')  
+@login_required
+def depenses(request):
+    """
+    Vue pour gérer les dépenses.
+    Permet à l'administrateur d'enregistrer et d'afficher les dépenses.
+    """
+    # Récupérer le restaurant associé à l'utilisateur
+    restaurant = get_restaurant_for_user(request.user)
+    if not restaurant:
+        return JsonResponse({'error': 'Aucun restaurant associé à cet utilisateur.'}, status=403)
+    
+    # Initialiser les variables contexte
+    success = False
+    erreur = None
+    
+    # Traitement du formulaire de dépense
+    if request.method == 'POST':
+        produit = request.POST.get('produit')
+        prix = request.POST.get('prix')
+        date_str = request.POST.get('date')
+        
+        # Validation des données
+        if not produit or not prix:
+            erreur = "Veuillez remplir tous les champs."
+        else:
+            try:
+                # Convertir le prix en décimal
+                prix = Decimal(prix)
 
-# ✅ Modifier table
+                
+                # Convertir la date en objet date
+                if date_str:
+                    date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+                else:
+                    date_obj = date.today()
+                
+                # Créer une nouvelle dépense
+                Depense.objects.create(
+                    produit=produit,
+                    prix=prix,
+                    date=date_obj,
+                    restaurant=restaurant
+                )
+                
+                # Marquer le succès
+                success = True
+                
+            except ValueError:
+                erreur = "Format de prix invalide. Utilisez un nombre décimal."
+    
+    # Récupérer toutes les dépenses pour ce restaurant
+    depenses = Depense.objects.filter(restaurant=restaurant).order_by('-date')
+    
+    # Calculer le total des dépenses
+    total = sum(depense.prix for depense in depenses)
+    
+    # Préparer le contexte pour le template
+    context = {
+        'depenses': depenses,
+        'total': total,
+        'success': success,
+        'erreur': erreur
+    }
+    
+    # Rendre le template avec le contexte
+    return render(request, 'PagesMenu/Commande.html', context)    
+
+
 

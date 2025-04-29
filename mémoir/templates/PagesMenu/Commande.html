@@ -7,150 +7,351 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>Commande</title>
     <link rel="stylesheet" href="{% static 'css/commande.css' %}"> 
-    
+    <style>
+        /* Styles supplémentaires pour améliorer l'affichage des dépenses */
+        .depenses-section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .depenses-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgb(236, 143, 3);
+            padding-bottom: 10px;
+        }
+
+        .btn-ajouter {
+            background-color: rgb(236, 143, 3);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-ajouter:hover {
+            background-color: #d97c00;
+            transform: translateY(-2px);
+        }
+
+        .btn-ajouter i {
+            margin-right: 5px;
+        }
+
+        #formulaire {
+            display: none;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eee;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        #formulaire input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        #formulaire button {
+            grid-column: span 3;
+            background-color: rgb(236, 143, 3);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        #formulaire button:hover {
+            background-color: #d97c00;
+        }
+
+        .success-message {
+            background-color: #e7f7e7;
+            border-left: 4px solid #4CAF50;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+
+        .success-message i {
+            color: #4CAF50;
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .depenses-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .depenses-table th {
+            background-color: rgb(236, 143, 3);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .depenses-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .depenses-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+            font-style: italic;
+        }
+
+        .total-display {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 18px;
+            color: rgb(236, 143, 3);
+        }
+
+        .total-display i {
+            margin-right: 8px;
+        }
+    </style>
 </head>
 <body>
-
-   
     <div class="side-menu">
         <div class="brand-name">
             <h1>The LFS Spot</h1>
         </div>
+    
         <ul>
-            <li >
-                <a href="{% url 'home' %}">
-                <i class="fas fa-users"></i> &nbsp;
-                <span>   Utilisateur</span></a>
-            </li>
-            <li >
-                <a href="{% url 'menu:menu_Journalier' %}">
-                <i class="fas fa-utensils"></i> &nbsp;
-                <span >  Menu Journalier</span></a>
-            </li>
-            <li >  <a href="{% url 'menu:Liste_Achat' %}">
-                <i class="fas fa-shopping-cart"></i> &nbsp;
-                <span>  Liste des achats</span></a>
-            </li>
-            <li> 
-                <a href="{% url 'menu:commande' %}">
-                <i class="fas fa-clipboard-list"></i> &nbsp;
-                <span>Gestion des commandes</span></a>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'home' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-users"></i> &nbsp;
+                    <span>Utilisateur</span>
+                </a>
             </li>
             <li>
-                <a href="{% url 'offre' %}">
-                <i class="fas fa-tags"></i>&nbsp; &nbsp;
-                <span>Gestion des offres</span></a>
+                <a href="{% if user.is_authenticated %}{% url 'menu:menu_Journalier' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-utensils"></i> &nbsp;
+                    <span>Menu Journalier</span>
+                </a>
             </li>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'menu:Liste_Achat' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-shopping-cart"></i> &nbsp;
+                    <span>Liste des achats</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'menu:commande' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-clipboard-list"></i> &nbsp;
+                    <span>Gestion des commandes</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'offre' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-tags"></i> &nbsp;
+                    <span>Gestion des offres</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'menu:Gestiontable' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-table"></i> &nbsp;
+                    <span>Gestion des tables</span>
+                </a>
+            </li>
+            <div class="login-prompt" style="text-align: center; margin-top: 20px;">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'menu:logout' %}" class="login-button" style="
+                        display: inline-block;
+                        background-color: white;
+                        color: rgb(236, 143, 3);
+                        padding: 8px 20px;
+                        margin-top: 10px;
+                        border-radius: 4px;
+                        font-weight: bold;
+                        text-decoration: none;
+                        transition: all 0.3s ease;
+                    ">
+                        <i class="fas fa-sign-out-alt"></i> Déconnecter
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="login-button" style="
+                        display: inline-block;
+                        background-color: white;
+                        color: rgb(236, 143, 3);
+                        padding: 8px 20px;
+                        margin-top: 10px;
+                        border-radius: 4px;
+                        font-weight: bold;
+                        text-decoration: none;
+                        transition: all 0.3s ease;
+                    ">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </a>
+                {% endif %}
+            </div>
         </ul>
     </div>
     <div class="total1">
         <div class="contenu">
              <div class="titre"><h2> Gestion des commandes</h2> </div>
-             
-       
-    </div>
-    <div class="container">
-
-    <table>
-        <thead>
-        <tr>
-            <th>Num de Commande</th>
-            
-            <th>Liste des commandes</th>
-            <th colspan="2">Prix</th>
-            
-        </tr>
-    </thead>
-    <tbody>
-        {% for commande in commandes %}
-        <tr>
-            <td>{{ forloop.counter }}</td>
-            
-            <td>
-                {% for cp in commande.commandeplat_set.all %}
-                    {{ cp.quantity }}x {{ cp.plat.name }}{% if not forloop.last %}, {% endif %}
-                {% endfor %}
-            </td>
-            <td colspan="2">{{ commande.calculer_prix_total }} DA</td>
-            {% comment %}
-            <td class="{% if commande.paiement == 'Paye' %}paid{% else %}unpaid{% endif %}">
-                {{ commande.paiement }}
-            </td>
-            {% endcomment %}
-        </tr>
-        {% endfor %}
-    </tbody>
-        <tr> <td colspan="2" style="background-color: rgb(236, 143, 3);color: #080808;"> Total de la journée : {{ total_journee }} DA</td>
-        <td colspan="1.5" style="background-color:rgb(236, 143, 3);color: #080808;">Prix non payé : {{ total_non_paye }} DA</td>
-        <td colspan="2" style="background-color: rgb(236, 143, 3);color: #080808;">Prix payé : {{ total_paye }} DA</td></tr>
-    </table>
-</div>
-<div class="container">
-    <h2>Dépenses</h2>
-
-    <button class="btn-ajouter" onclick="afficherFormulaire()">➕ Ajouter une dépense</button>
-
-    {% if erreur %}
-        <p class="erreur">{{ erreur }}</p>
-    {% endif %}
-
-    <form id="formulaire" method="post" action="">
-        {% csrf_token %}
-        <input type="text" name="produit" placeholder="Nom du produit" required>
-        <input type="number" step="0.01" name="prix" placeholder="Prix (€)" required>
-        <input type="date" name="date" required>
-        <button type="submit">Enregistrer</button>
-    </form>
-    
-    {% if success %}
-        <p style="color: green; text-align: center;">✅ Dépense enregistrée avec succès.</p>
-    {% endif %}
-
-    <h2>Liste des dépenses</h2>
-
-    {% if depenses %}
-        <table>
-            <thead>
+        </div>
+        
+        <!-- Section des commandes -->
+        <div class="container">
+            <table>
+                <thead>
                 <tr>
-                    <th>Produit</th>
-                    <th>Prix (€)</th>
-                    <th>Date</th>
+                    <th>Num de Commande</th>
+                    <th>Liste des commandes</th>
+                    <th colspan="2">Prix</th>
                 </tr>
-            </thead>
-            <tbody>
-                {% for depense in depenses %}
+                </thead>
+                <tbody>
+                    {% for commande in commandes %}
                     <tr>
-                        <td>{{ depense.produit }}</td>
-                        <td>{{ depense.prix }}</td>
-                        <td>{{ depense.date }}</td>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            {% for cp in commande.commandeplat_set.all %}
+                                {{ cp.quantity }}x {{ cp.plat.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td colspan="2">{{ commande.calculer_prix_total }} DA</td>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    {% endfor %}
+                </tbody>
+                <tr> 
+                    <td colspan="2" style="background-color: rgb(236, 143, 3);color: #080808;"> Total de la journée : {{ total_journee }} DA</td>
+                    <td colspan="1.5" style="background-color:rgb(236, 143, 3);color: #080808;">Prix non payé : {{ total_non_paye }} DA</td>
+                    <td colspan="2" style="background-color: rgb(236, 143, 3);color: #080808;">Prix payé : {{ total_paye }} DA</td>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- Section des dépenses améliorée -->
+        <div class="container depenses-section">
+            <div class="depenses-header">
+                <h2><i class="fas fa-wallet"></i> Dépenses</h2>
+                <button class="btn-ajouter" onclick="afficherFormulaire()">
+                    <i class="fas fa-plus-circle"></i> Ajouter une dépense
+                </button>
+            </div>
 
-        <p class="total">💰 Total : {{ total }} €</p>
-    {% else %}
-        <p style="text-align: center;">Aucune dépense enregistrée.</p>
-    {% endif %}
-</div>
+            {% if erreur %}
+                <div class="erreur" style="color: red; padding: 10px; background-color: #ffeeee; border-left: 4px solid red; margin-bottom: 15px;">
+                    <i class="fas fa-exclamation-circle"></i> {{ erreur }}
+                </div>
+            {% endif %}
 
-<script>
-    function afficherFormulaire() {
-        const form = document.getElementById("formulaire");
-        form.style.display = form.style.display === "none" ? "flex" : "none";
-    }
-    
-    // Définir la date par défaut au champ date
-    document.addEventListener("DOMContentLoaded", function() {
-        const dateField = document.querySelector('input[name="date"]');
-        if (dateField) {
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            dateField.value = formattedDate;
+            {% if success %}
+                <div class="success-message">
+                    <i class="fas fa-check-circle"></i> Dépense enregistrée avec succès.
+                </div>
+            {% endif %}
+
+            <form id="formulaire" method="post" action="{% url 'menu:depenses' %}">
+                {% csrf_token %}
+                <div class="form-grid">
+                    <div>
+                        <label for="produit"><i class="fas fa-shopping-bag"></i> Produit</label>
+                        <input type="text" id="produit" name="produit" placeholder="Nom du produit" required>
+                    </div>
+                    <div>
+                        <label for="prix"><i class="fas fa-money-bill-wave"></i> Prix</label>
+                        <input type="number" id="prix" step="0.01" name="prix" placeholder="Prix (DA)" required>
+                    </div>
+                    <div>
+                        <label for="date"><i class="fas fa-calendar"></i> Date</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                </div>
+                <button type="submit"><i class="fas fa-save"></i> Enregistrer la dépense</button>
+            </form>
+
+            <h3><i class="fas fa-list-ul"></i> Liste des dépenses</h3>
+
+            {% if depenses %}
+                <table class="depenses-table">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Prix (DA)</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for depense in depenses %}
+                            <tr>
+                                <td><i class="fas fa-box"></i> {{ depense.produit }}</td>
+                                <td>{{ depense.prix }} DA</td>
+                                <td><i class="fas fa-calendar-day"></i> {{ depense.date }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="total-display">
+                    <i class="fas fa-money-bill-alt"></i> Total des dépenses : {{ total }} DA
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-info-circle"></i> Aucune dépense enregistrée pour le moment.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function afficherFormulaire() {
+            const form = document.getElementById("formulaire");
+            if (form.style.display === "none" || form.style.display === "") {
+                form.style.display = "block";
+            } else {
+                form.style.display = "none";
+            }
         }
-    });
-</script>
-
-   
+        
+        // Définir la date par défaut au champ date
+        document.addEventListener("DOMContentLoaded", function() {
+            const dateField = document.querySelector('input[name="date"]');
+            if (dateField) {
+                const today = new Date();
+                const formattedDate = today.toISOString().split('T')[0];
+                dateField.value = formattedDate;
+            }
+        });
+    </script>
 </body>
 </html>

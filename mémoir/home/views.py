@@ -563,4 +563,6 @@ def get_restaurant_for_user(user):
     if hasattr(user, 'admin_profile') and user.admin_profile:
         return user.admin_profile.restaurant
     return None
+
+
   

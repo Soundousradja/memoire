@@ -26,10 +26,10 @@ urlpatterns = [
     path('tables/ajouter/', views.ajouter_table, name='ajouter_table'),
     path('tables/modifier/<int:table_id>/', views.modifier_table, name='modifier_table'),
     path('tables/supprimer/<int:table_id>/', views.supprimer_table, name='supprimer_table'),
-  
+    path('logout/', views.logout_view, name='logout'),
     
     
-    #path('depenses/',views.depenses, name='depenses'),
+    path('depenses/',views.depenses, name='depenses'),
 
    
 ]
