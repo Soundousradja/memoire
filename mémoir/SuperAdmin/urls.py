@@ -28,7 +28,7 @@ urlpatterns = [
     path('pizza/', views.pizza_view, name='pizza'),
     path('dessert/', views.dessert_view, name='dessert'),
     path('boisson/', views.boisson_view, name='boisson'),
-    path('category_selection/', views.category_selection, name='category_selection'),
+    
     path("ingredients/ajouter/", views.ajouter_ingredient, name="ajouter_ingredient"),
     path('gestion_ingredients/', views.gestion_ingredient, name='gestion_ingredients'),
     path('ingredient_management/', views.ingredient_management, name='ingredient_management'),

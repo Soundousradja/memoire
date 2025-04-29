@@ -81,13 +81,13 @@ def ajouter_admin(request):
     if request.method == "POST":
         form = AdminForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            return JsonResponse({"success": True})
+            admin = form.save()
+            return JsonResponse({"success": True, "admin_id": admin.id})
         else:
             return JsonResponse({"success": False, "errors": form.errors})
     else:
         form = AdminForm()
-        restaurants = Restaurant.objects.all()  # ✅ Charger les restaurants pour le menu déroulant
+        restaurants = Restaurant.objects.all()
         return render(request, "app/ajouter_admin.html", {
             "form": form,
             "restaurants": restaurants
@@ -224,7 +224,7 @@ def plats_par_categorie(request, categorie):
 
 def categories_view(request):
     if request.method == "POST":
-        nom = request.POST.get("nom")
+        nom = request.POST.get("name")
         image = request.FILES.get("image")
 
         if nom:
