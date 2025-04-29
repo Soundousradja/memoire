@@ -13,7 +13,7 @@ urlpatterns = [
     path('get-ingredients/', views.get_ingredients, name='get_ingredients'),
     path('formulaire/', views.formulaire_ingredients, name='Liste_Achat'),
     #Gérer Commande
-     path('commande/', views.commande, name='commande'),
+     #path('commande/', views.commande, name='commande'),
      #chef
      path('chef/',views.chef,name='chef'),
      path('PageChef/',views.Pagechef,name='pagechef'),
@@ -29,7 +29,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     
     
-    path('depenses/',views.depenses, name='depenses'),
+    path('depenses/',views.commande_et_depenses, name='commande'),
 
    
 ]

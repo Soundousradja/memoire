@@ -202,15 +202,7 @@ def formulaire_ingredients(request):
     return render(request, 'PagesMenu/ListeAchat.html')
 
 # ✅ Gestion commandes
-@login_required
-def commande(request):
-    restaurant = get_restaurant_for_user(request.user)
-    commandes = Commande.objects.filter(restaurant=restaurant)
-    context = {
-        'commandes': commandes,
-        'total_journee': total_journee(),
-    }
-    return render(request, 'PagesMenu/Commande.html', context)
+
 
 # ✅ Statut Chef
 @login_required
@@ -381,72 +373,54 @@ def logout_view(request):
         return redirect(current_url)
     else:
         return redirect('menu:Gestiontable')  
+  
 @login_required
-def depenses(request):
-    """
-    Vue pour gérer les dépenses.
-    Permet à l'administrateur d'enregistrer et d'afficher les dépenses.
-    """
-    # Récupérer le restaurant associé à l'utilisateur
+def commande_et_depenses(request):
     restaurant = get_restaurant_for_user(request.user)
     if not restaurant:
         return JsonResponse({'error': 'Aucun restaurant associé à cet utilisateur.'}, status=403)
-    
-    # Initialiser les variables contexte
+
     success = False
     erreur = None
-    
-    # Traitement du formulaire de dépense
+
+    # Traitement formulaire dépenses
     if request.method == 'POST':
         produit = request.POST.get('produit')
         prix = request.POST.get('prix')
         date_str = request.POST.get('date')
-        
-        # Validation des données
+
         if not produit or not prix:
             erreur = "Veuillez remplir tous les champs."
         else:
             try:
-                # Convertir le prix en décimal
                 prix = Decimal(prix)
+                date_obj = datetime.strptime(date_str, "%Y-%m-%d").date() if date_str else date.today()
 
-                
-                # Convertir la date en objet date
-                if date_str:
-                    date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
-                else:
-                    date_obj = date.today()
-                
-                # Créer une nouvelle dépense
                 Depense.objects.create(
                     produit=produit,
                     prix=prix,
                     date=date_obj,
                     restaurant=restaurant
                 )
-                
-                # Marquer le succès
                 success = True
-                
             except ValueError:
                 erreur = "Format de prix invalide. Utilisez un nombre décimal."
-    
-    # Récupérer toutes les dépenses pour ce restaurant
+
+    commandes = Commande.objects.filter(restaurant=restaurant)
     depenses = Depense.objects.filter(restaurant=restaurant).order_by('-date')
-    
-    # Calculer le total des dépenses
     total = sum(depense.prix for depense in depenses)
-    
-    # Préparer le contexte pour le template
+
     context = {
+        'commandes': commandes,
+        'total_journee': total_journee(),
         'depenses': depenses,
         'total': total,
         'success': success,
-        'erreur': erreur
+        'erreur': erreur,
     }
-    
-    # Rendre le template avec le contexte
-    return render(request, 'PagesMenu/Commande.html', context)    
+
+    return render(request, 'PagesMenu/Commande.html', context)
+
 
 
 
