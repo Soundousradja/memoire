@@ -34,9 +34,10 @@ class HistoriqueIngredient(models.Model):
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     quantite = models.FloatField()
     date = models.DateField()
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, null=True, blank=True)
     
     class Meta:
-        unique_together = ('ingredient', 'date')  # Un seul enregistrement par ingrédient par jour
+        unique_together = ('ingredient', 'date' ,'restaurant')  # Un seul enregistrement par ingrédient par jour
     
     def __str__(self):
         return f"{self.ingredient.name} - {self.date} - {self.quantite}"
@@ -45,9 +46,10 @@ class HistoriquePlat(models.Model):
     plat = models.ForeignKey(Plat, on_delete=models.CASCADE)
     quantite = models.IntegerField(default=0)
     date = models.DateField()
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, null=True, blank=True)
     
     class Meta:
-        unique_together = ('plat', 'date')  # Un seul enregistrement par plat par jour
+        unique_together = ('plat', 'date' ,'restaurant')  # Un seul enregistrement par plat par jour
     
     def __str__(self):
         return f"{self.plat.name} - {self.date} - {self.quantite}"

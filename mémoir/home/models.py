@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
 from django.db import models
-from SuperAdmin.models import Restaurant
+from SuperAdmin.models import Restaurant,Admin
 
 
 from django.contrib.auth.hashers import make_password
@@ -23,6 +23,7 @@ class CustomUser(AbstractUser):
     mot_de_passe_clair = models.CharField(max_length=128, blank=True, null=True)
     adresse = models.CharField(max_length=255, blank=True, null=True)  # Champ adresse
     telephone = models.CharField(max_length=15, blank=True, null=True)  # Champ téléphone
+    admin_profile = models.OneToOneField(Admin, on_delete=models.SET_NULL, null=True, blank=True)
     
 
     def __str__(self):
@@ -34,6 +35,7 @@ class CustomUser(AbstractUser):
 
     def str(self):
         return self.username
+# models.py
 class Offre(models.Model):
     STATUT_CHOICES = [
         ('active', 'Active'),
@@ -42,18 +44,17 @@ class Offre(models.Model):
     image = models.ImageField(upload_to='offres/', null=True, blank=True)
     Nom_Offre = models.CharField(max_length=50)
     Date_Debut = models.DateField()
-    Date_Fin = models.DateField ()
-    statut = models.CharField(max_length=10, choices=STATUT_CHOICES, editable=False)  # Désactive la modification manuelle
+    Date_Fin = models.DateField()
+    statut = models.CharField(max_length=10, choices=STATUT_CHOICES, editable=False)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, null=True, blank=True)  # 🔥 AJOUTÉ
+    
     def mettre_a_jour_statut(self):
-        """ Met à jour le statut en fonction des dates """
         today = now().date()
-
         if self.Date_Fin <= today:
             self.statut = 'expiré'
         else:
-            self.statut = 'active'  # Actif si la date de début est arrivée ou est dans le futur
+            self.statut = 'active'
 
     def save(self, *args, **kwargs):
-        """ Met à jour automatiquement le statut avant de sauvegarder """
         self.mettre_a_jour_statut()
         super().save(*args, **kwargs)

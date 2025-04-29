@@ -5,7 +5,8 @@ from django.contrib.auth import login
 
 from django.contrib.auth.forms import UserCreationForm
 
-from SuperAdmin.models import Restaurant 
+from SuperAdmin.models import Restaurant
+
 from .models import  CustomUser
 from django.http import JsonResponse
 from django.http import JsonResponse
@@ -170,18 +171,34 @@ def liste_utilisateurs(request):
 def utilisateurs_par_role(request):
     role = request.GET.get('role', '')  # Récupère le rôle depuis l'URL
     return render(request, 'pages/index.html', {'role': role})
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from datetime import datetime
+
+# ✅ Vue pour afficher la page des offres (protégée)
+@login_required
 def offre(request):
-    return render(request,'Pages_Offre/offre.html')
-@csrf_exempt
+    restaurant = get_restaurant_for_user(request.user)
+    if restaurant:
+        offres = Offre.objects.filter(restaurant=restaurant)
+    else:
+        offres = Offre.objects.none()
+    return render(request, 'Pages_Offre/offre.html', {'offres': offres})
+
+# ✅ Vue pour ajouter une offre (protégée, sans csrf_exempt si tu gères bien Fetch)
+@login_required
 def ajouter_offre(request):
     if request.method == "POST":
+        restaurant = get_restaurant_for_user(request.user)
+        if not restaurant:
+            return JsonResponse({"success": False, "error": "Pas de restaurant associé."}, status=403)
+
         try:
             Nom_Offre = request.POST.get("Nom_Offre")
             Date_Debut_str = request.POST.get("Date_Debut")
             Date_Fin_str = request.POST.get("Date_Fin")
-            image = request.FILES.get("image")  # Récupérer l'image
-            if image == "None":
-                image = None
+            image = request.FILES.get("image")
 
             if not (Nom_Offre and Date_Debut_str and Date_Fin_str):
                 return JsonResponse({"success": False, "error": "Tous les champs sont obligatoires."}, status=400)
@@ -190,13 +207,14 @@ def ajouter_offre(request):
             Date_Fin = datetime.strptime(Date_Fin_str, "%Y-%m-%d").date()
 
             if Date_Debut >= Date_Fin:
-                return JsonResponse({"success": False, "error": "La date de début doit être antérieure à la date de fin."}, status=400)
+                return JsonResponse({"success": False, "error": "La date de début doit être avant la date de fin."}, status=400)
 
             nouvelle_offre = Offre.objects.create(
                 Nom_Offre=Nom_Offre,
                 Date_Debut=Date_Debut,
                 Date_Fin=Date_Fin,
-                image=image  # Sauvegarder l'image
+                image=image,
+                restaurant=restaurant
             )
 
             return JsonResponse({"success": True, "message": "Offre ajoutée avec succès."})
@@ -206,29 +224,36 @@ def ajouter_offre(request):
 
     return JsonResponse({"success": False, "error": "Méthode non autorisée."}, status=405)
 
+# ✅ Vue pour afficher toutes les offres (protégée)
+@login_required
 def afficher(request):
-    offres = Offre.objects.all()
+    restaurant = get_restaurant_for_user(request.user)
+    if restaurant:
+        offres = Offre.objects.filter(restaurant=restaurant)
+    else:
+        offres = Offre.objects.none()
 
-    users_data = [
+    offres_data = [
         {
             "id": offre.id,
             "Nom_Offre": offre.Nom_Offre,
             "Date_Debut": offre.Date_Debut.strftime("%Y-%m-%d"),
             "Date_Fin": offre.Date_Fin.strftime("%Y-%m-%d"),
             "statut": offre.statut,
-            "image": offre.image.url if offre.image else None  # Ajouter l'URL de l'image
+            "image": offre.image.url if offre.image else None
         }
         for offre in offres
     ]
-    return JsonResponse({"offres": users_data})
+    return JsonResponse({"offres": offres_data})
 
-
-csrf_exempt
-def supprimer_offre(request,offre_id):
+# ✅ Vue pour supprimer une offre (protégée)
+@csrf_exempt
+@login_required
+def supprimer_offre(request, offre_id):
     if request.method == "DELETE":
         try:
-            user = Offre.objects.get(id=offre_id)  # 🔹 Trouver l'utilisateur
-            user.delete()  # 🔹 Supprimer
+            offre = Offre.objects.get(id=offre_id)
+            offre.delete()
             return JsonResponse({"success": True})
         except Offre.DoesNotExist:
             return JsonResponse({"success": False, "error": "Offre introuvable."}, status=404)
@@ -237,37 +262,38 @@ def supprimer_offre(request,offre_id):
 
     return JsonResponse({"success": False, "error": "Méthode non autorisée."}, status=405)
 
-from datetime import datetime
-
-# Dans votre vue de modification d'offre
+# ✅ Vue pour modifier une offre (protégée)
 @csrf_exempt
+@login_required
 def modifier_offre(request, id):
     try:
         offre = Offre.objects.get(id=id)
         if request.method == 'POST':
-            # Récupérer les données du formulaire
             nom_offre = request.POST.get('Nom_Offre')
             date_debut_str = request.POST.get('Date_Debut')
             date_fin_str = request.POST.get('Date_Fin')
             
-            # Convertir les chaînes en objets date
             date_debut = datetime.strptime(date_debut_str, '%Y-%m-%d').date() if date_debut_str else None
             date_fin = datetime.strptime(date_fin_str, '%Y-%m-%d').date() if date_fin_str else None
             
-            # Mettre à jour l'offre
             offre.Nom_Offre = nom_offre
             offre.Date_Debut = date_debut
             offre.Date_Fin = date_fin
-            
-            # Traiter l'image si fournie
+
             if 'image' in request.FILES:
                 offre.image = request.FILES['image']
                 
             offre.save()
             return JsonResponse({'success': True})
-            
+
+        else:
+            return JsonResponse({"success": False, "error": "Méthode non autorisée."}, status=405)
+
+    except Offre.DoesNotExist:
+        return JsonResponse({"success": False, "error": "Offre introuvable."}, status=404)
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
 #ta3 lamisse
 
 def login_view(request):
@@ -304,7 +330,7 @@ def determine_redirect_url(user):
     elif user.is_staff:
         if user.groups.filter(name='Admin').exists():
             print("Redirecting to gestion_admin")
-            return 'gestion_admin'
+            return 'offre'
         elif user.groups.filter(name='Chef').exists() or user.role == 'chef':
             print("Redirecting to chef_interface")
             return 'menu:pagechef'
@@ -336,6 +362,9 @@ def determine_redirect_url(user):
     elif user.role == 'fournisseur':
         print("Redirecting to fournisseur_interface based on role")
         return 'fournisseur_interface'
+    elif user.role == 'admin':
+        print("Redirecting to fournisseur_interface based on role")
+        return 'offre'
     else:
         print("Redirecting to client_interface")
         return 'acceuil'
@@ -346,7 +375,8 @@ def superadmin_interface(request):
 
 @staff_member_required
 def admin_interface(request):
-    return render(request, 'app/gestion_admin.html')       # Create this template
+     restaurant = request.user.admin_profile.restaurant
+     return render(request, 'Pages_Offre/offre.html', {'restaurant': restaurant})       # Create this template
 
 @login_required
 def serveur_interface(request):
@@ -529,4 +559,8 @@ def sync_existing_users():
             
             user.save()
             print(f"Utilisateur {user.username} mis à jour (staff: {user.is_staff})")        
-    
+def get_restaurant_for_user(user):
+    if hasattr(user, 'admin_profile') and user.admin_profile:
+        return user.admin_profile.restaurant
+    return None
+  

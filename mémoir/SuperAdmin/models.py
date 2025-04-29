@@ -11,7 +11,7 @@ class Admin(models.Model):
     phone = models.CharField(max_length=20)
     image = models.ImageField(upload_to='admin_images/')
     restaurant = models.OneToOneField('Restaurant', on_delete=models.CASCADE)
-
+    
     
 
 

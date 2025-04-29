@@ -43,15 +43,104 @@
 </head>
 <body>
     <div class="side-menu">
-        <div class="brand-name"><h1>The LFS Spot</h1></div>
+        <div class="brand-name">
+            <h1>The LFS Spot</h1>
+        </div>
+    
+        {% if user.is_authenticated %}
+        <!-- ✅ Utilisateur connecté -->
         <ul>
-            <li><a href="{% url 'home' %}"><i class="fas fa-users"></i> Utilisateur</a></li>
-            <li><a href="{% url 'menu:menu_Journalier' %}"><i class="fas fa-utensils"></i> Menu Journalier</a></li>
-            <li><a href="{% url 'menu:Liste_Achat' %}"><i class="fas fa-shopping-cart"></i> Liste des achats</a></li>
-            <li><a href="{% url 'menu:commande' %}"><i class="fas fa-clipboard-list"></i> Gestion des commandes</a></li>
-            <li><a href="{% url 'offre' %}"><i class="fas fa-tags"></i> Gestion des offres</a></li>
-            <li><a href="{% url 'menu:Gestiontable' %}"><i class="fas fa-tags"></i> Gestion des tables</a></li>
+            <li>
+                <a href="{% url 'home' %}">
+                    <i class="fas fa-users"></i> &nbsp;
+                    <span>Utilisateur</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'menu:menu_Journalier' %}">
+                    <i class="fas fa-utensils"></i> &nbsp;
+                    <span>Menu Journalier</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'menu:Liste_Achat' %}">
+                    <i class="fas fa-shopping-cart"></i> &nbsp;
+                    <span>Liste des achats</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'menu:commande' %}">
+                    <i class="fas fa-clipboard-list"></i> &nbsp;
+                    <span>Gestion des commandes</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'offre' %}">
+                    <i class="fas fa-tags"></i> &nbsp;
+                    <span>Gestion des offres</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'menu:Gestiontable' %}">
+                    <i class="fas fa-tags"></i> &nbsp;
+                    <span>Gestion des tables</span>
+                </a>
+            </li>
+            <div class="login-prompt" style="text-align: center; margin-top: 20px;">
+                <p style="color: white;">Connectez-vous pour accéder</p>
+                <a href="{% url 'login' %}" class="login-button" style="
+                    display: inline-block;
+                    background-color: white;
+                    color: rgb(236, 143, 3);
+                    padding: 8px 20px;
+                    margin-top: 10px;
+                    border-radius: 4px;
+                    font-weight: bold;
+                    text-decoration: none;
+                    transition: all 0.3s ease;
+                ">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </a>
+            </div>
         </ul>
+        {% else %}
+        <!-- 🚫 Utilisateur NON connecté -->
+        <ul>
+            <li class="disabled-menu-item">
+                <i class="fas fa-users"></i> &nbsp; Utilisateur
+            </li>
+            <li class="disabled-menu-item">
+                <i class="fas fa-utensils"></i> &nbsp; Menu Journalier
+            </li>
+            <li class="disabled-menu-item">
+                <i class="fas fa-shopping-cart"></i> &nbsp; Liste des achats
+            </li>
+            <li class="disabled-menu-item">
+                <i class="fas fa-clipboard-list"></i> &nbsp; Gestion des commandes
+            </li>
+            <li class="disabled-menu-item">
+                <i class="fas fa-tags"></i> &nbsp; Gestion des offres
+            </li>
+        </ul>
+    
+        <!-- 🎯 Ajouter le bouton de connexion ici -->
+        <div class="login-prompt" style="text-align: center; margin-top: 20px;">
+            <p style="color: white;">Connectez-vous pour accéder</p>
+            <a href="{% url 'login' %}" class="login-button" style="
+                display: inline-block;
+                background-color: white;
+                color: rgb(236, 143, 3);
+                padding: 8px 20px;
+                margin-top: 10px;
+                border-radius: 4px;
+                font-weight: bold;
+                text-decoration: none;
+                transition: all 0.3s ease;
+            ">
+                <i class="fas fa-sign-in-alt"></i> Se connecter
+            </a>
+        </div>
+        {% endif %}
     </div>
 
     <div class="total">

@@ -4,6 +4,7 @@ from django.utils.timezone import now
 from SuperAdmin.models import Categorie,Ingredient,Plat,PlatIngredient
 from django.utils import timezone
 from django.utils.timesince import timesince
+from SuperAdmin.models import Restaurant
 
 
 class Client(AbstractUser):
@@ -29,7 +30,7 @@ class Table(models.Model):
     numéro = models.PositiveIntegerField(unique=True)  
     capacité = models.PositiveIntegerField() 
     available_tables = models.PositiveIntegerField(default=1)
-
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, null=True, blank=True)
     def __str__(self):
         return f"Table {self.numéro} (Capacité: {self.capacité})"
     
