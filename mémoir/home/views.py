@@ -39,7 +39,11 @@ def client_page(request):
 from .models import CustomUser
 
 def users_by_role(request, role):
-    users = CustomUser.objects.filter(role=role)
+    restaurant = get_restaurant_for_user(request.user)
+    if restaurant:
+        users = CustomUser.objects.filter(restaurant=restaurant, role=role)
+    else:
+        users = CustomUser.objects.none()
 
     if not users.exists():
         return JsonResponse({"utilisateurs": []}, status=200)  # Retourne une liste vide
@@ -56,11 +60,13 @@ def users_by_role(request, role):
         for user in users
     ]
     return JsonResponse({"utilisateurs": users_data})
-
 @csrf_exempt
 def ajouter_utilisateur(request):
     if request.method == "POST":
-        try:
+       restaurant = get_restaurant_for_user(request.user)
+       if not restaurant:
+            return JsonResponse({"success": False, "error": "Pas de restaurant associé."}, status=403)
+       try:
             data = json.loads(request.body)
             nom = data.get("nom")
             email = data.get("email")
@@ -68,7 +74,7 @@ def ajouter_utilisateur(request):
             adresse = data.get("adresse")
             telephone = data.get("telephone")
             role = data.get("role")
-            restaurant_id = data.get("restaurant_id")  # Nouveau paramètre pour l'ID du restaurant
+              # Nouveau paramètre pour l'ID du restaurant
 
             if not (nom and email and password and adresse and telephone and role):
                 return JsonResponse({"success": False, "error": "Tous les champs sont obligatoires."}, status=400)
@@ -87,18 +93,11 @@ def ajouter_utilisateur(request):
                 role=role,
                 adresse=adresse,
                 telephone=telephone,
-                is_staff=True if role != 'client' else False  # Marquer comme staff tous les utilisateurs sauf clients
+                is_staff=True if role != 'client' else False,  # Marquer comme staff tous les utilisateurs sauf clients
+                restaurant=restaurant
             )
             
-            # Associer l'utilisateur à un restaurant si l'ID du restaurant est fourni et que l'utilisateur est un admin
-            if restaurant_id and role == 'admin':
-                try:
-                    restaurant = Restaurant.objects.get(id=restaurant_id)
-                    user.restaurant = restaurant
-                except Restaurant.DoesNotExist:
-                    pass  # Si le restaurant n'existe pas, on continue sans associer
-            
-            # Définir le mot de passe
+           
             user.set_password(password)
             user.mot_de_passe_clair = password
             
@@ -117,7 +116,7 @@ def ajouter_utilisateur(request):
             
             user.save()
             return JsonResponse({"success": True})
-        except Exception as e:
+       except Exception as e:
             return JsonResponse({"success": False, "error": str(e)}, status=500)
     
     return JsonResponse({"success": False, "error": "Méthode non autorisée."}, status=405)
@@ -168,13 +167,21 @@ def supprimer_utilisateur(request, user_id):
 def liste_utilisateurs(request):
     utilisateurs = CustomUser.objects.all()
     return render(request, 'pages/liste_utilisateur.html', {'utilisateurs': utilisateurs})
+@login_required
 def utilisateurs_par_role(request):
-    role = request.GET.get('role', '')  # Récupère le rôle depuis l'URL
-    return render(request, 'pages/index.html', {'role': role})
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from datetime import datetime
+    role = request.GET.get('role', '')
+    restaurant = get_restaurant_for_user(request.user)
+
+    if restaurant:
+        utilisateurs = CustomUser.objects.filter(role=role, restaurant=restaurant)
+    else:
+        utilisateurs = CustomUser.objects.none()
+
+    return render(request, 'pages/index.html', {
+        'role': role,
+        'utilisateurs': utilisateurs,
+    })
+
 
 # ✅ Vue pour afficher la page des offres (protégée)
 @login_required

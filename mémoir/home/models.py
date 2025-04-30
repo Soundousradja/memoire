@@ -24,7 +24,7 @@ class CustomUser(AbstractUser):
     adresse = models.CharField(max_length=255, blank=True, null=True)  # Champ adresse
     telephone = models.CharField(max_length=15, blank=True, null=True)  # Champ téléphone
     admin_profile = models.OneToOneField(Admin, on_delete=models.SET_NULL, null=True, blank=True)
-    
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"
