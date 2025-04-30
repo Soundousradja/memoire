@@ -3,227 +3,566 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Ingrédients</title>
+    <title>The LFS Spot</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
         body {
-            font-family: Arial, sans-serif;
-            background-color: black;
-            color: gold;
-            text-align: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
         }
-        select, input, button {
-            padding: 10px;
-            margin: 10px;
-            border-radius: 5px;
-            width: 370px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-        button {
-            background-color: gold;
-            border: none;
-            cursor: pointer;
-            margin-top: 20px;
-            border-radius: 18px;
-        }
-        h2{
-            margin-bottom: 50px;
-            margin-top: 50px;
-            font-size: 35px;
-        }
-        label{
-            margin-right: 8px;
-            font-size: 20px;
+
+        h1{
+            color:#ddd;
         }
         .container{
-            border: 2px solid yellow;
-            padding:15px;
-            margin-bottom: 25px;
-            width:80%;
-            margin: auto;
-        }
-        table {
-            width: 60%;
-            margin: auto;
-            border-collapse: collapse;
-            display: none; /* Le tableau est caché au début */
-            border:1px solid yellow;
-        }
-        th , tr{
-            border: 1px solid rgb(255, 217, 0);
-            padding: 8px;
             text-align: center;
-            color:black;
         }
-        td{
-            color:rgb(240, 205, 11);
-            border:1px solid yellow;
+        /* Conteneur principal des ingrédients */
+        .ingredients-container {
+            width: 100%;
+            margin-left: 0;
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        th {
-            background-color: rgb(255, 230, 1);
+
+        /* Style de la table */
+        .ingredients-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        /* En-tête de la table */
+        .ingredients-table thead {
+            background: rgb(236, 143, 3);
+            color: rgb(19, 19, 19);
+            font-weight: bold;
+        }
+
+        /* Colonnes */
+        .ingredients-table th, .ingredients-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        /* Contenu de la table */
+        .ingredients-table tbody tr {
+            background: #f9f9f9;
+            transition: background 0.2s;
+        }
+
+        .ingredients-table td {
+            white-space: nowrap;
+        }
+
+        .ingredients-table tbody tr:hover {
+            background: #e8f0ff;
+        }
+
+        /* Bouton Ajouter */
+        .add-btn {
+            background: rgb(236, 143, 3);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+            width: 100px;
+        }
+
+        .add-btn:hover {
+            background: rgb(201, 122, 2);
+        }
+
+        /* Tableau des achats */
+        .achats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .achats-table thead {
+            background: rgb(236, 143, 3);
+            color: rgb(19, 19, 19);
+            font-weight: bold;
+        }
+
+        .achats-table th, .achats-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .achats-table tbody tr {
+            background: #f9f9f9;
+        }
+
+        /* Bouton Supprimer */
+        .delete-btn {
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .delete-btn:hover {
+            background: #cc0000;
+        }
+
+        /* Sélection de fournisseur et bouton Envoyer */
+        .fournisseur-section {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .fournisseur-select {
+            width: 300px;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .envoyer-btn {
+            background: rgb(236, 143, 3);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background 0.3s;
+            width: 200px;
+        }
+
+        .envoyer-btn:hover {
+            background: rgb(201, 122, 2);
+        }
+
+        .input-qte {
+            width: 80px;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* Menu latéral */
+        .side-menu {
+            position: fixed;
+            background-color: rgb(236, 143, 3);
+            min-height: 100vh;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        .brand-name {
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 40px;
+        }
+        
+        .brand-name h1 {
+            color: white;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+        }
+        .side-menu ul {
+            width: 100%;
+        }
+        .side-menu li {
+            font-size: 18px;
+            padding: 16px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        .side-menu li i {
+            margin-right: 15px;
+            font-size: 20px;
+            width: 25px;
+            text-align: center;
+        }
+        .side-menu li:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left: 4px solid white;
+        }
+        .side-menu li.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid white;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            margin-left: 280px;
+            padding: 20px;
+            width: calc(100% - 300px);
+            height: auto;
+            overflow-y: auto;
+            max-height: calc(100vh - 150px);
+        }
+        .contenu {
+            position: sticky;
+            top: 0;
+            z-index: 15;
+            background-color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+            margin-left: 320px;
+            margin-right: 100px;
+        }
+        .point {
+            margin-top: 15px;
+            background-color: white;
+            border-bottom: 0.5px solid rgb(252, 248, 248);
+        }
+        .total {
+            background-color: white;
+            margin-top: 10px;
+            height: 8vw;
+        }
+        a {
+            text-decoration: none;
+            color: #f5f5f5;
+        }
+        li {
+            list-style: none;
+        }
+        .login-button {
+            display: inline-block;
+            background-color: white;
+            color: rgb(236, 143, 3);
+            padding: 8px 20px;
+            margin-top: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        h3 {
+            margin: 20px 0;
+            color: rgb(236, 143, 3);
+        }
+
+        /* Nouveau style pour l'icône utilisateur */
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: black;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            position: relative;
+            
+        }
+        .user-avatar:hover{
+            background-color: rgb(236, 143, 3);
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            width: 180px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .user-menu-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .user-menu-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .user-menu-item i {
+            margin-right: 10px;
+            color: rgb(236, 143, 3);
+        }
+
+        .show-menu {
+            display: block;
         }
     </style>
 </head>
 <body>
-
-    <h2>📄 Saisir les ingrédients et quantités :</h2>
-    <div class="container">
-    <label for="ingredient">Ingrédient :</label>
-    <select id="ingredient" name="ingredient">
-        <option value="">Sélectionner un ingrédient</option>
-    </select>
-
-    <label for="qte_stock">Quantité restante :</label>
-    <input type="text" id="qte_stock" readonly> <br>
-
-    <label for="qte_saisie">Saisir la Quantité :</label>
-    <input type="number" id="qte_saisie"> <br> </div>
-
-    <button id="ajouter">+ Ajouter</button>
-
-    <h3 id="titre_achats" style="display: none;">📝 Liste des achats :</h3>
-    <table id="table_achats">
-        <thead>
-            <tr>
-                <th>Ingrédient</th>
-                <th>Quantité</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="tbody_achats">
-        </tbody>
-    </table>
-
+    <div class="side-menu">
+        <div class="brand-name">
+            <h1>The LFS Spot</h1>
+        </div>
     
+        <ul>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'home' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-users"></i> &nbsp;
+                    <span>Utilisateur</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'menu:menu_Journalier' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-utensils"></i> &nbsp;
+                    <span>Menu Journalier</span>
+                </a>
+            </li>
+            <li class="active">
+                <a href="{% if user.is_authenticated %}{% url 'menu:Liste_Achat' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-shopping-cart"></i> &nbsp;
+                    <span>Liste des achats</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'menu:commande' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-clipboard-list"></i> &nbsp;
+                    <span>Gestion des commandes</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'offre' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-tags"></i> &nbsp;
+                    <span>Gestion des offres</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'menu:Gestiontable' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-table"></i> &nbsp;
+                    <span>Gestion des tables</span>
+                </a>
+            </li>
+            <div class="login-prompt" style="text-align: center; margin-top: 20px;">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'menu:logout' %}" class="login-button">
+                        <i class="fas fa-sign-out-alt"></i> Déconnecter
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="login-button">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </a>
+                {% endif %}
+            </div>
+        </ul>
+    </div>
+    
+    <div class="total">
+        <div class="contenu">
+            <div class="titre"><h2>Liste des achats</h2></div>
+            <!-- Icône utilisateur avec initiale -->
+            <div class="user-avatar" id="userAvatar">
+                {% if user.is_authenticated %}
+                    {{ user.first_name|first|default:user.username|first|upper }}
+                {% else %}
+                    U
+                {% endif %}
+            </div>
+            <!-- Menu déroulant -->
+            <div class="user-menu" id="userMenu">
+                <a href="{% url 'menu:logout' %}" class="user-menu-item">
+                     Déconnecter
+                </a>
+            </div>
+        </div>
+        <div class="point"></div>
+    </div>
 
-    <h3>📌 Sélectionner les fournisseurs :</h3> <br>
-    <select id="fournisseur">
-        <option value="">Fournisseur</option>
-        <option value="Fournisseur A">Fournisseur A</option>
-        <option value="Fournisseur B">Fournisseur B</option>
-    </select> <br>
+    <div class="container">
+        <div class="ingredients-container">
+            
+            <table class="ingredients-table" id="ingredients-table">
+                <thead>
+                    <tr>
+                        <th>Ingrédient</th>
+                        <th>Quantité restante</th>
+                        <th>Nouvelle quantité</th>
+                        
+                    </tr>
+                </thead>
+                <tbody id="ingredients-body">
+                    <!-- Les ingrédients seront chargés ici -->
+                </tbody>
+            </table>
 
-    <button id="envoyer">✉ Envoyer</button>
+            <div class="fournisseur-section">
+                <h3>📌 Sélectionner un fournisseur</h3>
+                <select id="fournisseur" class="fournisseur-select">
+                    <option value="">Choisir un fournisseur</option>
+                    <option value="Fournisseur A">Fournisseur A</option>
+                    <option value="Fournisseur B">Fournisseur B</option>
+                </select>
+                <button id="envoyer-btn" class="envoyer-btn">✉ Envoyer la commande</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const ingredientSelect = document.getElementById("ingredient");
-            const qteStockInput = document.getElementById("qte_stock");
-            const qteSaisieInput = document.getElementById("qte_saisie");
-           
-            const ajouterButton = document.getElementById("ajouter");
-            const tbodyAchats = document.getElementById("tbody_achats");
-            const titreAchats = document.getElementById("titre_achats");
-            const tableAchats = document.getElementById("table_achats");
+        document.addEventListener("DOMContentLoaded", function() {
+            const ingredientsBody = document.getElementById("ingredients-body");
+            const achatsBody = document.getElementById("achats-body");
+            const achatsTable = document.getElementById("achats-table");
+            const titreAchats = document.getElementById("titre-achats");
+            const fournisseurSelect = document.getElementById("fournisseur");
+            const envoyerBtn = document.getElementById("envoyer-btn");
+            
+            // Nouveau code pour gérer le menu utilisateur
+            const userAvatar = document.getElementById("userAvatar");
+            const userMenu = document.getElementById("userMenu");
+            
+            userAvatar.addEventListener("click", function() {
+                userMenu.classList.toggle("show-menu");
+            });
+            
+            // Cacher le menu quand on clique ailleurs
+            document.addEventListener("click", function(event) {
+                if (!userAvatar.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.remove("show-menu");
+                }
+            });
 
-
-            // Charger la liste des ingrédients
+            // Charger les ingrédients
             fetch("/menu/get-ingredients/")
                 .then(response => response.json())
                 .then(data => {
-                    data.forEach(ingredient => {
-                        let option = document.createElement("option");
-                        option.value = ingredient.id;
-                        option.textContent = ingredient.name;
-                        option.setAttribute("data-stock", ingredient.qte_total_utilisee);
-                        ingredientSelect.appendChild(option);
-                    });
-                });
+                    // Filtrer les ingrédients dont la quantité restante > 0
+                    const ingredientsDisponibles = data.filter(ingredient => ingredient.qte_total_utilisee > 0);
+                    
+                    if (ingredientsDisponibles.length > 0) {
+                        ingredientsDisponibles.forEach(ingredient => {
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td>${ingredient.name}</td>
+                                <td>${ingredient.qte_total_utilisee}</td>
+                                <td><input type="number" class="input-qte" min="1" value="1"></td>
+                            `;  
+                            ingredientsBody.appendChild(row);
+                        });
 
-            // Mettre à jour la quantité restante quand un ingrédient est sélectionné
-            ingredientSelect.addEventListener("change", function () {
-                let selectedOption = ingredientSelect.options[ingredientSelect.selectedIndex];
-                let qteStock = selectedOption.getAttribute("data-stock");
-                qteStockInput.value = qteStock ? qteStock : "";
-            });
+                        // Ajouter les écouteurs d'événements pour les boutons d'ajout
+                        document.querySelectorAll(".add-btn").forEach(btn => {
+                            btn.addEventListener("click", function() {
+                                const id = btn.getAttribute("data-id");
+                                const name = btn.getAttribute("data-name");
+                                const quantityInput = btn.closest("tr").querySelector(".input-qte");
+                                const quantity = parseInt(quantityInput.value);
 
-            // Ajouter un ingrédient à la liste des achats
-            ajouterButton.addEventListener("click", function () {
-                let selectedOption = ingredientSelect.options[ingredientSelect.selectedIndex];
-                let ingredientNom = selectedOption.textContent;
-                let qteSaisie = qteSaisieInput.value;
+                                if (quantity <= 0) {
+                                    alert("Veuillez saisir une quantité valide (supérieure à 0).");
+                                    return;
+                                }
 
-                if (!ingredientNom || qteSaisie <= 0) {
-                    alert("Veuillez sélectionner un ingrédient et saisir une quantité valide.");
-                    return;
-                }
+                                // Vérifier si l'ingrédient existe déjà dans la liste des achats
+                                const existingRow = document.querySelector(`#achats-body tr[data-id="${id}"]`);
+                                
+                                if (existingRow) {
+                                    // Mettre à jour la quantité existante
+                                    const currentQuantity = parseInt(existingRow.querySelector(".achat-quantity").textContent);
+                                    existingRow.querySelector(".achat-quantity").textContent = currentQuantity + quantity;
+                                } else {
+                                    // Ajouter un nouvel ingrédient
+                                    const newRow = document.createElement("tr");
+                                    newRow.setAttribute("data-id", id);
+                                    newRow.innerHTML = `
+                                        <td>${name}</td>
+                                        <td class="achat-quantity">${quantity}</td>
+                                    `;
+                                    achatsBody.appendChild(newRow);
+                                }
 
-                let exists = false;
-                tbodyAchats.querySelectorAll("tr").forEach(row => {
-                    if (row.dataset.ingredient === selectedOption.value) {
-                        let cellQuantite = row.querySelector(".quantite");
-                        cellQuantite.textContent = parseInt(cellQuantite.textContent) + parseInt(qteSaisie);
-                        exists = true;
+                                // Afficher le tableau des achats s'il était caché
+                                achatsTable.style.display = "table";
+                                titreAchats.style.display = "block";
+                                
+                                // Réinitialiser l'input de quantité
+                                quantityInput.value = 1;
+                            });
+                        });
+                    } else {
+                        ingredientsBody.innerHTML = '<tr><td colspan="3">Aucun ingrédient disponible.</td></tr>';
                     }
+                })
+                .catch(error => {
+                    console.error("Erreur lors de la récupération des ingrédients:", error);
+                    ingredientsBody.innerHTML = '<tr><td colspan="3">Erreur lors du chargement des ingrédients.</td></tr>';
                 });
 
-                if (!exists) {
-                    let row = document.createElement("tr");
-                    row.dataset.ingredient = selectedOption.value;
-
-                    let cellNom = document.createElement("td");
-                    cellNom.textContent = ingredientNom;
-
-                    let cellQuantite = document.createElement("td");
-                    cellQuantite.textContent = qteSaisie;
-                    cellQuantite.classList.add("quantite");
-
-                    let cellAction = document.createElement("td");
-                    let btnSupprimer = document.createElement("button");
-                    btnSupprimer.textContent = "Supprimer";
-                    btnSupprimer.style.backgroundColor = "red";
-                    btnSupprimer.style.color = "white";
-                    btnSupprimer.style.border = "none";
-                    btnSupprimer.style.cursor = "pointer";
-                    btnSupprimer.style.width = "150px";
-
-
-                    btnSupprimer.addEventListener("click", function () {
-                        tbodyAchats.removeChild(row);
-                        if (tbodyAchats.children.length === 0) {
-                            titreAchats.style.display = "none";
-                            tableAchats.style.display = "none";
-                        }
+            // Envoyer la commande
+            envoyerBtn.addEventListener("click", function() {
+                const fournisseur = fournisseurSelect.value;
+                const achats = [];
+                
+                document.querySelectorAll("#achats-body tr").forEach(row => {
+                    achats.push({
+                        id: row.getAttribute("data-id"),
+                        name: row.cells[0].textContent,
+                        quantity: row.cells[1].textContent
                     });
+                });
 
-                    cellAction.appendChild(btnSupprimer);
-                    row.appendChild(cellNom);
-                    row.appendChild(cellQuantite);
-                    row.appendChild(cellAction);
-
-                    tbodyAchats.appendChild(row);
+                if (!fournisseur) {
+                    alert("Veuillez sélectionner un fournisseur.");
+                    return;
                 }
-
-                // Afficher la section Liste des achats
-                titreAchats.style.display = "block";
-                tableAchats.style.display = "table";
-
-                // Réinitialiser le champ de quantité
-                qteSaisieInput.value = "";
-            
-            });
-
-            // Envoyer les données
-            document.getElementById("envoyer").addEventListener("click", function () {
-                let fournisseur = document.getElementById("fournisseur").value;
-                let achats = [];
-                listeAchats.querySelectorAll("li").forEach(item => achats.push(item.textContent));
-
-                if (!fournisseur || achats.length === 0) {
-                    alert("Veuillez sélectionner un fournisseur et ajouter des achats.");
+                
+                if (achats.length === 0) {
+                    alert("Veuillez ajouter au moins un ingrédient à la liste des achats.");
                     return;
                 }
 
-                let data = {
+                const commandeData = {
                     fournisseur: fournisseur,
                     achats: achats
                 };
 
-                console.log("Données envoyées :", data);
-                alert("Commande envoyée !");
+                console.log("Données de la commande:", commandeData);
+                alert("Commande envoyée au fournisseur " + fournisseur + " !");
+                
+                // Réinitialiser le formulaire
+                achatsBody.innerHTML = "";
+                achatsTable.style.display = "none";
+                titreAchats.style.display = "none";
+                fournisseurSelect.value = "";
             });
         });
     </script>
-
 </body>
 </html>

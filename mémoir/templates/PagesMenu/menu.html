@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
     <title>Gestion des Ingrédients</title>
     <style>
          * {
@@ -148,24 +149,22 @@
         }
         .container1{
             position: sticky;
-    top: 0;
-    z-index: 15;
-    background-color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid #ddd;
-    margin-left: 250px;
-    margin-right: 150px;
-            
+            top: 0;
+            z-index: 15;
+            background-color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+            margin-left: 250px;
+            margin-right: 100px;
         }
         .contenu{
             margin-left: 100px;
             margin-top: -120px;
         }
         .point{
-            
             margin-top: 15px;
             background-color: white;
             border-bottom:0.5px solid rgb(252, 248, 248);
@@ -173,14 +172,65 @@
         .total{
             background-color: white;
             margin-top: 1px;
-            height:8vw;
+            height: 8vw;
             margin-left: 70px;
-            
-            
+            position: relative;
         }
         a{
             text-decoration: none;
             color: #f5f5f5;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: black;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .user-avatar:hover{
+            background-color: rgb(236, 143, 3);
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            width: 180px;
+            display: none;
+            z-index: 1000;
+        }
+        .user-menu-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .user-menu-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .user-menu-item i {
+            margin-right: 10px;
+            color: rgb(236, 143, 3);
+        }
+
+        .show-menu {
+            display: block;
         }
        
         
@@ -264,45 +314,68 @@
     </div>
     <div class="total">
         <div class="container1">
-             <div class="titre"><h2> Menu Journalier</h2> </div>
+            <div class="titre"><h2>Menu Journalier</h2></div>
+            
+            <!-- Avatar utilisateur correctement positionné -->
+            <div class="user-avatar" id="userAvatar">
+                {% if user.is_authenticated %}
+                    {{ user.first_name|first|default:user.username|first|upper }}
+                {% else %}
+                    U
+                {% endif %}
             </div>
-            </div>
+        </div>
+        
+        <!-- Menu déroulant -->
+        <div class="user-menu" id="userMenu">
+            <a href="{% url 'menu:logout' %}" class="user-menu-item">
+                <i class="fas fa-sign-out-alt"></i> Déconnecter
+            </a>
+        </div>
     </div>
+    
     <div class="contenu">
         <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
         <div class="container">
-        {% for categorie in categories %}
-        <div class="category1">
+            {% for categorie in categories %}
+            <div class="category1">
                 {% if categorie.image %}
                     <img src="{{ categorie.image.url }}" alt="{{ categorie.nom }}">
                 {% else %}
                     <img src="{% static 'image/default1.jpg' %}" alt="Image par défaut">
                 {% endif %}
                 <button onclick="redirigerVersPlats('{{ categorie.name }}')">{{ categorie.name }}</button>
-                     
-                </button>
-            
-                
             </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     </div>
-</div>
-</div>
- 
     
-    
-
     <script>
-    function redirigerVersPlats(categorie) {
-    console.log("Redirection vers catégorie:", categorie);
-    try {
-        window.location.href = `/menu/plats/?categorie=${encodeURIComponent(categorie)}`;
-    } catch (error) {
-        console.error("Erreur de redirection:", error);
-        alert("Erreur lors de la redirection: " + error.message);
-    }
-}
+        // Récupération des éléments DOM
+        const userAvatar = document.getElementById("userAvatar");
+        const userMenu = document.getElementById("userMenu");
+        
+        // Gestion du clic sur l'avatar utilisateur
+        userAvatar.addEventListener("click", function() {
+            userMenu.classList.toggle("show-menu");
+        });
+        
+        // Cacher le menu quand on clique ailleurs
+        document.addEventListener("click", function(event) {
+            if (!userAvatar.contains(event.target) && !userMenu.contains(event.target)) {
+                userMenu.classList.remove("show-menu");
+            }
+        });
 
-     </script>
+        function redirigerVersPlats(categorie) {
+            console.log("Redirection vers catégorie:", categorie);
+            try {
+                window.location.href = `/menu/plats/?categorie=${encodeURIComponent(categorie)}`;
+            } catch (error) {
+                console.error("Erreur de redirection:", error);
+                alert("Erreur lors de la redirection: " + error.message);
+            }
+        }
+    </script>
 </body>
 </html>

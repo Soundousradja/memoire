@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from Menu.models import HistoriqueIngredient, HistoriquePlat
+from SuperAdmin.models import HistoriqueIngredient, HistoriquePlat
 from restaurant.models import Commande
 from SuperAdmin.models import Admin, PlatIngredient
 from SuperAdmin.models import Plat
@@ -14,8 +14,10 @@ from restaurant.models import  total_journee
 from django.utils.timesince import timesince
 from restaurant.models import CommandePlat
 from django.shortcuts import render, redirect
-from .models import  Depense, Restaurant
+from .models import  Depense
 from datetime import datetime
+from SuperAdmin.models import Restaurant
+
 from django.contrib.auth import logout
 #from .models import total_paye, total_non_paye
 
@@ -26,7 +28,7 @@ import json
 from datetime import datetime, date
 from django.db.models import Sum
 from django.utils.timesince import timesince
-from .models import  HistoriquePlat, HistoriqueIngredient
+
 from restaurant.models import Table
 
 from django.contrib.auth.decorators import login_required
@@ -46,7 +48,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 from datetime import datetime, date
-from .models import HistoriquePlat, HistoriqueIngredient
+
 import json
 from django.utils.timesince import timesince
 
@@ -164,7 +166,12 @@ def enregistrer_ingredients(request):
                 )
                 historique_plat.quantite = quantite_plat
                 historique_plat.save()
-
+                
+                # Mettre à jour les quantités totales utilisées pour chaque ingrédient de ce plat
+                for plat_ingredient in PlatIngredient.objects.filter(plat=plat):
+                    plat_ingredient.ingredient.update_qte_total_utilisee()
+            
+            # Le reste de votre code existant pour les ingrédients individuels...
             for item in data.get("ingredients", []):
                 ingredient = Ingredient.objects.get(name=item["name"])
                 qte_total = float(item["qteTotal"])
@@ -181,7 +188,6 @@ def enregistrer_ingredients(request):
             return JsonResponse({"error": str(e)}, status=400)
 
     return JsonResponse({"error": "Méthode non autorisée"}, status=405)
-
 # ✅ Gérer Plat page
 @login_required
 def afficher_plats(request):
@@ -193,8 +199,45 @@ def afficher_plats(request):
 # ✅ Liste ingrédients
 @login_required
 def get_ingredients(request):
-    ingredients = Ingredient.objects.all().values('id', 'name')
-    return JsonResponse(list(ingredients), safe=False)
+    # Récupérer le restaurant associé à l'utilisateur connecté
+    restaurant = get_restaurant_for_user(request.user)
+    if not restaurant:
+        return JsonResponse({"error": "Aucun restaurant associé à cet utilisateur."}, status=403)
+    
+    # Récupérer tous les ingrédients
+    ingredients = Ingredient.objects.all()
+    
+    # Préparer les données avec les quantités spécifiques au restaurant
+    data = []
+    for ingredient in ingredients:
+        ingredient_info = {
+            'id': ingredient.id,
+            'name': ingredient.name,
+            'qte_total_utilisee': 0  # Valeur par défaut
+        }
+        
+        # Calculer la quantité totale utilisée pour cet ingrédient dans ce restaurant
+        # en utilisant les historiques
+        try:
+            # Obtenir tous les plats utilisant cet ingrédient
+            plat_ingredients = PlatIngredient.objects.filter(ingredient=ingredient)
+            total_quantite = 0
+            
+            for pi in plat_ingredients:
+                # Pour chaque relation, récupérer l'historique du plat spécifique à ce restaurant
+                historiques = HistoriquePlat.objects.filter(plat=pi.plat, restaurant=restaurant)
+                
+                for hist in historiques:
+                    total_quantite += pi.quantite_par_plat * hist.quantite
+                    
+            ingredient_info['qte_total_utilisee'] = total_quantite
+        except Exception:
+            pass  # En cas d'erreur, garde la valeur par défaut
+            
+        data.append(ingredient_info)
+    
+    return JsonResponse(data, safe=False)
+
 
 # ✅ Formulaire ingrédients
 @login_required
@@ -420,6 +463,9 @@ def commande_et_depenses(request):
     }
 
     return render(request, 'PagesMenu/Commande.html', context)
+
+
+
 
 
 

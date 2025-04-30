@@ -158,12 +158,6 @@ def supprimer_utilisateur(request, user_id):
             return JsonResponse({"success": False, "error": str(e)}, status=500)
 
     return JsonResponse({"success": False, "error": "Méthode non autorisée."}, status=405)
-
-
-
-
-
-
 def liste_utilisateurs(request):
     utilisateurs = CustomUser.objects.all()
     return render(request, 'pages/liste_utilisateur.html', {'utilisateurs': utilisateurs})

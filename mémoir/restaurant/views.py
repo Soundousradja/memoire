@@ -3,7 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.shortcuts import redirect,get_object_or_404
 
-from Menu.models import HistoriquePlat
+from SuperAdmin.models import HistoriquePlat
 from home.models import Offre
 from django.utils.timezone import now
 from django.contrib import messages
