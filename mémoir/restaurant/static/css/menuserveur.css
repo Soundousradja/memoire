@@ -124,6 +124,7 @@ select, button {
 .actions {
     margin-top: 30px;
     margin-left: 150px;
+   
 }
 
 .actions button {
@@ -153,4 +154,14 @@ select, button {
 #montant-total {
     color: #28a745; 
     font-weight: bold;
+}
+footer{
+    background-color: #f5b041;
+    height: 75px;
+    margin-top: 200px;
+}
+footer p{
+    text-align: center;
+    font-weight: bold;
+    padding-top: 30px;
 }

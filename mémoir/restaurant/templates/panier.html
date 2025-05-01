@@ -7,21 +7,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voir Panier</title>
     <link rel="stylesheet" href="{% static 'css/panier.css' %}">
+   
 </head>
 <body>
     <header>
-        <img src="{% static 'image/logo.png' %}" alt="" class="logo">
+        <img src="{% static 'image/logo.png' %}" alt="Logo" class="logo">
         <nav>
             <ul>
                 <li><a href="http://127.0.0.1:8000/restaurant/">Accueil</a></li> 
                 <li><a href="http://127.0.0.1:8000/restaurant/M">Menu</a></li>
                 <li><a href="http://127.0.0.1:8000/restaurant/R">Réservation</a></li> 
-              <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
-              <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre Promo</a></li>
-              <li><a href="/panier/" id="cart-icon">
-                <img src="{% static 'image/paniers.png' %}" alt=""style="width: 20px; color:yellow;">
-                <span id="cart-count">0</span>
-              </a></li>
+                <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
+                <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre Promo</a></li>
+                <li><a href="/panier/" id="cart-icon">
+                    <img src="{% static 'image/paniers.png' %}" alt="Panier" style="width: 20px; color:yellow;">
+                    <span id="cart-count">0</span>
+                </a></li>
             </ul>
         </nav>
     </header>
@@ -50,13 +51,13 @@
                                         <img src="{{ item.plat.image.url }}" alt="{{ item.plat.nom }}" class="panier-image">
                                     {% endif %}
                                 </td>
-                                <td>{{ item.plat.nom }}</td>
-                                <td>{{ item.plat.prix }} DA</td>
+                                <td>{{ item.plat.name }}</td>
+                                <td>{{ item.plat.price }} DA</td>
                                 <td>
                                     <div class="quantity-control">
-                                        <button class="quantity-btn decrement" data-id="{{ item.plat.id }}">-</button>
+                                        <button type="button" class="quantity-btn decrement" data-id="{{ item.plat.id }}">-</button>
                                         <input type="number" min="1" value="{{ item.quantity }}" class="quantity-input" data-id="{{ item.plat.id }}">
-                                        <button class="quantity-btn increment" data-id="{{ item.plat.id }}">+</button>
+                                        <button type="button" class="quantity-btn increment" data-id="{{ item.plat.id }}">+</button>
                                     </div>
                                 </td>
                                 <td>{{ item.prix_total }} DA</td>
@@ -77,28 +78,13 @@
 
                 <div id="formulaire-commande">
                     <h2>Vos informations de livraison</h2>
-                    <form id="order-form">
+                    <form id="order-form"  method="post">
                         {% csrf_token %}
                         <div class="form-group">
-                            <label for="nom">Nom et prénom</label><br>
-                            <input type="text" id="nom" name="nom" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="adresse">Adresse de livraison</label><br>
-                            <textarea id="adresse" name="adresse" required></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="telephone">Numéro de téléphone</label><br>
-                            <input type="tel" id="telephone" name="telephone" required>
-                        </div>
-                        
-                        <div class="form-group">
                             <label for="restaurant">Restaurant</label><br>
-                            <select id="restaurant">
+                            <select id="restaurant" name="restaurant">
                                 {% for restaurant in restaurants %}
-                                    <option value="{{ restaurant.id }}">{{ restaurant.address }} </option>
+                                    <option value="{{ restaurant.id }}">{{ restaurant.address }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -129,24 +115,22 @@
         </div>
     </div>
 
-    <script src="{% static 'js/panier.js' %}"></script>
 
+   
     <footer>
         <div class="footer-container">
-            <img src="{% static 'image/logo.png' %}" alt="" class="logof">
+            <img src="{% static 'image/logo.png' %}" alt="Logo" class="logof">
             <div class="footer-section">
                 <h3>Navigation</h3>
                 <ul class="footer-links">
-                    <li><a href="#">Accueil</a></li>
-                    <li><a href="#">Menu</a></li>
-                    <li><a href="#">Réservation</a></li>
-                    <li><a href="#">Historique</a></li>
-                    <li><a href="#">Offre Promo</a></li>
-                    
+                    <li><a href="http://127.0.0.1:8000/restaurant/">Accueil</a></li>
+                    <li><a href="http://127.0.0.1:8000/restaurant/M">Menu</a></li>
+                    <li><a href="http://127.0.0.1:8000/restaurant/R">Réservation</a></li>
+                    <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
+                    <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre Promo</a></li>
                 </ul>
             </div>
     
-            
             <div class="footer-section">
                 <h3>Suivez-nous</h3>
                 <div class="social-icons">
@@ -159,5 +143,6 @@
         <p class="footer-bottom">© 2025 The LFS Spot Restaurant. Tous droits réservés.</p>
     </footer>
     
+    <script src="{% static 'js/panier.js' %}"></script>
 </body>
 </html>

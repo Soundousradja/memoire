@@ -6,12 +6,14 @@ from django.utils import timezone
 from django.utils.timesince import timesince
 from SuperAdmin.models import Restaurant
 
+from home.models import CustomUser
+
 
 class Client(AbstractUser):
-    phone = models.CharField(max_length=15, unique=True)
-    address = models.TextField()
+    telephone = models.CharField(max_length=15, unique=True)
+    adresse = models.TextField()
 
-    
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     groups = models.ManyToManyField(
         'auth.Group', 
         related_name='client_set',  

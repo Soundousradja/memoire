@@ -1,0 +1,318 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon profil - The LFS Spot</title>
+    <link rel="stylesheet" href="{% static 'css/acceuil.css' %}">
+   
+    <style>
+        
+        .profile-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .profile-title {
+            display: flex;
+            align-items: center;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #f5b041;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            margin-right: 20px;
+        }
+        
+        .profile-name h1 {
+            margin: 0;
+            color: #333;
+            font-size: 24px;
+        }
+        
+        .profile-status {
+            color: #777;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .profile-actions a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #f5b041;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .profile-actions a:hover {
+            background-color: #e59d24;
+            transform: translateY(-2px);
+        }
+        
+        .profile-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .profile-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            padding: 25px;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .profile-card h2 {
+            color: #333;
+            font-size: 18px;
+            margin-top: 0;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .profile-info {
+            margin-bottom: 20px;
+        }
+        
+        .profile-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .profile-label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        
+        .profile-value {
+            color: #333;
+        }
+        
+        .profile-edit {
+            margin-top: 15px;
+            text-align: right;
+        
+        }
+       
+        
+        .profile-edit a {
+            color: #f5b041;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .activity-icon img {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .activity-details h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .activity-details p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            color: #777;
+        }
+        
+        .activity-date {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .back-to-home {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #555;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-to-home:hover {
+            color: #f5b041;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px 0;
+            color: #999;
+        }
+        
+        .empty-state img {
+            width: 80px;
+            opacity: 0.5;
+            margin-bottom: 15px;
+        }
+        
+       #edit-button{
+        background-color: #f5b041;
+        padding: 10px 20px;
+        list-style: none;
+        border-radius: 5px;
+        border: none;
+        color: white;
+        cursor: pointer;
+       }
+       #edit-button:hover{
+        background-color: #e59d24;
+        transform: translateY(-1px);
+       }
+       #save-button{
+        background-color: #f5b041;
+        padding: 10px 20px;
+        list-style: none;
+        border-radius: 5px;
+        border: none;
+        color: white;
+        cursor: pointer;
+       }
+       #save-button:hover{
+        background-color: #e59d24;
+        transform: translateY(-1px);
+       }
+        @media (max-width: 768px) {
+            .profile-content {
+                flex-direction: column;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-title {
+                flex-direction: column;
+                margin-bottom: 20px;
+            }
+            
+            .profile-avatar {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+  
+
+   
+    <div class="profile-container">
+        <a href="http://127.0.0.1:8000/restaurant/" class="back-to-home">← Retour à l'accueil</a>
+        
+        <div class="profile-header">
+            <div class="profile-title">
+                <div class="profile-avatar">
+                    {{ user.username|first|upper }}
+                </div>
+                <div class="profile-name">
+                    <h1>{{ user.username }}</h1>
+                    <div class="profile-status">Client depuis {{ user.date_joined|date:"F Y" }}</div>
+                </div>
+            </div>
+            <div class="profile-actions">
+                <a href="{% url 'logout' %}">Déconnexion</a>
+            </div>
+        </div>
+        
+        <form method="post" id="profile-form">
+            {% csrf_token %}
+        
+            <div class="profile-card">
+                <h2>Informations personnelles</h2>
+                <div class="profile-info">
+                    <div class="profile-item">
+                        <label class="profile-label" for="username">Nom d'utilisateur</label>
+                        <input type="text" id="username" name="username" value="{{ user.username }}" class="profile-value" disabled>
+                    </div>
+        
+                    <div class="profile-item">
+                        <label class="profile-label" for="email">Email</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" class="profile-value" disabled>
+                    </div>
+        
+                    <div class="profile-item">
+                        <label class="profile-label" for="adresse">Adresse</label>
+                        <input type="text" id="adresse" name="adresse" value="{{ user.adresse|default:'Non renseignée' }}" class="profile-value" disabled>
+                    </div>
+        
+                    <div class="profile-item">
+                        <label class="profile-label" for="telephone">Téléphone</label>
+                        <input type="text" id="telephone" name="telephone" value="{{ user.telephone|default:'Non renseigné' }}" class="profile-value" disabled>
+                    </div>
+                </div>
+        
+                <div class="profile-edit">
+                    <button type="button" id="edit-button">Modifier mes informations</button>
+                    <button type="submit" id="save-button" style="display:none;">Enregistrer</button>
+                </div>
+            </div>
+        </form>
+    
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const editButton = document.getElementById('edit-button');
+                const saveButton = document.getElementById('save-button');
+                const inputs = document.querySelectorAll('#profile-form input');
+            
+                editButton.addEventListener('click', function() {
+                    inputs.forEach(input => input.disabled = false);
+                    editButton.style.display = 'none';
+                    saveButton.style.display = 'inline-block';
+                });
+            });
+            </script>
+            
+   
+   
+</body>
+</html>

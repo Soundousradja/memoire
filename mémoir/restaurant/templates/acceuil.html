@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accueil - Restaurant</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/acceuil.css' %}">
     <script src="{% static 'js/acceuil.js' %}"></script>
 </head>
 <header>
@@ -23,11 +23,31 @@
     </div>
     <nav id="navbar">
         <ul>
-            <li><a href="http://127.0.0.1:8000/restaurant/">Accueil</a></li> 
-            <li><a href="http://127.0.0.1:8000/restaurant/M">Menu</a></li>
-            <li><a href="http://127.0.0.1:8000/restaurant/R">Réservation</a></li> 
+          <li><a href="http://127.0.0.1:8000/restaurant/">Accueil</a></li> 
+          <li><a href="http://127.0.0.1:8000/restaurant/M">Menu</a></li>
+          <li><a href="http://127.0.0.1:8000/restaurant/R">Réservation</a></li> 
           <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
-          <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre Promo</a></li>
+          <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre </a></li>
+          {% if user.is_authenticated %}
+         
+          <li class="user-menu">
+            <div class="user-avatar">
+                {{ user.username|first|upper }}
+            </div>
+            <div class="user-menu-content">
+                <div class="user-info">
+                    <div class="user-avatar">{{ user.username|first|upper }}</div>
+                    <span class="user-name">{{ user.username }}</span>
+                </div>
+                <a href="{% url 'profile' %}">Mon profil</a>
+               
+                <a href="{% url 'logout' %}">Déconnexion</a>
+            </div>
+          </li>
+          {% else %}
+          
+          <li><a href="{% url 'login' %}"> <img src="{% static 'image/avatar.png' %}" alt="" style="width: 20px;"></a></li>
+          {% endif %}
         </ul>
     </nav>
    
@@ -72,33 +92,53 @@
             </div>
         </div>
     </div>
-    <div class="plat" id="plat">
-        <h2>Nos Plats</h2>
-    </div>
-    <div class="menu-container">
+    
+<div class="plat" id="plat">
+    <h2>Nos Plats</h2>
+</div>
+<div class="carousel-container">
+    <button class="carousel-button prev">&#10094;</button>
+    <div class="menu-container" id="menu-carousel">
         <div class="menu-item">
             <img src="{% static 'image/La reine.jpg' %}" alt="">
             <h3>LA REINE</h3>
             <p>Seaweed salad with soya vinaigrette and sesame seeds</p>
             <span class="price">600 DA</span>
-           
         </div>
         <div class="menu-item">
             <img src="{% static 'image/4fromage.png' %}" alt="">
             <h3>LA 4 FROMAGES</h3>
             <p>Salad mix, falafel balls, carrots, cherry tomatoes, peppers...</p>
             <span class="price">700 DA</span>
-           
         </div>
         <div class="menu-item">
             <img src="{% static 'image/pizzaduchef.png' %}" alt="">
             <h3>LA PIZZA DU CHEF</h3>
             <p>Salad mix, falafel balls, carrots, cherry tomatoes, peppers...</p>
             <span class="price">900 DA</span>
-            
+        </div>
+  
+        <div class="menu-item">
+            <img src="{% static 'image/pizzaduchef.png' %}" alt="">
+            <h3>MARGHERITA</h3>
+            <p>Sauce tomate, mozzarella et basilic frais</p>
+            <span class="price">550 DA</span>
+        </div>
+        <div class="menu-item">
+            <img src="{% static 'image/pizzaduchef.png' %}" alt="">
+            <h3>VÉGÉTARIENNE</h3>
+            <p>Légumes grillés, champignons, olives et fromage</p>
+            <span class="price">750 DA</span>
+        </div>
+        <div class="menu-item">
+            <img src="{% static 'image/pizzaduchef.png' %}" alt="">
+            <h3>PEPPERONI</h3>
+            <p>Sauce tomate, mozzarella et pepperoni épicé</p>
+            <span class="price">800 DA</span>
         </div>
     </div>
-  <div>
+    <button class="carousel-button next">&#10095;</button>
+</div>
 <div class="voir">
 <a href="http://127.0.0.1:8000/restaurant/M"><button class="button">
    Voir le menu

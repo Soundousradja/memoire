@@ -16,12 +16,12 @@
                 <li><a href="http://127.0.0.1:8000/restaurant/">Accueil</a></li> 
                 <li><a href="http://127.0.0.1:8000/restaurant/M">Menu</a></li>
                 <li><a href="http://127.0.0.1:8000/restaurant/R">Réservation</a></li> 
-              <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
-              <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre Promo</a></li>
-              <li><a href="/panier/" id="cart-icon">
-                <img src="{% static 'image/paniers.png' %}" alt=""style="width: 20px; color:yellow;">
-                <span id="cart-count">0</span>
-              </a></li>
+                <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
+                <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre Promo</a></li>
+                <li><a href="/panier/" id="cart-icon">
+                    <img src="{% static 'image/paniers.png' %}" alt=""style="width: 20px; color:yellow;">
+                    <span id="cart-count">0</span>
+                </a></li>
             </ul>
         </nav>
     </header>
@@ -29,26 +29,14 @@
     <div class="container">
         <h1>Historique de vos commandes</h1>
         
-        {% if not telephone %}
-            <div class="search-form">
-                <p>Veuillez entrer votre numéro de téléphone pour afficher votre historique de commandes.</p>
-                <form method="GET" action="{% url 'historique_commandes' %}">
-                    <div class="form-group">
-                        <label for="telephone">Numéro de téléphone</label>
-                        <input type="tel" id="telephone" name="telephone" required>
-                    </div>
-                    <button type="submit" class="btn-recherche">Rechercher</button>
-                </form>
-            </div>
-        {% endif %}
-        
         {% if message %}
             <div class="message">
                 <p>{{ message }}</p>
-                <a href="{% url 'historique_commandes' %}" class="btn-retour">Réessayer</a>
+                <a href="{% url 'historique_commandes' %}" class="btn-retour">Actualiser</a>
             </div>
         {% endif %}
         
+        {% if user.is_authenticated %}    
         {% if commandes_details %}
             <div class="commandes-list">
                 {% for details in commandes_details %}
@@ -69,47 +57,47 @@
                                         Carte bancaire
                                     {% endif %}
                                 </p>
-                                <!-- Système d'évaluation pour les commandes livrées -->
-        {% if details.commande.statut == 'livree' %}
-        <div class="evaluation-section">
-            {% if details.evaluation %}
-                <p><strong>Votre évaluation :</strong></p>
-                <div class="rating-display">
-                    {% for i in "12345" %}
-                        {% if forloop.counter <= details.evaluation.note %}
-                            <span class="star filled">★</span>
-                        {% else %}
-                            <span class="star">☆</span>
-                        {% endif %}
-                    {% endfor %}
-                    {% if details.evaluation.commentaire %}
-                        <p class="comment"><em>"{{ details.evaluation.commentaire }}"</em></p>
-                    {% endif %}
-                </div>
-            {% else %}
-                <p><strong>Évaluez cette commande :</strong></p>
-                <form method="POST" action="{% url 'evaluer_commande' details.commande.id %}" class="rating-form">
-                    {% csrf_token %}
-                    <div class="star-rating">
-                        <input type="radio" id="star5-{{ details.commande.id }}" name="note" value="5" />
-                        <label for="star5-{{ details.commande.id }}">★</label>
-                        <input type="radio" id="star4-{{ details.commande.id }}" name="note" value="4" />
-                        <label for="star4-{{ details.commande.id }}">★</label>
-                        <input type="radio" id="star3-{{ details.commande.id }}" name="note" value="3" />
-                        <label for="star3-{{ details.commande.id }}">★</label>
-                        <input type="radio" id="star2-{{ details.commande.id }}" name="note" value="2" />
-                        <label for="star2-{{ details.commande.id }}">★</label>
-                        <input type="radio" id="star1-{{ details.commande.id }}" name="note" value="1" />
-                        <label for="star1-{{ details.commande.id }}">★</label>
-                    </div>
-                    <div class="comment-area">
-                        <textarea name="commentaire" placeholder="Commentaire (optionnel)"></textarea>
-                    </div>
-                    <button type="submit" class="btn-evaluation">Envoyer</button>
-                </form>
-            {% endif %}
-        </div>
-    {% endif %}
+                                
+                                {% if details.commande.statut == 'livree' %}
+                                <div class="evaluation-section">
+                                    {% if details.evaluation %}
+                                        <p><strong>Votre évaluation :</strong></p>
+                                        <div class="rating-display">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= details.evaluation.note %}
+                                                    <span class="star filled">★</span>
+                                                {% else %}
+                                                    <span class="star">☆</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if details.evaluation.commentaire %}
+                                                <p class="comment"><em>"{{ details.evaluation.commentaire }}"</em></p>
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        <p><strong>Évaluez cette commande :</strong></p>
+                                        <form method="POST" action="{% url 'evaluer_commande' details.commande.id %}" class="rating-form">
+                                            {% csrf_token %}
+                                            <div class="star-rating">
+                                                <input type="radio" id="star5-{{ details.commande.id }}" name="note" value="5" />
+                                                <label for="star5-{{ details.commande.id }}">★</label>
+                                                <input type="radio" id="star4-{{ details.commande.id }}" name="note" value="4" />
+                                                <label for="star4-{{ details.commande.id }}">★</label>
+                                                <input type="radio" id="star3-{{ details.commande.id }}" name="note" value="3" />
+                                                <label for="star3-{{ details.commande.id }}">★</label>
+                                                <input type="radio" id="star2-{{ details.commande.id }}" name="note" value="2" />
+                                                <label for="star2-{{ details.commande.id }}">★</label>
+                                                <input type="radio" id="star1-{{ details.commande.id }}" name="note" value="1" />
+                                                <label for="star1-{{ details.commande.id }}">★</label>
+                                            </div>
+                                            <div class="comment-area">
+                                                <textarea name="commentaire" placeholder="Commentaire (optionnel)"></textarea>
+                                            </div>
+                                            <button type="submit" class="btn-evaluation">Envoyer</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                         
@@ -145,10 +133,16 @@
                     </div>
                 {% endfor %}
             </div>
-        {% elif telephone and not message %}
+        {% elif not message %}
             <div class="no-orders">
-                <p>Aucune commande trouvée pour ce numéro de téléphone.</p>
+                <p>Vous n'avez pas encore effectué de commandes.</p>
                 <a href="{% url 'menu' %}" class="btn-menu">Voir le menu</a>
+            </div>
+        {% endif %}
+        {% else %}
+            <div class="not-authenticated">
+                <p>Veuillez vous connecter pour consulter votre historique de commandes.</p>
+                <a href="{% url 'login' %}" class="btn-login">Se connecter</a>
             </div>
         {% endif %}
     </div>

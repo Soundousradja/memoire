@@ -26,7 +26,7 @@ urlpatterns = [
     path('super/',include('SuperAdmin.urls') ),
     path('menu/',include('Menu.urls', namespace='menu') ),
     path('restaurant/',include('restaurant.urls') ),
-     path('', lambda request: redirect('gestion_restaurants')),# Redirect / to /restaurants/
+     path('', lambda request: redirect('gestion_restaurants')),
 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

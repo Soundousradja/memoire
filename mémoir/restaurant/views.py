@@ -2,8 +2,13 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.shortcuts import redirect,get_object_or_404
+<<<<<<< HEAD
 
 from SuperAdmin.models import HistoriquePlat
+=======
+from django.contrib.auth import logout
+from Menu.models import HistoriquePlat
+>>>>>>> dcdc28d (Ton message de commit)
 from home.models import Offre
 from django.utils.timezone import now
 from django.contrib import messages
@@ -23,42 +28,38 @@ def acceuil(request):
 #Menu
 
 def menu_view(request):
-    categories = Categorie.objects.all()
-    categorie_id = request.GET.get('categorie')
+    # Récupérer tous les restaurants
     restaurants = Restaurant.objects.all()
+    
+    # Récupérer l'ID du restaurant sélectionné
     restaurant_id = request.GET.get('restaurant')
-
-    today = date.today()
-
-    plats_disponibles = HistoriquePlat.objects.filter(date=today, quantite__gte=1).values_list('plat_id', flat=True)
-
+    
+    # Pour tous les restaurants, afficher toutes les catégories et tous les plats
+    # indépendamment du restaurant sélectionné
     if restaurant_id:
-        categories = Categorie.objects.filter(restaurant_id=restaurant_id)
+        # Récupérer toutes les catégories disponibles
+        categories = Categorie.objects.all()
+        
+        # Récupérer tous les plats disponibles
+        plats = Plat.objects.filter(is_available=True)
+        
+        # Filtrer par catégorie si spécifiée
+        categorie_id = request.GET.get('categorie')
         if categorie_id:
-            plats = Plat.objects.filter(categorie_id=categorie_id, id__in=plats_disponibles)
-        else:
-            plats = Plat.objects.filter(categorie__restaurant_id=restaurant_id, id__in=plats_disponibles)
-            if categories and not categorie_id:
-                first_category = categories.first()
-                if first_category:
-                    plats = plats.filter(categorie_id=first_category.id)
+            plats = plats.filter(categorie_id=categorie_id)
     else:
-        categories = []
-        plats = []
-
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return render(request, 'plats.html', {'plats': plats})
+        # Si aucun restaurant n'est sélectionné, afficher toutes les catégories et aucun plat
+        categories = Categorie.objects.all()
+        plats = Plat.objects.none()
 
     return render(request, 'menu.html', {
         'restaurants': restaurants,
         'categories': categories,
         'plats': plats,
-        'selected_restaurant': restaurant_id
     })
 
-
-
 #Réservation
+
 def réservation(request):
     reservation_success = None
     reservation_error = None
@@ -201,11 +202,15 @@ def voir_panier(request):
         except Plat.DoesNotExist:
             # Gérer le cas où le plat n'existe plus
             pass
-    restaurants =Restaurant.objects.all()
+    
+    restaurants = Restaurant.objects.all()
+    
+  
+    
     return render(request, "panier.html", {
         "panier": items_panier,
         "total": total,
-        "restaurants":restaurants
+        "restaurants": restaurants
     })
 
 def supprimer_du_panier(request, plat_id):
@@ -231,76 +236,67 @@ def modifier_panier(request, plat_id, quantity):
     return JsonResponse({"success": True})
 
 
+
+
+
+
+
 @csrf_exempt
+@login_required
 def passer_commande(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            
-            # Récupération du panier depuis la session
+
+            # Récupérer le panier depuis la session
             panier = request.session.get("panier", {})
             if not panier:
                 return JsonResponse({"error": "Votre panier est vide"}, status=400)
-            
-            # Vérification des champs obligatoires
-            nom = data.get("nom")  # Récupère le nom saisi dans le formulaire
-            adresse = data.get("adresse")
-            telephone = data.get("telephone")
-            
+
             mode_paiement = data.get("mode_paiement", "cash")
             restaurant_id = data.get("restaurant")
-            try:
-                  restaurant_obj = Restaurant.objects.get(id=restaurant_id)
-                  restaurant_address = restaurant_obj.address # Ajustez selon votre modèle
-            except Restaurant.DoesNotExist:
-              return JsonResponse({"error": "Restaurant introuvable"}, status=400)
+            
+            if not restaurant_id:
+                return JsonResponse({"error": "Veuillez sélectionner un restaurant"}, status=400)
 
-                          
-            
-            if not (nom and adresse and telephone and restaurant_id):
-                return JsonResponse({"error": "Tous les champs sont obligatoires"}, status=400)
-            
-            # Créer un client basé sur le nom saisi dans le formulaire
+            # Récupérer le client lié à l'utilisateur authentifié
             try:
-                # Essayer de trouver un client avec ce numéro de téléphone
-                client = Client.objects.get(phone=telephone)
-                
-                # Mettre à jour le nom si nécessaire
-                if client.username != nom:
-                    client.username = nom
-                    client.save()
-                    
+                client = Client.objects.get(user=request.user)
+                nom = client.user.username
+                adresse = client.adresse
+                telephone = client.telephone
             except Client.DoesNotExist:
-                # Créer un nouveau client avec le nom saisi dans le formulaire
-                # Assurez-vous que le nom d'utilisateur est unique
-                username_base = nom.replace(" ", "_").lower()
-                
-                # Vérifier si ce nom d'utilisateur existe déjà
-                username_count = Client.objects.filter(username__startswith=username_base).count()
-                if username_count > 0:
-                    username = f"{username_base}_{username_count + 1}"
-                else:
-                    username = username_base
-                
-                client = Client.objects.create_user(
-                    username=username,
-                    password="password123",  # Mot de passe par défaut
-                    email=f"{username}@example.com",  # Email temporaire
-                    phone=telephone,
-                    address=adresse
+                return JsonResponse({"error": "Client non trouvé pour cet utilisateur"}, status=404)
+            except Exception as e:
+                print(f"Erreur lors de la récupération du client : {e}")
+                return JsonResponse({"error": "Erreur lors de la récupération des informations client"}, status=500)
+
+            # Récupérer les infos du restaurant
+            try:
+                restaurant_obj = Restaurant.objects.get(id=restaurant_id)
+                restaurant_address = restaurant_obj.address
+            except Restaurant.DoesNotExist:
+                return JsonResponse({"error": "Restaurant introuvable"}, status=400)
+            except Exception as e:
+                print(f"Error finding restaurant: {e}")
+                return JsonResponse({"error": f"Erreur lors de la récupération du restaurant: {str(e)}"}, status=400)
+
+            # Créer la commande
+            try:
+                commande = Commande.objects.create(
+                    client=client,
+                    adresse=adresse,
+                    telephone=telephone,
+                    restaurant=restaurant_address,
+                    statut='en_attente',
+                    mode_paiement=mode_paiement
                 )
-            
-            # Création de la commande
-            commande = Commande.objects.create(
-                client=client,
-                adresse=adresse,
-                telephone=telephone,
-                restaurant=restaurant_address,
-                statut='en_attente',
-                mode_paiement=mode_paiement
-            )
-            
+            except Exception as e:
+                print(f"Error creating order: {e}")
+                return JsonResponse({"error": f"Erreur lors de la création de la commande: {str(e)}"}, status=500)
+
             # Ajouter les plats à la commande
+            order_items = []
             for plat_id, item_info in panier.items():
                 try:
                     plat = Plat.objects.get(id=int(plat_id))
@@ -309,27 +305,41 @@ def passer_commande(request):
                         plat=plat,
                         quantity=item_info['quantity']
                     )
+                    order_items.append({
+                        'plat': plat.name,
+                        'quantity': item_info['quantity'],
+                        'price': plat.price
+                    })
                 except Plat.DoesNotExist:
+                    print(f"Plat avec l'ID {plat_id} introuvable")
                     continue
-            
-            # Vider le panier après la commande
+                except Exception as e:
+                    print(f"Erreur lors de l'ajout du plat à la commande: {e}")
+                    continue
+
+            if not order_items:
+                commande.delete()  # Supprimer la commande vide
+                return JsonResponse({"error": "Impossible d'ajouter des articles à la commande"}, status=400)
+
+            # Vider le panier après validation
             request.session["panier"] = {}
             request.session.modified = True
-            
+
             return JsonResponse({
                 "success": True,
                 "commande_id": commande.id,
                 "message": "Commande passée avec succès!"
             })
-                
+
         except json.JSONDecodeError:
             return JsonResponse({"error": "Format de données invalide"}, status=400)
         except Exception as e:
             import traceback
-            print(traceback.format_exc())  # Afficher l'erreur complète pour débogage
+            print(traceback.format_exc())
             return JsonResponse({"error": str(e)}, status=500)
-    
+
     return JsonResponse({"error": "Méthode non autorisée"}, status=405)
+
 #offre
 
 
@@ -421,64 +431,59 @@ def repondre_reservation(request, reservation_id, reponse):
     return redirect('serveur_reservations')
 
 
+@login_required
 def historique_commandes(request):
-    # Si vous avez un système d'authentification, utilisez ceci
-    # commandes = Commande.objects.filter(client=request.user).order_by('-date')
-    
-    # Sinon, utilisez le numéro de téléphone stocké en session ou envoyé via formulaire
-    telephone = request.GET.get('telephone')
-    
-    if telephone:
-        try:
-            client = Client.objects.get(phone=telephone)
-            commandes = Commande.objects.filter(client=client).order_by('-date')
+    # Récupérer le client associé à l'utilisateur connecté
+    try:
+        client = Client.objects.get(user=request.user)
+        commandes = Commande.objects.filter(client=client).order_by('-date')
+        
+        # Préparer les données détaillées des commandes
+        commandes_details = []
+        for commande in commandes:
+            plats_commande = CommandePlat.objects.filter(commande=commande)
             
-            # Préparer les données détaillées des commandes
-            commandes_details = []
-            for commande in commandes:
-                plats_commande = CommandePlat.objects.filter(commande=commande)
+            # Calculer le total de la commande
+            total = 0
+            plats_details = []
+            
+            for item in plats_commande:
+                prix_total_item = item.plat.price * item.quantity
+                total += prix_total_item
                 
-                # Calculer le total de la commande
-                total = 0
-                plats_details = []
-                
-                for item in plats_commande:
-                    prix_total_item = item.plat.price * item.quantity
-                    total += prix_total_item
-                    
-                    plats_details.append({
-                        'nom': item.plat.name,
-                        'prix_unitaire': item.plat.price,
-                        'quantite': item.quantity,
-                        'prix_total': prix_total_item
-                    })
-                
-                try:
-                    evaluation = Evaluation.objects.get(commande=commande)
-                except Evaluation.DoesNotExist:
-                    evaluation = None
-                
-                commandes_details.append({
-                    'commande': commande,
-                    'plats': plats_details,
-                    'total': total,
-                    'evaluation': evaluation
+                plats_details.append({
+                    'nom': item.plat.name,
+                    'prix_unitaire': item.plat.price,
+                    'quantite': item.quantity,
+                    'prix_total': prix_total_item
                 })
             
-            return render(request, 'historique.html', {
-                'commandes_details': commandes_details,
-                'telephone': telephone
-            })
+            try:
+                evaluation = Evaluation.objects.get(commande=commande)
+            except Evaluation.DoesNotExist:
+                evaluation = None
             
-        except Client.DoesNotExist:
-            return render(request, 'historique.html', {
-                'message': 'Aucun client trouvé avec ce numéro de téléphone',
-                'telephone': telephone
+            commandes_details.append({
+                'commande': commande,
+                'plats': plats_details,
+                'total': total,
+                'evaluation': evaluation
             })
+        
+        return render(request, 'historique.html', {
+            'commandes_details': commandes_details
+        })
+        
+    except Client.DoesNotExist:
+        return render(request, 'historique.html', {
+            'message': 'Aucun profil client associé à votre compte utilisateur.'
+        })
     
-    # Si aucun téléphone n'est fourni, afficher le formulaire de recherche
-    return render(request, 'historique.html')
-
+    # Si une erreur se produit, retourner le template avec un message approprié
+    except Exception as e:
+        return render(request, 'historique.html', {
+            'message': f'Une erreur s\'est produite: {str(e)}'
+        })
 
 @csrf_exempt
 def serveur_envoyer_commande(request):
@@ -622,3 +627,34 @@ def evaluer_commande(request, commande_id):
     # Si la méthode n'est pas POST, rediriger vers l'historique
     return redirect('historique_commandes')
 
+
+@login_required
+def profile_view(request):
+    return render(request, 'profile.html')
+def logout_view(request):
+    logout(request)
+    return redirect('acceuil')
+
+
+@login_required
+def profile_view(request):
+    user = request.user
+
+    if request.method == 'POST':
+        
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        adresse = request.POST.get('adresse')
+        telephone = request.POST.get('telephone')
+
+      
+        user.username = username
+        user.email = email
+        user.adresse = adresse
+        user.telephone = telephone
+
+        user.save()  
+
+        return redirect('profile')  
+
+    return render(request, 'profile.html', {'user': user})

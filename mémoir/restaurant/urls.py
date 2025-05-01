@@ -21,4 +21,6 @@ urlpatterns = [
      
     path('verifier-reservation/', views.verifier_reservation, name='verifier_reservation'),
     path('restaurant/evaluer/<int:commande_id>/', views.evaluer_commande, name='evaluer_commande'),
+    path('profile/', views.profile_view, name='profile'),
+     path('logout/', views.logout_view, name='logout'),
 ]

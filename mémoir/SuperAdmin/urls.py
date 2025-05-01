@@ -36,9 +36,15 @@ urlpatterns = [
     path('categories/', views.category_selection, name='category_selection'),
     path('categorie_plats/<int:categorie_id>/', views.categorie_plats, name='categorie_plats'),  
     path('plat/modifier/<int:plat_id>/', views.modifier_plat, name='modifier_plat'),
+<<<<<<< HEAD
     path('plat/supprimer/<int:plat_id>/', views.supprimer_plat, name='supprimer_plat'),
   
     path('categorie_plats/<int:categorie_id>/', views.categorie_plats, name='categorie_plats'),
+=======
+
+  
+  path('categorie_plats/<int:categorie_id>/', views.categorie_plats, name='categorie_plats'),
+>>>>>>> dcdc28d (Ton message de commit)
     path('plat/modifier/<int:plat_id>/', views.modifier_plat, name='modifier_plat'),
    
 ]

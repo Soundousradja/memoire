@@ -25,7 +25,7 @@
     <img src="{% static 'image/restable.jpg' %}" alt="">
     <div class="reservation-container">
         <h2>Réserver une Table</h2>
-        <form method="POST" action="{% url 'réservation' %}">
+        <form method="POST" action="{% url 'réservation' %}" >
             {% csrf_token %}
             
             <label for="name">Nom :</label>
@@ -45,8 +45,13 @@
     
             <label for="time">Heure :</label>
             <input type="time" id="time" name="time" required><br>
-    
+            {% if user.is_authenticated %}
             <button type="submit">Réserver</button>
+            {% else %}
+            <button onclick="window.location.href='http://127.0.0.1:8000/login'">Réserver</button>
+
+
+            {% endif %}
         </form>
     
 

@@ -1,77 +1,115 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Éléments du DOM
-    const restaurants = document.querySelectorAll('.restaurant-item');
+    // Sélection des éléments DOM principaux
+    const restaurantSelection = document.querySelector('.restaurant-selection');
     const categoriesContainer = document.getElementById('categories-container');
     const platsSection = document.getElementById('plats-section');
-    const restaurantSelection = document.querySelector('.restaurant-selection');
-    
-    // Sélection du restaurant
+    const platsContainer = document.getElementById('plats-container');
+
+    // Gestionnaire pour les boutons de sélection de restaurant
     document.querySelectorAll(".select-restaurant-btn").forEach(button => {
         button.addEventListener("click", function() {
             const restaurantId = this.getAttribute("data-id");
-            
-            // Rediriger vers la même page avec le paramètre restaurant_id
             window.location.href = `/restaurant/M?restaurant=${restaurantId}`;
         });
     });
     
-    // Si un restaurant est déjà sélecssstionné (vérifie l'URL)
+    // Vérifier si un restaurant est sélectionné dans l'URL
     const urlParams = new URLSearchParams(window.location.search);
     const selectedRestaurantId = urlParams.get('restaurant');
-    
+
     if (selectedRestaurantId) {
-        // Masquer la sélection de restaurant et afficher les catégories et plats
+        // Afficher les sections des catégories et des plats
         restaurantSelection.style.display = "none";
         categoriesContainer.style.display = "block";
         platsSection.style.display = "block";
         
-        // Filtrer les plats pour la première catégorie
-        const categories = document.querySelectorAll('.categorie-item');
-        let plats = document.querySelectorAll('.plat');
+        console.log("Restaurant sélectionné, affichage des catégories et plats");
         
-        // Fonction pour afficher les plats d'une catégorie
-        function filterPlats(categorieId) {
-            plats.forEach(plat => {
-                if (plat.dataset.categorieId === categorieId) {
-                    plat.style.display = "block";  // Afficher les plats de la catégorie sélectionnée
-                } else {
-                    plat.style.display = "none";  // Masquer les autres plats
-                }
-            });
-        }
-    
-        // Ajouter un événement à chaque catégorie
+        // Afficher tous les plats initialement
+        showAllPlats();
+       
+        // Gestionnaire pour les clics sur les catégories
+        const categories = document.querySelectorAll('.categorie-item');
         categories.forEach(categorie => {
             categorie.addEventListener("click", function () {
-                let categorieId = this.getAttribute("data-categorie-id");
-                filterPlats(categorieId);
+                const categorieId = this.getAttribute("data-categorie-id");
                 
-                // Ajouter une classe 'active' à la catégorie sélectionnée
+                console.log("Catégorie sélectionnée:", categorieId);
+                
+                // Mettre en évidence la catégorie sélectionnée
                 categories.forEach(cat => cat.classList.remove('active'));
                 this.classList.add('active');
+                
+                // Créer une nouvelle URL avec les paramètres
+                const url = `/restaurant/M?restaurant=${selectedRestaurantId}&categorie=${categorieId}`;
+                
+                // Mettre à jour l'URL sans rafraîchir la page
+                window.history.pushState({}, '', url);
+                
+                // Charger les plats de la catégorie via AJAX
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    // Mettre à jour le contenu des plats
+                    platsContainer.innerHTML = data;
+                    
+                    // Réinitialiser les gestionnaires d'événements pour les nouveaux boutons d'ajout
+                    setupAddToCartButtons();
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement des plats:', error);
+                });
             });
         });
-    
-        // Afficher les plats de la première catégorie au chargement
+
+        // Option 1: Afficher tous les plats au début
+        // Option 2: Activer la première catégorie par défaut
         if (categories.length > 0) {
-            let firstCategoryId = categories[0].getAttribute("data-categorie-id");
-            filterPlats(firstCategoryId);
+            console.log("Activation de la première catégorie");
             categories[0].classList.add('active');
+            // Option: simuler un clic sur la première catégorie
+            // categories[0].click();
+        }
+    } else {
+        console.log("Aucun restaurant sélectionné");
+    }
+})
+// Fonction pour afficher tous les plats initialement
+function showAllPlats() {
+    const plats = document.querySelectorAll('.plat');
+    if (plats.length > 0) {
+        console.log(`Affichage de ${plats.length} plats`);
+        plats.forEach(plat => {
+            plat.style.display = 'block';
+        });
+    } else {
+        console.log("Aucun plat trouvé à afficher");
+        // Si aucun plat n'est chargé, on peut essayer de recharger la page
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedRestaurantId = urlParams.get('restaurant');
+        if (selectedRestaurantId) {
+            fetch(`/restaurant/M?restaurant=${selectedRestaurantId}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(data => {
+                platsContainer.innerHTML = data;
+                setupAddToCartButtons();
+            })
+            .catch(error => {
+                console.error('Erreur lors du chargement des plats:', error);
+            });
         }
     }
-    
-    // Gestion du panier
-    document.querySelectorAll(".add-btn").forEach(button => {
-        button.addEventListener("click", function () {
-            let platId = this.getAttribute("data-id");
-            fetch(`/restaurant/ajouter-au-panier/${platId}/`, {
-                method: "GET",
-            }).then(response => response.json())
-              .then(data => {
-                  // Mise à jour du compteur
-                  let cartCount = document.getElementById("cart-count");
-                  cartCount.textContent = parseInt(cartCount.textContent || "0") + 1;
-              });
-        });
-    });
-});
+}
