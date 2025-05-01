@@ -276,8 +276,22 @@ def menu_chef(request):
 def plat_chef(request):
     slug = request.GET.get('categorie')
     categorie_nom = slug.replace('-', ' ') if slug else None
-    return render(request, 'pagesMenu/plat_chef.html', {'categorie': categorie_nom})
-
+    
+    # Récupérer la catégorie par son nom
+    try:
+        if categorie_nom:
+            categorie = Categorie.objects.get(name=categorie_nom)
+            # Récupérer tous les plats de cette catégorie
+            plats = Plat.objects.filter(categorie=categorie)
+        else:
+            plats = []
+    except Categorie.DoesNotExist:
+        plats = []
+    
+    return render(request, 'pagesMenu/plat_chef.html', {
+        'categorie': categorie_nom,
+        'plats': plats
+    })
 # ✅ Update statut commande
 @csrf_exempt
 @login_required

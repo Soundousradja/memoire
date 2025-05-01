@@ -1,31 +1,120 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/Plat-chef.css' %}"> 
 </head>
 <body>
-    <div class="contenu">
-        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div class="total">
         <div class="container">
-        {% for categorie in categories %}
-        <div class="category1">
-                {% if categorie.image %}
-                    <img src="{{ categorie.image.url }}" alt="{{ categorie.nom }}">
-                {% else %}
-                    <img src="{% static 'image/default1.jpg' %}" alt="Image par défaut">
-                {% endif %}
-                <button onclick="redirigerVersPlats('{{ categorie.nom }}')">{{ categorie.nom }}</button>
-                     
-                </button>
-            
-                
-            </div>
-        {% endfor %}
+            <div class="titre"><h1>Plat</h1></div>
+            <a href="javascript:history.back()">
+                <img src="{% static 'image/sortie.png' %}" alt="Retour" style="cursor: pointer;">
+            </a>
+        </div>
     </div>
-</div>
-</div>
+    <div class="contenu">
+        <div class="contenu1">
+            {% if plats %}
+                <div class="plats-container">
+                    {% for plat in plats %}
+                        <div class="plat-box">
+                            <div class="plat-image">
+                                {% if plat.image %}
+                                    <img src="{{ plat.image.url }}" alt="{{ plat.name }}">
+                                {% else %}
+                                    <img src="{% static 'image/default-plat.jpg' %}" alt="Image par défaut">
+                                {% endif %}
+                            </div>
+                            <div class="plat-details">
+                                <h3>{{ plat.name }}</h3>
+                                <button class="recette-btn">Recette {{ plat.name }}</button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-plats">
+                    <p>Aucun plat disponible dans cette catégorie</p>
+                </div>
+            {% endif %}
+        </div>
+        <div class="contenu2" id="recette-container">
+            <div class="recette-placeholder">
+                <p>Cliquez sur "Recette" pour afficher les détails de la recette</p>
+            </div>
+        </div>
+    </div>
     
+    <script>
+        // Script pour afficher la recette dans contenu2 quand on clique sur un bouton
+        document.addEventListener('DOMContentLoaded', function() {
+            const recetteBtns = document.querySelectorAll('.recette-btn');
+            const recetteContainer = document.getElementById('recette-container');
+            
+            // Stockage des informations des plats et de leurs ingrédients
+            const platsInfo = {};
+            
+            {% for plat in plats %}
+            platsInfo['{{ plat.name }}'] = {
+                nom: '{{ plat.name }}',
+                description: `{{ plat.description|escapejs }}`,
+                ingredients: [
+                    {% for ingredient in plat.ingredients.all %}
+                        "{{ ingredient.name }}",
+                    {% endfor %}
+                ]
+            };
+            {% endfor %}
+            
+            recetteBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const platName = this.textContent.replace('Recette ', '');
+                    console.log('Afficher la recette pour:', platName);
+                    
+                    // Highlight le plat sélectionné
+                    document.querySelectorAll('.plat-box').forEach(box => {
+                        box.classList.remove('selected');
+                    });
+                    this.closest('.plat-box').classList.add('selected');
+                    
+                    // Afficher la recette dans le conteneur
+                    if (platsInfo[platName]) {
+                        const plat = platsInfo[platName];
+                        
+                        // Créer le HTML pour la recette
+                        let recetteHTML = `
+                            <div class="recette-content">
+                                <div class="recette-header">
+                                    <h2>Recette ${platName}</h2>
+                                </div>
+                                <div class="recette-body">
+                                    <div class="ingredients-section">
+                                        <h3>Ingrédients</h3>
+                                        <ul class="ingredients-list">
+                                            ${plat.ingredients.map(ingredient => `<li>${ingredient}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                    <div class="preparation-section">
+                                        <h3>Préparation</h3>
+                                        <div class="preparation-steps">
+                                            ${plat.description}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        recetteContainer.innerHTML = recetteHTML;
+                    } else {
+                        recetteContainer.innerHTML = `<div class="recette-error">Détails de la recette non disponibles</div>`;
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

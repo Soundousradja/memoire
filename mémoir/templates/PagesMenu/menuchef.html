@@ -23,13 +23,13 @@
         {% for categorie in categories %}
         <div class="category1">
                 {% if categorie.image %}
-                    <img src="{{ categorie.image.url }}" alt="{{ categorie.nom }}">
+                    <img src="{{ categorie.image.url }}" alt="{{ categorie.name }}">
                 {% else %}
                     <img src="{% static 'image/default1.jpg' %}" alt="Image par défaut">
                 {% endif %}
-                <button onclick="redirigerVersPlats('{{ categorie.nom }}')">{{ categorie.nom }}</button>
+                <button onclick="redirigerVersPlats('{{ categorie.name }}')">{{ categorie.name }}</button>
                      
-                </button>
+               
             
                 
             </div>
