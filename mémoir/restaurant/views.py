@@ -2,13 +2,13 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.shortcuts import redirect,get_object_or_404
-<<<<<<< HEAD
+
 
 from SuperAdmin.models import HistoriquePlat
-=======
+
 from django.contrib.auth import logout
-from Menu.models import HistoriquePlat
->>>>>>> dcdc28d (Ton message de commit)
+
+
 from home.models import Offre
 from django.utils.timezone import now
 from django.contrib import messages

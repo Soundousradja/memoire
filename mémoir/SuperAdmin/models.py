@@ -37,14 +37,9 @@ from django.dispatch import receiver
 # Ajoutez cette méthode à la classe Ingredient
 class Ingredient(models.Model):
     name = models.CharField(max_length=100)
-<<<<<<< HEAD
-    qte_stock = models.FloatField(default=0)
-    qte_total_utilisee = models.FloatField(default=0)
-=======
     qte_stock = models.FloatField(default=0)  
     qte_total_utilisee = models.FloatField(default=0)  
 
->>>>>>> dcdc28d (Ton message de commit)
 
     def __str__(self):
         return self.name
