@@ -10,12 +10,24 @@
 <body>
     <div class="total">
         <div class="contenu">
-            <div class="titre"><h2>Menu</h2></div>
+            <div class="titre"><h1>Menu</h1></div>
             <a href="javascript:history.back()">
                 <img src="{% static 'image/sortie.png' %}" alt="Retour" style="cursor: pointer;">
             </a>
+            <div class="user-avatar" id="userAvatar">
+                {% if user.is_authenticated %}
+                    {{ user.first_name|first|default:user.username|first|upper }}
+                {% else %}
+                    U
+                {% endif %}
+            </div>
         </div>
         <div class="point"></div>
+    </div>
+    <div class="user-menu" id="userMenu">
+        <a href="{% url 'menu:logout' %}" class="user-menu-item">
+            <i class="fas fa-sign-out-alt"></i> Déconnecter
+        </a>
     </div>
     <div class="contenu1">
         <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
@@ -38,6 +50,20 @@
 </div>
 </div>
 <script>
+     const userAvatar = document.getElementById("userAvatar");
+        const userMenu = document.getElementById("userMenu");
+        
+        // Gestion du clic sur l'avatar utilisateur
+        userAvatar.addEventListener("click", function() {
+            userMenu.classList.toggle("show-menu");
+        });
+        
+        // Cacher le menu quand on clique ailleurs
+        document.addEventListener("click", function(event) {
+            if (!userAvatar.contains(event.target) && !userMenu.contains(event.target)) {
+                userMenu.classList.remove("show-menu");
+            }
+        });
     function redirigerVersPlats(categorie) {
     console.log("Redirection vers catégorie:", categorie);
     try {

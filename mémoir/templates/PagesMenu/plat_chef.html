@@ -11,6 +11,18 @@
     <div class="total">
         <div class="container">
             <div class="titre"><h1>Plat</h1></div>
+            <div class="user-avatar" id="userAvatar">
+                {% if user.is_authenticated %}
+                    {{ user.first_name|first|default:user.username|first|upper }}
+                {% else %}
+                    U
+                {% endif %}
+            </div>
+            <div class="user-menu" id="userMenu">
+                <a href="{% url 'menu:logout' %}" class="user-menu-item">
+                    <i class="fas fa-sign-out-alt"></i> Déconnecter
+                </a>
+            </div>
             <a href="javascript:history.back()">
                 <img src="{% static 'image/sortie.png' %}" alt="Retour" style="cursor: pointer;">
             </a>
@@ -50,7 +62,21 @@
     </div>
     
     <script>
-        // Script pour afficher la recette dans contenu2 quand on clique sur un bouton
+        const userAvatar = document.getElementById("userAvatar");
+        const userMenu = document.getElementById("userMenu");
+        
+        // Gestion du clic sur l'avatar utilisateur
+        userAvatar.addEventListener("click", function() {
+            userMenu.classList.toggle("show-menu");
+        });
+        
+        // Cacher le menu quand on clique ailleurs
+        document.addEventListener("click", function(event) {
+            if (!userAvatar.contains(event.target) && !userMenu.contains(event.target)) {
+                userMenu.classList.remove("show-menu");
+            }
+        });
+        
         document.addEventListener('DOMContentLoaded', function() {
             const recetteBtns = document.querySelectorAll('.recette-btn');
             const recetteContainer = document.getElementById('recette-container');
