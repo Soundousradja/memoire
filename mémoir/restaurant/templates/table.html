@@ -29,22 +29,33 @@
             {% csrf_token %}
             
             <label for="name">Nom :</label>
-            <input type="text" id="name" name="name" required><br>
-    
+            <input type="text" id="name" name="name" required value="{{ user_name|default_if_none:'' }}" {% if user.is_authenticated %}readonly{% endif %}><br>
+
+            
             <label for="email">Email :</label>
-            <input type="email" id="email" name="email" required><br>
-    
+            <input type="email" id="email" name="email" required value="{{ user_email|default_if_none:'' }}" {% if user.is_authenticated %}readonly{% endif %}><br>
+            
             <label for="phone">Téléphone :</label>
-            <input type="tel" id="phone" name="phone" required><br>
-    
+            <input type="tel" id="phone" name="phone" required value="{{ user_phone|default_if_none:'' }}" {% if user.is_authenticated %}readonly{% endif %}><br>
             <label for="guests">Nombre de personnes :</label>
             <input type="number" id="guests" name="guests" min="1" required><br>
-    
+
+        
+            
             <label for="date">Date :</label>
             <input type="date" id="date" name="date" required><br>
     
             <label for="time">Heure :</label>
             <input type="time" id="time" name="time" required><br>
+            
+            <label for="restaurant">Choisissez un restaurant :</label>
+            <select name="restaurant_id" id="restaurant" required>
+                
+                <option value="">Sélectionnez un restaurant</option>
+                {% for r in restaurants %}
+                    <option value="{{ r.id }}">{{ r.name }}</option>
+                {% endfor %}
+            </select><br>
             {% if user.is_authenticated %}
             <button type="submit">Réserver</button>
             {% else %}

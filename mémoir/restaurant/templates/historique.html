@@ -48,7 +48,7 @@
                                 <p><strong>Statut :</strong> 
                                     {{details.commande.statut}}
                                 </p>
-                                <p><strong>Restaurant :</strong> {{ details.commande.restaurant }}</p>
+                                <p><strong>Restaurant :</strong> {{ details.commande.restaurant.address}}</p>
                                 <p><strong>Adresse de livraison :</strong> {{ details.commande.adresse }}</p>
                                 <p><strong>Mode de paiement :</strong> 
                                     {% if details.commande.mode_paiement == 'cash' %}

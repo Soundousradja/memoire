@@ -145,23 +145,7 @@ text-align: center;
     align-items: center;
     
 }
-.form-group {
-    margin-bottom: 20px;
-}
-.form-group label {
-    display: block;
-   
-    font-weight: bold;
-}
-.form-group input,
-.form-group textarea,
-.form-group select {
-    width: 98%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-}
+
 
 .btn-commande {
     background-color: #f5b041;
@@ -201,14 +185,7 @@ text-align: center;
     color: white;
 }
 
-.btn-commande {
-    background-color:black;
-    color: white;
-    padding: 12px;
-    width: 100%;
-    margin-top: 20px;
-    font-size: 16px;
-}
+
 
 .btn:hover {
     opacity: 0.8;
@@ -274,7 +251,7 @@ footer {
    transition: 0.5s;
 }
 
-/* Responsive */
+
 @media screen and (max-width: 768px) {
     .panier-container {
         width: 95%;
@@ -284,4 +261,16 @@ footer {
         padding: 10px;
         font-size: 14px;
     }
+}
+
+form button{
+    background-color:black;
+    color: white;
+    padding: 12px;
+    width: 100%;
+    margin-top: 20px;
+    font-size: 16px;
+}
+form select{
+    height: 35px;
 }

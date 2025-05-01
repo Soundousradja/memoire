@@ -7,11 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voir Panier</title>
     <link rel="stylesheet" href="{% static 'css/panier.css' %}">
-   
 </head>
 <body>
     <header>
-        <img src="{% static 'image/logo.png' %}" alt="Logo" class="logo">
+        <img src="{% static 'image/logo.png' %}" alt="" class="logo">
         <nav>
             <ul>
                 <li><a href="http://127.0.0.1:8000/restaurant/">Accueil</a></li> 
@@ -20,7 +19,7 @@
                 <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
                 <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre Promo</a></li>
                 <li><a href="/panier/" id="cart-icon">
-                    <img src="{% static 'image/paniers.png' %}" alt="Panier" style="width: 20px; color:yellow;">
+                    <img src="{% static 'image/paniers.png' %}" alt="" style="width: 20px; color:yellow;">
                     <span id="cart-count">0</span>
                 </a></li>
             </ul>
@@ -45,7 +44,7 @@
                     </thead>
                     <tbody>
                         {% for item in panier %}
-                            <tr>
+                            <tr class="plat-panier" data-id="{{ item.plat.id }}">
                                 <td>
                                     {% if item.plat.image %}
                                         <img src="{{ item.plat.image.url }}" alt="{{ item.plat.nom }}" class="panier-image">
@@ -55,9 +54,9 @@
                                 <td>{{ item.plat.price }} DA</td>
                                 <td>
                                     <div class="quantity-control">
-                                        <button type="button" class="quantity-btn decrement" data-id="{{ item.plat.id }}">-</button>
+                                        <button class="quantity-btn decrement" data-id="{{ item.plat.id }}">-</button>
                                         <input type="number" min="1" value="{{ item.quantity }}" class="quantity-input" data-id="{{ item.plat.id }}">
-                                        <button type="button" class="quantity-btn increment" data-id="{{ item.plat.id }}">+</button>
+                                        <button class="quantity-btn increment" data-id="{{ item.plat.id }}">+</button>
                                     </div>
                                 </td>
                                 <td>{{ item.prix_total }} DA</td>
@@ -77,33 +76,29 @@
                 </div>
 
                 <div id="formulaire-commande">
-                    <h2>Vos informations de livraison</h2>
-                    <form id="order-form"  method="post">
+                    <h2>Informations de livraison</h2>
+                    <form id="order-form">
                         {% csrf_token %}
-                        <div class="form-group">
-                            <label for="restaurant">Restaurant</label><br>
-                            <select id="restaurant" name="restaurant">
-                                {% for restaurant in restaurants %}
-                                    <option value="{{ restaurant.id }}">{{ restaurant.address }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
                         
-                        <div class="form-group">
-                            <label>Mode de paiement</label>
-                            <div class="payment-options">
-                                <div class="payment-option">
-                                    <input type="radio" id="cash" name="paiement" value="cash" checked>
-                                    <label for="cash">Paiement à la livraison</label>
-                                </div>
-                                <div class="payment-option">
-                                    <input type="radio" id="carte" name="paiement" value="carte">
-                                    <label for="carte">Carte bancaire</label>
-                                </div>
-                            </div>
+                        <label for="restaurant">Choisissez le restaurant :</label>
+                        <select id="restaurant" name="restaurant" required>
+                            {% for restaurant in restaurants %}
+                                <option value="{{ restaurant.id }}">{{ restaurant.name }}</option>
+                            {% endfor %}
+                        </select>
+                    
+                        <label>Mode de paiement :</label>
+                        <div class="payment-options">
+                        <input type="radio" id="cash" name="paiement" value="cash" checked>
+                        <label for="cash">Espèces</label>
+                        <input type="radio" id="card" name="paiement" value="carte">
+                        <label for="card">Carte</label>
                         </div>
-                        
-                        <button type="submit" class="btn-commande">Passer la commande</button>
+                        {% if user.is_authenticated %}
+                        <button type="submit" class="btn-commander">Passer la commande</button>
+                        {% else %}
+                        <button onclick="window.location.href='http://127.0.0.1:8000/login'">Passer la commande</button>
+                        {% endif %}
                     </form>
                 </div>
             {% else %}
@@ -115,19 +110,19 @@
         </div>
     </div>
 
+    <script src="{% static 'js/panier.js' %}"></script>
 
-   
     <footer>
         <div class="footer-container">
-            <img src="{% static 'image/logo.png' %}" alt="Logo" class="logof">
+            <img src="{% static 'image/logo.png' %}" alt="" class="logof">
             <div class="footer-section">
                 <h3>Navigation</h3>
                 <ul class="footer-links">
-                    <li><a href="http://127.0.0.1:8000/restaurant/">Accueil</a></li>
-                    <li><a href="http://127.0.0.1:8000/restaurant/M">Menu</a></li>
-                    <li><a href="http://127.0.0.1:8000/restaurant/R">Réservation</a></li>
-                    <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
-                    <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre Promo</a></li>
+                    <li><a href="#">Accueil</a></li>
+                    <li><a href="#">Menu</a></li>
+                    <li><a href="#">Réservation</a></li>
+                    <li><a href="#">Historique</a></li>
+                    <li><a href="#">Offre Promo</a></li>
                 </ul>
             </div>
     
@@ -143,6 +138,5 @@
         <p class="footer-bottom">© 2025 The LFS Spot Restaurant. Tous droits réservés.</p>
     </footer>
     
-    <script src="{% static 'js/panier.js' %}"></script>
 </body>
 </html>

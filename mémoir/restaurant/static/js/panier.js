@@ -1,128 +1,100 @@
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    // Update cart count in the header
-    function updateCartCount() {
-        const cartCountElement = document.getElementById('cart-count');
-        if (cartCountElement) {
-            const cartRows = document.querySelectorAll('#panier-content table tbody tr');
-            cartCountElement.innerHTML = cartRows ? cartRows.length : 0;
-        }
-    }
-
-    // Call updateCartCount on page load
-    updateCartCount();
-
-    // Handle increment buttons
+document.addEventListener("DOMContentLoaded", function () {
+    // Gérer les boutons de quantité
     document.querySelectorAll('.increment').forEach(button => {
-        button.addEventListener('click', function () {
+        button.addEventListener('click', function() {
             const id = this.getAttribute('data-id');
             const input = document.querySelector(`.quantity-input[data-id="${id}"]`);
-            if (input) {
-                const currentValue = parseInt(input.value) || 1;
-                input.value = currentValue + 1;
+            input.value = parseInt(input.value) + 1;
+            updateQuantity(id, parseInt(input.value));
+        });
+    });
+
+    document.querySelectorAll('.decrement').forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const input = document.querySelector(`.quantity-input[data-id="${id}"]`);
+            if (parseInt(input.value) > 1) {
+                input.value = parseInt(input.value) - 1;
                 updateQuantity(id, parseInt(input.value));
             }
         });
     });
 
-    // Handle decrement buttons
-    document.querySelectorAll('.decrement').forEach(button => {
-        button.addEventListener('click', function () {
-            const id = this.getAttribute('data-id');
-            const input = document.querySelector(`.quantity-input[data-id="${id}"]`);
-            if (input) {
-                const currentValue = parseInt(input.value) || 1;
-                if (currentValue > 1) {
-                    input.value = currentValue - 1;
-                    updateQuantity(id, parseInt(input.value));
-                }
-            }
-        });
-    });
-
-    // Handle direct quantity input change
     document.querySelectorAll('.quantity-input').forEach(input => {
-        input.addEventListener('change', function () {
+        input.addEventListener('change', function() {
             const id = this.getAttribute('data-id');
-            let newVal = parseInt(this.value);
-            if (!newVal || newVal < 1) {
+            if (parseInt(this.value) < 1) {
                 this.value = 1;
-                newVal = 1;
             }
-            updateQuantity(id, newVal);
+            updateQuantity(id, parseInt(this.value));
         });
     });
 
-    // Update quantity via AJAX
+    // Fonction pour mettre à jour la quantité d'un plat
     function updateQuantity(platId, quantity) {
+        // Envoyer la requête au serveur
         fetch(`/restaurant/modifier-panier/${platId}/${quantity}/`, {
             method: 'GET',
         })
         .then(response => response.json())
         .then(data => {
+            // Recharger la page pour mettre à jour les totaux
             if (data.success) {
                 window.location.reload();
-            } else {
-                console.warn('Erreur de mise à jour:', data);
             }
         })
-        .catch(error => {
-            console.error('Erreur lors de la requête:', error);
-        });
+        .catch(error => console.error('Erreur:', error));
     }
 
-    // Handle order form submission
-    const orderForm = document.getElementById('order-form');
-    if (orderForm) {
-        orderForm.addEventListener('submit', function (e) {
-            console.log("Submit détecté");
+    if (document.getElementById('order-form')) {
+        document.getElementById('order-form').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Récupérer le token CSRF depuis le formulaire
+            const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            // Récupérer les valeurs du formulaire
+            const restaurant = document.getElementById('restaurant').value;
+            const paiement = document.querySelector('input[name="paiement"]:checked').value;
+            const plats = [];
 
-            const restaurantSelect = document.getElementById('restaurant');
-            const paymentRadio = document.querySelector('input[name="paiement"]:checked');
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            // Récupérer les plats du panier
+            document.querySelectorAll('.plat-panier').forEach(platElem => {
+                const id = parseInt(platElem.getAttribute('data-id'));
+                const quantite = parseInt(platElem.querySelector('.quantity-input').value);
+                plats.push({ id: id, quantite: quantite });
+            });
 
-            if (!restaurantSelect || !paymentRadio || !csrfToken) {
-                alert("Veuillez remplir tous les champs requis.");
-                return;
-            }
-
-            const restaurant = restaurantSelect.value;
-            const paiement = paymentRadio.value;
-
+            // Créer l'objet de données pour l'envoi
             const commandeData = {
                 restaurant: restaurant,
                 mode_paiement: paiement,
+                plats: plats
             };
 
-            console.log("Commande envoyée:", commandeData);
-
+            // Envoi des données au serveur
             fetch('/restaurant/passer-commande/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken.value,
+                    'X-CSRFToken': csrftoken
                 },
                 body: JSON.stringify(commandeData),
+                credentials: 'same-origin'
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erreur HTTP ' + response.status);
-                }
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    alert('Commande passée avec succès!');
+                // Vérifier la présence du message de succès au lieu de la propriété 'success'
+                if (data.message && data.message.includes('succès')) {
+                    alert('Votre commande a été passée avec succès!');
                     window.location.href = '/restaurant/';
                 } else {
-                    alert('Erreur: ' + (data.error || 'Commande échouée'));
+                    alert('Une erreur est survenue: ' + (data.error || "Erreur inconnue"));
                 }
             })
             .catch(error => {
-                console.error('Erreur de commande:', error);
-                alert('Erreur lors de la commande: ' + error.message);
+                console.error('Erreur complète:', error);
+                alert('Une erreur est survenue lors de la commande: ' + error.message);
             });
         });
     }

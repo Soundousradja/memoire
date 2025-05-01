@@ -7,26 +7,10 @@ from django.utils.timesince import timesince
 from SuperAdmin.models import Restaurant
 
 from home.models import CustomUser
+from mémoir import settings
 
 
-class Client(AbstractUser):
-    telephone = models.CharField(max_length=15, unique=True)
-    adresse = models.TextField()
 
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
-    groups = models.ManyToManyField(
-        'auth.Group', 
-        related_name='client_set',  
-        blank=True
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission', 
-        related_name='client_permissions', 
-        blank=True
-    )
-
-    def __str__(self):
-        return self.username
     
 class Table(models.Model):
     numéro = models.PositiveIntegerField(unique=True)  
@@ -39,13 +23,13 @@ class Table(models.Model):
 
 
 class Reservation(models.Model):
-    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    client = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     table = models.ForeignKey(Table, on_delete=models.CASCADE)
     guests = models.PositiveIntegerField()
     date = models.DateField()
     time = models.TimeField()
     created_at = models.DateTimeField(auto_now_add=True)
-    
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, null=True, blank=True)
    
     STATUT_CHOICES = [
         ('en_attente', 'En attente'),
@@ -60,11 +44,12 @@ class Reservation(models.Model):
 
 class Commande(models.Model):
     
-    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, blank=True)
+
+    client = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     table = models.ForeignKey(Table, on_delete=models.SET_NULL, null=True, blank=True)
     adresse = models.TextField()
     telephone = models.CharField(max_length=15)
-    restaurant = models.CharField(max_length=100)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     STATUT_PAIEMENT = [
         ('Paye', 'Payé'),
@@ -101,10 +86,7 @@ class Commande(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # Sauvegarde la commande
 
-    def __str__(self):
-     if self.client:
-        return f"Commande {self.id} - {self.client.username}"
-     return f"Commande {self.id} - Client inconnu"
+   
 def total_journee():
     total = sum(commande.calculer_prix_total() for commande in Commande.objects.all())
     return total
