@@ -92,26 +92,52 @@ def calculer_ingredients(request):
             data = json.loads(request.body)
             plat_id = data.get("plat_id")
             quantite = int(data.get("quantite", 1))
+            date_str = data.get("date")
+            
+            if not date_str:
+                date_obj = date.today()
+            else:
+                date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
 
             if not plat_id:
                 return JsonResponse({"error": "ID du plat requis"}, status=400)
+
+            # Récupérer le restaurant de l'utilisateur
+            restaurant = get_restaurant_for_user(request.user)
+            if not restaurant:
+                return JsonResponse({"error": "Aucun restaurant associé à cet utilisateur."}, status=403)
 
             plat = Plat.objects.get(id=plat_id)
             ingredients = PlatIngredient.objects.filter(plat=plat)
 
             resultats = []
             for ing in ingredients:
-                qte_total = ing.quantite_par_plat * quantite
+                # Calcul par défaut
+                qte_par_plat = ing.quantite_par_plat
+                qte_total = qte_par_plat * quantite
+                
+                # Vérifier s'il existe une entrée historique pour cet ingrédient ce jour-là
+                try:
+                    historique = HistoriqueIngredient.objects.get(
+                        ingredient=ing.ingredient,
+                        date=date_obj,
+                        restaurant=restaurant
+                    )
+                    # Si l'historique existe, utiliser sa valeur à la place
+                    qte_total = historique.quantite
+                except HistoriqueIngredient.DoesNotExist:
+                    # Pas d'historique, on garde la valeur calculée
+                    pass
+                
                 resultats.append({
                     "name": ing.ingredient.name,
-                    "qteParPlat": ing.quantite_par_plat,
+                    "qteParPlat": qte_par_plat,
                     "qteTotal": qte_total
                 })
 
             return JsonResponse({"ingredients": resultats})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
-
 # ✅ Afficher toutes les catégories (globales)
 @login_required
 def categories_view(request):
@@ -478,9 +504,72 @@ def commande_et_depenses(request):
 
     return render(request, 'PagesMenu/Commande.html', context)
 
+# Fonction à ajouter dans views.py
+@csrf_exempt
+@login_required
+def enregistrer_tous_plats(request):
+    if request.method == "POST":
+        try:
+            restaurant = get_restaurant_for_user(request.user)
+            if not restaurant:
+                return JsonResponse({"success": False, "error": "Aucun restaurant associé."}, status=403)
 
-
-
-
-
-
+            data = json.loads(request.body)
+            date_str = data.get("date")
+            plats = data.get("plats", [])
+            
+            if not date_str or not plats:
+                return JsonResponse({"success": False, "error": "Date ou plats manquants."}, status=400)
+                
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+            
+            # Enregistrer chaque plat dans l'historique
+            for plat_data in plats:
+                plat_id = plat_data.get("id")
+                quantite = int(plat_data.get("quantite", 0))
+                
+                if plat_id and quantite > 0:
+                    try:
+                        plat = Plat.objects.get(id=plat_id)
+                        # Créer ou mettre à jour l'historique du plat
+                        historique_plat, created = HistoriquePlat.objects.update_or_create(
+                            plat=plat,
+                            restaurant=restaurant,
+                            date=date_obj,
+                            defaults={'quantite': quantite}
+                        )
+                        
+                        # Pour chaque ingrédient du plat, mettre à jour l'historique
+                        # uniquement si aucun historique n'existe déjà
+                        plat_ingredients = PlatIngredient.objects.filter(plat=plat)
+                        for pi in plat_ingredients:
+                            # Vérifier si un historique existe déjà pour cet ingrédient ce jour-là
+                            ing_history_exists = HistoriqueIngredient.objects.filter(
+                                ingredient=pi.ingredient,
+                                restaurant=restaurant,
+                                date=date_obj
+                            ).exists()
+                            
+                            # Seulement créer l'historique si aucun n'existe
+                            if not ing_history_exists:
+                                qte_total = pi.quantite_par_plat * quantite
+                                HistoriqueIngredient.objects.create(
+                                    ingredient=pi.ingredient,
+                                    restaurant=restaurant,
+                                    date=date_obj,
+                                    quantite=qte_total
+                                )
+                        
+                        # Mettre à jour les quantités totales utilisées pour chaque ingrédient
+                        for pi in plat_ingredients:
+                            pi.ingredient.update_qte_total_utilisee()
+                            
+                    except Plat.DoesNotExist:
+                        continue  # Passer au plat suivant si celui-ci n'existe pas
+            
+            return JsonResponse({"success": True, "message": "Toutes les quantités ont été enregistrées avec succès."})
+            
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
+            
+    return JsonResponse({"success": False, "error": "Méthode non autorisée."}, status=405)

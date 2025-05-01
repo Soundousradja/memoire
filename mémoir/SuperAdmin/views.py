@@ -516,6 +516,9 @@ def dessert_view(request):
     return render(request, 'app/dessert.html')  
 
 def boisson_view(request):
-    return render(request, 'app/boisson.html')  
+    return render(request, 'app/boisson.html') 
+
+
+ 
 
 

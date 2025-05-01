@@ -30,6 +30,8 @@ urlpatterns = [
     
     
     path('depenses/',views.commande_et_depenses, name='commande'),
+    # Ajouter cette ligne dans votre fichier urls.py
+path('api/enregistrer-tous-plats/', views.enregistrer_tous_plats, name="enregistrer_tous_plats"),
 
    
 ]

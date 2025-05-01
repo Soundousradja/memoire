@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Lien CDN Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <title>Liste des plats</title>
     <style>
@@ -185,28 +185,32 @@
 
         img:hover {
             background-color: rgb(236, 143, 3);
-
         }
+        
         .button_hidden{
             background-color: rgb(236, 143, 3);
             width:35px;
         }
+        
         .date-filter{
-            position:absolute;
-            right:170Px;
-            bottom: 400px;
-            margin-top: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom:35px;
         }
+        
         .recherche{
             background-color: white;
             width:200px;
             border: 1px solid black;
             height:25px;
         }
+        
         i{ 
             font-size: 20px;
-           
         }
+        
         i:hover{
             color: rgb(236, 143, 3);
         }
@@ -214,8 +218,38 @@
         #platsContainer{
             margin-top: 35px;
         }
+        
         h1{
-            margin-bottom: 60px;
+            margin-bottom: 40px;
+        }
+        
+        .enregistrer-tout {
+            display: block;
+            margin: 40px auto;
+            width: 40%;
+            padding: 15px;
+            font-size: 18px;
+            background-color: rgb(0, 0, 0);
+            color:white;
+            font-weight: bold;
+        }
+        
+        .enregistrer-tout:hover {
+            background-color: rgb(208, 167, 20);
+            color: white;
+        }
+        
+        .historique-info {
+            background-color: #f0f0f0;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-weight: bold;
+            display: none;
+        }
+        .recher{
+            margin-bottom: 20px;
+            width:150px;
         }
     </style>
 </head>
@@ -235,13 +269,16 @@
         <h1>Liste des plats</h1>
         <div class="date-filter">
             <input type="date" id="datePicker" value="{{ today_date }}" class="recherche">
-            <button onclick="rechercherParDate()"> Recherche</button>
-            <i class="fas fa-search" onclick="rechercherParDate()"></i>
-
+            <button onclick="rechercherParDate()" class="recher">Rechercher</button>
            
         </div>
+        
+        <div id="historiqueInfo" class="historique-info"></div>
         <div id="platsContainer"></div>
+        
+        <button class="enregistrer-tout" onclick="enregistrerTous()">Enregistrer</button>
     </div>
+    
     <div id="modalOverlay" class="hidden"></div>
     <div id="ingredientsContainer" class="hidden">
         <button onclick="fermerIngredients()" style="float:right;" class="button_hidden">✖</button>
@@ -271,34 +308,11 @@
             const dateAujourdhui = document.getElementById('datePicker').value;
             
             if (categorie) {
-                fetch(`/menu/liste/?categorie=${categorie}&date=${dateAujourdhui}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        let container = document.getElementById("platsContainer");
-                        data.forEach(plat => {
-                            // Utiliser la quantité historique si disponible
-                            const quantite = plat.quantite_historique !== undefined ? plat.quantite_historique : 0;
-                            
-                            container.innerHTML += `
-                                <div class="plat">
-                                    <div class="col nom"><strong>${plat.name}</strong></div>
-                                    <div class="col quantite">
-                                        <label>Quantité:</label>
-                                        <input type="number" id="quantite-${plat.id}" value="${quantite}" min="0">
-                                    </div>
-                                    <div class="col bouton">
-                                        <button onclick="voirIngredients(${plat.id}, '${dateAujourdhui}')">Voir les ingrédients</button>
-                                    </div>
-                                </div>
-                            `;
-                        });
-                    })
-                    .catch(error => console.error("Erreur lors du chargement des plats :", error));
+                chargerPlatsParDate(dateAujourdhui);
             }
         });
-
-        function rechercherParDate() {
-            const dateSelectionnee = document.getElementById('datePicker').value;
+        
+        function chargerPlatsParDate(dateSelectionnee) {
             const categorie = getCategorieFromURL();
             
             // Vider le conteneur des plats
@@ -309,6 +323,19 @@
                 .then(response => response.json())
                 .then(data => {
                     let container = document.getElementById("platsContainer");
+                    
+                    // Vérifier si des données historiques existent
+                    const historiqueExiste = data.some(plat => plat.quantite_historique > 0);
+                    
+                    // Afficher le message d'historique si des données existent
+                    const historiqueInfo = document.getElementById('historiqueInfo');
+                    if (historiqueExiste) {
+                        historiqueInfo.textContent = `Historique chargé pour le ${formatDate(dateSelectionnee)}`;
+                        historiqueInfo.style.display = 'block';
+                    } else {
+                        historiqueInfo.style.display = 'none';
+                    }
+                    
                     data.forEach(plat => {
                         // Utiliser la quantité historique si disponible
                         const quantite = plat.quantite_historique !== undefined ? plat.quantite_historique : 0;
@@ -330,44 +357,49 @@
                 .catch(error => console.error("Erreur lors du chargement des plats :", error));
         }
 
-        function voirIngredients(platId, date = null) {
-            let quantite = document.getElementById(`quantite-${platId}`).value;
-            const dateSelectionnee = date || document.getElementById('datePicker').value;
-
-            fetch(`/menu/api/calculer-ingredients/`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    plat_id: platId, 
-                    quantite: quantite,
-                    date: dateSelectionnee
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Stocker l'ID du plat et la quantité pour l'utiliser lors de l'enregistrement
-                sessionStorage.setItem('current_plat_id', platId);
-                sessionStorage.setItem('current_plat_quantite', quantite);
-                
-                let tableContent = "";
-                data.ingredients.forEach(ingredient => {
-                    tableContent += `
-                        <tr>
-                            <td>${ingredient.name}</td>
-                            <td>${ingredient.qteParPlat}</td>
-                            <td>${ingredient.qteTotal}</td>
-                            <td><input type="number" id="qte-${ingredient.name}" value="${ingredient.qteTotal}" min="0" onchange="mettreAJourQuantite('${ingredient.name}', this.value)"></td>
-                        </tr>
-                    `;
-                });
-
-                document.getElementById("ingredientsTable").innerHTML = tableContent;
-                document.getElementById("ingredientsContainer").classList.add("visible");
-                document.getElementById("ingredientsContainer").classList.remove("hidden");
-                document.getElementById("modalOverlay").style.display = "block";
-            })
-            .catch(error => console.error("Erreur lors du calcul des ingrédients :", error));
+        function rechercherParDate() {
+            const dateSelectionnee = document.getElementById('datePicker').value;
+            chargerPlatsParDate(dateSelectionnee);
         }
+        function voirIngredients(platId) {
+    let quantite = document.getElementById(`quantite-${platId}`).value;
+    const dateSelectionnee = document.getElementById('datePicker').value;
+
+    fetch(`/menu/api/calculer-ingredients/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+            plat_id: platId, 
+            quantite: quantite,
+            date: dateSelectionnee
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Stocker l'ID du plat et la quantité pour l'utiliser lors de l'enregistrement
+        sessionStorage.setItem('current_plat_id', platId);
+        sessionStorage.setItem('current_plat_quantite', quantite);
+        sessionStorage.setItem('current_date', dateSelectionnee);
+        
+        let tableContent = "";
+        data.ingredients.forEach(ingredient => {
+            tableContent += `
+                <tr>
+                    <td>${ingredient.name}</td>
+                    <td>${ingredient.qteParPlat}</td>
+                    <td>${ingredient.qteTotal}</td>
+                    <td><input type="number" id="qte-${ingredient.name}" value="${ingredient.qteTotal}" min="0" onchange="mettreAJourQuantite('${ingredient.name}', this.value)"></td>
+                </tr>
+            `;
+        });
+
+        document.getElementById("ingredientsTable").innerHTML = tableContent;
+        document.getElementById("ingredientsContainer").classList.add("visible");
+        document.getElementById("ingredientsContainer").classList.remove("hidden");
+        document.getElementById("modalOverlay").style.display = "block";
+    })
+    .catch(error => console.error("Erreur lors du calcul des ingrédients :", error));
+}
 
         function mettreAJourQuantite(nomIngredient, nouvelleQuantite) {
             // Mettre à jour la quantité totale dans la cellule correspondante
@@ -388,33 +420,85 @@
         }
 
         function enregistrerIngredients() {
-            const ingredients = [];
-            document.querySelectorAll("#ingredientsTable tr").forEach(row => {
-                const nom = row.cells[0].innerText;
-                const qteTotal = row.querySelector('input').value; // Récupérer la valeur de l'input
-                ingredients.push({ name: nom, qteTotal: qteTotal });
+    const ingredients = [];
+    document.querySelectorAll("#ingredientsTable tr").forEach(row => {
+        const nom = row.cells[0].innerText;
+        const qteTotal = row.querySelector('input').value; // Récupérer la valeur de l'input
+        ingredients.push({ name: nom, qteTotal: qteTotal });
+    });
+    
+    const platId = sessionStorage.getItem('current_plat_id');
+    const quantitePlat = sessionStorage.getItem('current_plat_quantite');
+    const dateSelectionnee = sessionStorage.getItem('current_date') || document.getElementById('datePicker').value;
+
+    fetch("/menu/api/enregistrer-ingredients/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            ingredients: ingredients,
+            plat_id: platId,
+            quantite_plat: quantitePlat,
+            date: dateSelectionnee
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message || "Erreur : " + data.error);
+        fermerIngredients();
+    })
+    .catch(error => console.error("Erreur lors de l'enregistrement :", error));
+}
+        
+        // Fonction pour enregistrer tous les plats en une seule fois
+        function enregistrerTous() {
+            const dateSelectionnee = document.getElementById('datePicker').value;
+            const plats = [];
+            
+            // Collecter toutes les quantités de plats
+            document.querySelectorAll(".plat").forEach(platElement => {
+                const id = platElement.querySelector('input[type="number"]').id.split('-')[1];
+                const quantite = platElement.querySelector('input[type="number"]').value;
+                
+                if (quantite > 0) {
+                    plats.push({
+                        id: id,
+                        quantite: quantite
+                    });
+                }
             });
             
-            const platId = sessionStorage.getItem('current_plat_id');
-            const quantitePlat = sessionStorage.getItem('current_plat_quantite');
-            const dateSelectionnee = document.getElementById('datePicker').value;
-
-            fetch("/menu/api/enregistrer-ingredients/", {
+            if (plats.length === 0) {
+                alert("Aucun plat avec une quantité supérieure à 0 n'a été trouvé.");
+                return;
+            }
+            
+            // Envoyer toutes les quantités au serveur
+            fetch("/menu/api/enregistrer-tous-plats/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    ingredients: ingredients,
-                    plat_id: platId,
-                    quantite_plat: quantitePlat,
+                    plats: plats,
                     date: dateSelectionnee
                 })
             })
             .then(response => response.json())
             .then(data => {
-                alert(data.message || "Erreur : " + data.error);
-                fermerIngredients();
+                if (data.success) {
+                    alert("Toutes les quantités ont été enregistrées avec succès !");
+                } else {
+                    alert("Erreur lors de l'enregistrement : " + data.error);
+                }
             })
-            .catch(error => console.error("Erreur lors de l'enregistrement :", error));
+            .catch(error => {
+                console.error("Erreur lors de l'enregistrement :", error);
+                alert("Une erreur est survenue. Veuillez réessayer.");
+            });
+        }
+        
+        // Formater la date pour l'affichage
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('fr-FR', options);
         }
     </script>
 </body>
