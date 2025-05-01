@@ -2,11 +2,12 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('passer-commande/', views.passer_commande, name='passer_commande'),
     path('', views.acceuil, name='acceuil'),
     path('M', views.menu_view, name='menu'),
     
     path('R', views.réservation, name='réservation'),
-    path('passer-commande/', views.passer_commande, name='passer_commande'),
+
     path('panier/', views.voir_panier, name='voir_panier'),
     path('ajouter-au-panier/<int:plat_id>/', views.ajouter_au_panier, name='ajouter_au_panier'),
     path('supprimer-du-panier/<int:plat_id>/', views.supprimer_du_panier, name='supprimer_du_panier'),

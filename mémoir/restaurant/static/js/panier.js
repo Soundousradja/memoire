@@ -1,5 +1,4 @@
 
-
 document.addEventListener('DOMContentLoaded', function () {
 
     // Update cart count in the header

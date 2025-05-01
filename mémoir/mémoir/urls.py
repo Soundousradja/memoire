@@ -25,7 +25,7 @@ urlpatterns = [
     path('',include('home.urls') ),
     path('super/',include('SuperAdmin.urls') ),
     path('menu/',include('Menu.urls', namespace='menu') ),
-    path('restaurant/',include('restaurant.urls') ),
+   path('restaurant/', include('restaurant.urls')),
      path('', lambda request: redirect('gestion_restaurants')),
 
 ]

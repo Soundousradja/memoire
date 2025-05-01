@@ -20,7 +20,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from SuperAdmin.models import Restaurant
 from datetime import date 
-# Create your views here.
+
 #Acceuil
 def acceuil(request):
     return render(request,'acceuil.html')
