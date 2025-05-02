@@ -306,44 +306,62 @@ def passer_commande(request):
 
 
 def afficher_offres(request):
-    # Récupérer uniquement les offres actives
+   
     offres_actives = Offre.objects.filter(statut='active')
     
-    # Pour s'assurer que les statuts sont à jour avant l'affichage
+   
     for offre in offres_actives:
         offre.mettre_a_jour_statut()
         offre.save()
     
-    # Récupérer à nouveau les offres actives après mise à jour
+   
     offres_actives = Offre.objects.filter(statut='active')
     
     return render(request, 'offres.html', {'offres': offres_actives})
 
 #Serveur
 
+@login_required
 def serveur_interface(request):
-    return render(request,'serveuracceuil.html')
+    utilisateur = request.user
+    name=utilisateur.username
+    if hasattr(utilisateur, 'restaurant'):
+        adresse = utilisateur.restaurant.address
+       
+    else:
+        adresse = "Aucun restaurant associé"
+
+    return render(request, 'serveuracceuil.html', {
+        'adresse_restaurant': adresse ,
+        'serveur_restaurant':name
+        })
 
 def serveurmenu(request):
+    serveur = request.user
+    restaurant = serveur.restaurant
+    
     categories = Categorie.objects.all()
-    plats=Plat.objects.all()
-    tables = Table.objects.all()
+    plats = Plat.objects.all()
+    
+    tables = Table.objects.filter(restaurant=restaurant)
+    
     return render(request, 'serveurmenu.html', {
         'categories': categories,
         'tables': tables,
-        'plats' :plats
+        'plats': plats
     })
 
 def serveur_reservations(request):
-    """Vue pour afficher la liste des réservations au serveur"""
+
     
-    # Récupérer toutes les tables pour le filtre
-    tables = Table.objects.all()
+    serveur = request.user
+    restaurant = serveur.restaurant
+    tables = Table.objects.filter(restaurant=restaurant)
     
-    # Filtrer les réservations selon les paramètres
-    reservations = Reservation.objects.all().order_by('-date', '-time')
+    reservation=Reservation.objects.filter(restaurant=restaurant)
+    reservations = reservation.order_by('-date', '-time')
     
-    # Filtrer par date si spécifiée
+  
     date_filter = request.GET.get('date')
     if date_filter:
         reservations = reservations.filter(date=date_filter)
@@ -374,12 +392,12 @@ def repondre_reservation(request, reservation_id, reponse):
     if request.method == "POST":
         reservation = get_object_or_404(Reservation, id=reservation_id)
         
-        # Vérifier que la réservation est bien en attente
+        
         if reservation.statut != 'en_attente':
             messages.error(request, "Cette réservation a déjà été traitée.")
             return redirect('serveur_reservations')
         
-        # Mettre à jour le statut
+       
         if reponse == 'acceptee':
             reservation.statut = 'acceptee'
             messages.success(request, f"La réservation de {reservation.client.username} a été acceptée.")
@@ -452,96 +470,91 @@ def historique_commandes(request):
 @csrf_exempt
 @login_required
 def serveur_envoyer_commande(request):
-    if request.method == "POST":
+    serveur = request.user
+
+    # Vérifie que le serveur est lié à un restaurant
+    if not hasattr(serveur, 'restaurant'):
+        return JsonResponse({'error': 'Aucun restaurant lié au serveur.'}, status=400)
+
+    restaurant = serveur.restaurant
+
+    if request.method == "GET":
+        
+        tables = Table.objects.filter(restaurant=restaurant)
+        data = []
+        for table in tables:
+            data.append({
+                'id': table.id,
+                'numero': table.numéro,
+                'capacite': table.capacité,
+            })
+        return JsonResponse({'tables': data})
+
+    elif request.method == "POST":
         try:
             data = json.loads(request.body)
-            table_id = data.get('table_id')
-            restaurant_id = data.get('restaurant_id')  # Nouveau champ dans la requête
-            plats = data.get('plats')
-            
-            print("Données reçues:", data)
-            
-            if not table_id or not plats or not restaurant_id:
-                return JsonResponse({"error": "Informations incomplètes (table_id, restaurant_id et plats requis)"}, status=400)
-            
-            # Convertir les IDs en entiers si ce sont des chaînes
-            if isinstance(table_id, str):
-                table_id = int(table_id)
-            if isinstance(restaurant_id, str):
-                restaurant_id = int(restaurant_id)
-                    
+
+            table_id = data.get("table_id")
+            plats = data.get("plats")
+
+            if not table_id or not plats:
+                return JsonResponse({'error': 'Données manquantes'}, status=400)
+
+            # Vérifie que la table appartient au restaurant du serveur
             try:
-                table = Table.objects.get(id=table_id)
+                table = Table.objects.get(id=table_id, restaurant=restaurant)
             except Table.DoesNotExist:
-                return JsonResponse({"error": f"Table avec ID {table_id} introuvable"}, status=400)
-                
-            try:
-                restaurant = Restaurant.objects.get(id=restaurant_id)
-            except Restaurant.DoesNotExist:
-                return JsonResponse({"error": f"Restaurant avec ID {restaurant_id} introuvable"}, status=400)
-            
-            # Vérifier si la table appartient au restaurant (si relation existante)
-            if hasattr(table, 'restaurant') and table.restaurant and table.restaurant.id != restaurant.id:
-                return JsonResponse({"error": f"La table {table_id} n'appartient pas au restaurant {restaurant_id}"}, status=400)
-            
+                return JsonResponse({'error': 'Table non trouvée pour ce restaurant.'}, status=404)
+
+            # Crée la commande
             commande = Commande.objects.create(
-                client=None,
-                adresse="Sur place",
-                telephone="",
-                restaurant=restaurant,
-                statut='en_attente',
-                mode_paiement='sur_place',
-                table=table
-            )
-            
-            # Reste du code inchangé pour traiter les plats...
-            
-            return JsonResponse({
-                "success": True,
-                "commande_id": commande.id,
-                "message": "Commande passée avec succès!"
-            })
-                
-        except Exception as e:
-            import traceback
-            print(traceback.format_exc())
-            return JsonResponse({"error": str(e)}, status=500)
-            
-    return JsonResponse({"error": "Méthode non autorisée"}, status=405)
+                table=table,
+                restaurant=restaurant
+
+                )
+
+            for plat_data in plats:
+                plat_id = plat_data.get("id")
+                quantite = plat_data.get("quantite", 1)
+
+                try:
+                    plat = Plat.objects.get(id=plat_id)
+                    CommandePlat.objects.create(commande=commande, plat=plat, quantity=quantite)
+                except Plat.DoesNotExist:
+                    continue
+
+            return JsonResponse({'success': True, 'commande_id': commande.id})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'JSON invalide'}, status=400)
+
+    else:
+        return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
+
+
 
 def verifier_reservation(request):
     """Vue permettant aux clients de vérifier l'état de leur réservation"""
     reservation_details = None
     message = None
     
-    if request.method == "POST":
-        # Récupérer les données du formulaire
-        name = request.POST.get("name")
-        phone = request.POST.get("phone")
-        date = request.POST.get("date")
-        
-        if not (name and phone and date):
-            message = "Veuillez remplir tous les champs."
-        else:
-            try:
-                # Chercher le client par téléphone et nom
-                clients = Client.objects.filter(phone=phone, username__icontains=name)
-                
-                if not clients.exists():
-                    message = "Aucun client trouvé avec ce nom et ce numéro de téléphone."
-                else:
-                    # Chercher les réservations de ces clients à cette date
-                    reservations = Reservation.objects.filter(
-                        client__in=clients,
-                        date=date
-                    ).order_by('-created_at')
-                    
-                    if reservations:
-                        reservation_details = reservations
-                    else:
-                        message = "Aucune réservation trouvée pour ce nom, ce numéro et cette date."
-            except Exception as e:
-                message = f"Une erreur s'est produite: {str(e)}"
+    if request.user.is_authenticated:
+       
+        try:
+            
+            reservations = Reservation.objects.filter(
+                client=request.user
+            ).order_by('-created_at')
+            
+            
+            if reservations:
+                reservation_details = reservations
+            else:
+                message = "Vous n'avez aucune réservation."
+        except Exception as e:
+            message = f"Une erreur s'est produite: {str(e)}"
+    else:
+        message = "Veuillez vous connecter pour voir vos réservations."
     
     return render(request, 'verifier_reservation.html', {
         'reservation_details': reservation_details,

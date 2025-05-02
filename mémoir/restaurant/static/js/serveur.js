@@ -102,10 +102,11 @@ function envoyerCommande() {
         },
         body: JSON.stringify({
             table_id: tableId,
-            restaurant_id: restaurantId,  // Ajouter cette ligne
             plats: platsData
         })
     })
+    
+    
     .then(response => {
         if (!response.ok) {
             return response.text().then(text => {

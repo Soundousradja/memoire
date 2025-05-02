@@ -13,7 +13,7 @@ body {
     width:280px;
     height: 300px;
  margin-left: 110px;
-   margin-top: 120px;
+   margin-top: 70px;
     padding: 20px;
     background-color: #000000;
     border-radius: 10px;
@@ -57,4 +57,17 @@ button:hover{
     text-align: center;
     padding-top: 8px;
     font-size: 14px;
+}
+.adresse-restaurant {
+    font-size: 16px;
+    margin-left: 20px;
+    font-weight: bold;
+    color: #ffffff;
+}
+.serveur-restaurant{
+    margin-top: 10px;
+    font-size: 16px;
+    margin-left: 20px;
+    font-weight: bold;
+    color: #ffffff;
 }

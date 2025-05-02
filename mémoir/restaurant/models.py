@@ -46,6 +46,7 @@ class Commande(models.Model):
     
 
     client = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+
     table = models.ForeignKey(Table, on_delete=models.SET_NULL, null=True, blank=True)
     adresse = models.TextField()
     telephone = models.CharField(max_length=15)

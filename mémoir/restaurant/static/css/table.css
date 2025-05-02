@@ -94,6 +94,166 @@ form label{
     font-weight: bold;
 }
 
+.verification-container {
+    max-width: 900px;
+    margin-top: 200px;
+    margin-left: 150px;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.verification-container h2{
+    text-align: center;
+}
+
+.search-form {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #495057;
+}
+
+.form-group input {
+    width: 90%;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+
+.vérifier{
+    margin-left: 235px;
+   
+}
+.vérifier button{
+    background-color:#f5b041;
+    color: #000 ;
+    font-weight: bold;
+    border: none;
+}
+
+.message {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.message-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left: 5px solid #dc3545;
+}
+
+.reservations-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 100px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.reservations-table th,
+.reservations-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.reservations-table th {
+    background-color: #343a40;
+    color: white;
+    font-weight: bold;
+}
+
+.reservations-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.reservations-table tr:hover {
+    background-color: #e9ecef;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-accepted {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.results-title {
+    border-bottom: 2px solid #4CAF50;
+    padding-bottom: 10px;
+    margin: 30px 0 20px;
+    color: #343a40;
+}
+
+.no-reservations {
+    text-align: center;
+    padding: 30px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    color: #6c757d;
+    font-style: italic;
+}
+.btn-verify {
+    color: black;
+    font-weight: bold;
+    
+  
+}
+
+
+.lastbtn{
+position: absolute;
+left: 470px;
+top: 900px;
+}
+
+.lastbtn button{
+height: 35px;
+background-color:#f5b041 ;
+border: none;
+width: 280px;
+border-radius: 20px;
+}
 
 footer {
     background-color: #000; 
