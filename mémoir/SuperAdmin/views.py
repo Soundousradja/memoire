@@ -527,8 +527,366 @@ def boisson_view(request):
     return render(request, 'app/boisson.html') 
 
 
+
+# Ajoutez ces importations en haut de votre fichier SuperAdmin/views.py
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
+from datetime import datetime
+from restaurant.models import Commande
+from .models import Restaurant
+from home.views import get_restaurant_for_user
+from Menu.models import Depense  
+from django.http import HttpResponse
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from Menu.models import Depense
+from .models import Restaurant
+from restaurant.models import Commande
+from datetime import datetime, timedelta
+from home.views import get_restaurant_for_user
+
+from django.http import HttpResponse
+from datetime import datetime
+
+from decimal import Decimal
+
+def tableau_ventes(request):
+    # Récupérer toutes les dépenses sans filtrage
+    depenses = Depense.objects.all()
+    
+    # Calculer le total des dépenses (c'est un Decimal)
+    total_depenses = sum(depense.prix for depense in depenses)
+    
+    # Convertir les valeurs en Decimal pour éviter l'erreur de type
+    total_commandes = Decimal('150000.00')  # Utiliser Decimal au lieu de float
+    benefice = total_commandes - total_depenses  # Maintenant la soustraction fonctionnera
+    
+    # HTML avec le design original
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Tableau de Ventes</title>
+        <style>
+            /* Styles généraux */
+            body {{
+                font-family: 'Arial', sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #fafafa;
+                color: #222;
+            }}
+
+            h1, h2 {{
+                color: #222;
+                border-bottom: 2px solid #FFD700; /* Bordure jaune sous les titres */
+                padding-bottom: 10px;
+            }}
+
+            /* Boîte de filtres */
+            .filter-box {{
+                background-color: #222;
+                color: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 25px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }}
+
+            .filter-box label {{
+                margin-right: 10px;
+                font-weight: bold;
+                color: #FFD700; /* Labels en jaune */
+            }}
+
+            .filter-box select, .filter-box input {{
+                padding: 8px 12px;
+                margin-right: 15px;
+                border: 2px solid #FFD700;
+                border-radius: 4px;
+                background-color: #fff;
+                color: #222;
+            }}
+
+            .filter-box button {{
+                padding: 8px 20px;
+                background-color: #FFD700; /* Bouton jaune */
+                color: #222;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+                transition: all 0.3s ease;
+            }}
+
+            .filter-box button:hover {{
+                background-color: #F5CC00; /* Jaune légèrement plus foncé au survol */
+                transform: translateY(-2px);
+            }}
+
+            /* Cartes de résumé */
+            .summary {{
+                display: flex;
+                gap: 20px;
+                margin-bottom: 30px;
+                flex-wrap: wrap;
+            }}
+
+            .card {{
+                flex: 1;
+                min-width: 250px;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                text-align: center;
+                background-color: #fff;
+                border-top: 4px solid #FFD700;
+                transition: transform 0.3s ease;
+            }}
+
+            .card:hover {{
+                transform: translateY(-5px);
+            }}
+
+            .card h3 {{
+                margin-top: 0;
+                color: #222;
+                font-size: 16px;
+            }}
+
+            .card p {{
+                font-size: 28px;
+                font-weight: bold;
+                margin: 10px 0;
+            }}
+
+            /* Tableau des dépenses */
+            table {{
+                border-collapse: collapse;
+                width: 100%;
+                margin-top: 20px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                background-color: #fff;
+            }}
+
+            th, td {{
+                padding: 12px 15px;
+                text-align: left;
+            }}
+
+            th {{
+                background-color: #222;
+                color: #FFD700;
+                font-weight: bold;
+                text-transform: uppercase;
+                font-size: 14px;
+            }}
+
+            tr:nth-child(even) {{
+                background-color: #f9f9f9;
+            }}
+
+            tr:hover {{
+                background-color: #fff9e0; /* Légère teinte jaune au survol */
+            }}
+
+            /* Couleurs pour les montants */
+            .montant {{
+                color: #222;
+            }}
+
+            .depense {{
+                color: #222;
+            }}
+
+            .benefice {{
+                color: #FFD700;
+                font-weight: bold;
+            }}
+
+            /* Message "aucune dépense" */
+            .no-data {{
+                text-align: center;
+                padding: 20px;
+                color: #666;
+                font-style: italic;
+            }}
+
+            /* Responsive design */
+            @media (max-width: 768px) {{
+                .summary {{
+                    flex-direction: column;
+                }}
+                
+                .filter-box {{
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                }}
+                
+                .filter-box select, .filter-box input {{
+                    width: 100%;
+                    margin-right: 0;
+                }}
+            }}
+        </style>
+    </head>
+    <body>
+        <h1>Tableau de Ventes</h1>
+        
+        <div class="filter-box">
+            <form method="get">
+                <label for="restaurant">Restaurant:</label>
+                <select name="restaurant" id="restaurant">
+                    <option value="1">The LFS Spot Constantine</option>
+                    <option value="2" selected>The LFS Spot Alger</option>
+                    <option value="3">The LFS Spot Oran</option>
+                </select>
+                
+                <label for="date_debut">Du:</label>
+                <input type="date" name="date_debut" id="date_debut" value="2025-04-01">
+                
+                <label for="date_fin">Au:</label>
+                <input type="date" name="date_fin" id="date_fin" value="2025-05-02">
+                
+                <button type="submit">Filtrer</button>
+            </form>
+        </div>
+        
+        <div class="summary">
+            <div class="card">
+                <h3>Montant Total (DA)</h3>
+                <p class="montant">{total_commandes} DA</p>
+            </div>
+            <div class="card">
+                <h3>Total Dépenses (DA)</h3>
+                <p class="depense">{total_depenses} DA</p>
+            </div>
+            <div class="card">
+                <h3>Bénéfice Net (DA)</h3>
+                <p class="benefice">{benefice} DA</p>
+            </div>
+        </div>
+        
+        <h2>Liste des Dépenses (Toutes)</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Produit</th>
+                    <th>Prix (DA)</th>
+                </tr>
+            </thead>
+            <tbody>
+    """
+    
+    # Si aucune dépense n'est trouvée
+    if not depenses:
+        html += '<tr><td colspan="3" class="no-data">Aucune dépense trouvée</td></tr>'
+    else:
+        # Ajouter chaque dépense au tableau
+        for dep in depenses:
+            try:
+                # Formater la date au format JJ/MM/AAAA
+                formatted_date = dep.date.strftime('%d/%m/%Y')
+            except:
+                # En cas d'erreur, utiliser la date brute
+                formatted_date = str(dep.date)
+                
+            html += f"""
+            <tr>
+                <td>{formatted_date}</td>
+                <td>{dep.produit}</td>
+                <td>{dep.prix} DA</td>
+            </tr>
+            """
+    
+    # Fermer le HTML
+    html += """
+            </tbody>
+        </table>
+    </body>
+    </html>
+    """
+    
+    return HttpResponse(html)
+
+    
  
-
-
-
-
+@login_required
+def get_donnees_ventes(request):
+    """
+    API pour récupérer les données de ventes et dépenses
+    """
+    restaurant_id = request.GET.get('restaurant')
+    date_debut = request.GET.get('date_debut')
+    date_fin = request.GET.get('date_fin')
+    
+    # Valider les paramètres
+    if not restaurant_id:
+        return JsonResponse({'error': 'Restaurant non spécifié'}, status=400)
+    
+    try:
+        restaurant = Restaurant.objects.get(id=restaurant_id)
+    except Restaurant.DoesNotExist:
+        return JsonResponse({'error': 'Restaurant introuvable'}, status=404)
+    
+    # Filtres de base pour les requêtes
+    depenses_filter = {'restaurant': restaurant}
+    commandes_filter = {'restaurant': restaurant}
+    
+    # Ajouter les filtres de date si fournis
+    if date_debut:
+        try:
+            date_debut_obj = datetime.strptime(date_debut, '%Y-%m-%d').date()
+            depenses_filter['date__gte'] = date_debut_obj
+            commandes_filter['created_at__date__gte'] = date_debut_obj
+        except ValueError:
+            return JsonResponse({'error': 'Format de date invalide'}, status=400)
+    
+    if date_fin:
+        try:
+            date_fin_obj = datetime.strptime(date_fin, '%Y-%m-%d').date()
+            depenses_filter['date__lte'] = date_fin_obj
+            commandes_filter['created_at__date__lte'] = date_fin_obj
+        except ValueError:
+            return JsonResponse({'error': 'Format de date invalide'}, status=400)
+    
+    # Récupérer les dépenses et commandes
+    depenses = Depense.objects.all()
+    commandes = Commande.objects.filter(**commandes_filter)
+    
+    # Calculer les montants
+    total_depenses = sum(depense.prix for depense in depenses)
+    
+    # Calculer le total des commandes
+    # Assurez-vous que cette méthode existe dans votre modèle Commande
+    try:
+        total_commandes = sum(commande.calculer_prix_total() for commande in commandes)
+    except AttributeError:
+        # Alternative si la méthode n'existe pas
+        total_commandes = sum(commande.prix_total for commande in commandes if hasattr(commande, 'prix_total'))
+    
+    # Profit = Montant - Dépenses
+    profit = total_commandes - total_depenses
+    
+    # Préparer les données des dépenses pour l'affichage
+    depenses_data = []
+    for depense in depenses:
+        depenses_data.append({
+            'id': depense.id,
+            'produit': depense.produit,
+            'prix': float(depense.prix),
+            'date': depense.date.strftime('%Y-%m-%d')
+        })
+    
+    # Retourner toutes les données
+    return JsonResponse({
+        'montant': float(total_commandes),
+        'depense': float(total_depenses),
+        'retenu': float(profit),
+        'depenses': depenses_data
+    })

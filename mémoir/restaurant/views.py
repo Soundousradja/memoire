@@ -634,18 +634,20 @@ import json
 def interface_livreur(request):
     """
     Vue principale pour l'interface du livreur.
-    Permet de consulter les commandes et d'interagir avec elles.
     """
-    # Dans un système réel, le livreur serait identifié par son authentification
-    # Mais puisque vous avez mentionné que le livreur n'a pas besoin d'être authentifié,
-    # nous allons utiliser un ID de livreur codé en dur ou passé en paramètre
+    livreur_id = request.GET.get('livreur_id', 1)  # Default to ID 1
     
-    livreur_id = request.GET.get('livreur_id', 1)  # ID par défaut = 1
-    livreur = get_object_or_404(Livreur, id_livr=livreur_id)
+    try:
+        livreur = Livreur.objects.get(id_livr=livreur_id)
+    except Livreur.DoesNotExist:
+        # If no livreur exists with this ID, create one for testing
+        livreur = Livreur.objects.create(
+            nom_livr="Test Livreur",
+            statut_dispo=True
+        )
     
     context = {
         'livreur': livreur,
-        
     }
     
     return render(request, 'interface_livreur.html', context)

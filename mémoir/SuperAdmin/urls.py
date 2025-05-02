@@ -40,7 +40,8 @@ urlpatterns = [
   
     path('categorie_plats/<int:categorie_id>/', views.categorie_plats, name='categorie_plats'),
     path('plat/modifier/<int:plat_id>/', views.modifier_plat, name='modifier_plat'),
-
+    path('tableau-ventes/', views.tableau_ventes, name='tableau_ventes'),
+    path('get-donnees-ventes/', views.get_donnees_ventes, name='get_donnees_ventes'),
    
    
 ]

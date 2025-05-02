@@ -334,7 +334,7 @@ def determine_redirect_url(user):
         if user.groups.filter(name='Admin').exists():
             print("Redirecting to gestion_admin")
 
-            return reverse('gestion_admin')
+            return reverse('offre')
 
         elif user.groups.filter(name='Chef').exists() or user.role == 'chef':
             print("Redirecting to chef_interface")
@@ -358,7 +358,7 @@ def determine_redirect_url(user):
         return reverse('fournisseur_interface')  
     elif user.role == 'admin':
         print("Redirecting to fournisseur_interface based on role")
-        return reverse('gestion_admin')  
+        return reverse('offre')  
     else:
         print("Redirecting to client_interface")
         return reverse('acceuil')
