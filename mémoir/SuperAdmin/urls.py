@@ -40,8 +40,11 @@ urlpatterns = [
   
     path('categorie_plats/<int:categorie_id>/', views.categorie_plats, name='categorie_plats'),
     path('plat/modifier/<int:plat_id>/', views.modifier_plat, name='modifier_plat'),
+
+   
    
 ]
+   
 
 
   

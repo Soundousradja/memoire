@@ -30,3 +30,5 @@ class FiltreVenteForm(forms.Form):
     restaurant = forms.ModelChoiceField(queryset=Restaurant.objects.all(), required=True)
     start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True)
     end_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True)
+
+

@@ -53,10 +53,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
-
+AUTH_USER_MODEL = 'home.CustomUser'
 ROOT_URLCONF = 'mémoir.urls'
-
+AUTH_USER_MODEL = 'restaurant.Client'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

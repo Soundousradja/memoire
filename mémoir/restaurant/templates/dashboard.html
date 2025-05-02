@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="{% static 'js/itinéraire.js' %}"></script>
+    <title>Interface Livreur</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .livreur-info {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #ced4da;
+        }
+        .livreur-info h2 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #adb5bd;
+            padding-bottom: 5px;
+        }
+        .livreur-info p {
+            margin-bottom: 8px;
+        }
+        .module {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        h2 { /* Style for module titles */
+            color: #555;
+            margin-top: 0;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="text"],
+        select,
+        button {
+            width: calc(100% - 12px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            background-color: #f5a623;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color:black;
+        }
+        .availability-options label {
+            display: inline-block;
+            margin-right: 15px;
+            font-weight: normal;
+        }
+        .availability-options input[type="radio"] {
+            display: inline-block;
+            width: auto;
+            margin-right: 5px;
+        }
+        .commande-liste {
+            list-style: none;
+            padding: 0;
+        }
+        .commande-item {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .commande-info {
+            flex-grow: 1;
+        }
+        .commande-actions button {
+            margin-left: 10px;
+        }
+        .commande-status {
+            font-weight: bold;
+            color: orange; /* Default status color */
+        }
+        .commande-status.prete {
+            color: green;
+        }
+        .commande-status.en-cours {
+            color: blue;
+        }
+        .commande-status.livree {
+            color: darkgreen;
+        }
+        .commande-status.probleme {
+            color: red;
+        }
+        .commande-status.retour {
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Interface Livreur</h1>
+
+        <div class="livreur-info">
+            <h2>Informations du Livreur</h2>
+            <p><strong>Nom:</strong> [Nom du Livreur]</p>
+            <p><strong>ID Livreur:</strong> [ID du Livreur]</p>
+        </div>
+
+        <div class="module">
+            <h2>Commandes Prêtes à Livrer</h2>
+            <ul class="commande-liste" id="commandes-pretes">
+                </ul>
+        </div>
+
+        <div class="module">
+            <h2>Mettre à jour l'état de la livraison</h2>
+            <label for="livraison-id-update">ID de la livraison:</label>
+            <input type="text" id="livraison-id-update" name="livraison-id-update" placeholder="Entrez l'ID de la livraison à mettre à jour">
+
+            <label for="nouvel-etat-livraison">Nouvel état de la livraison:</label>
+            <select id="nouvel-etat-livraison" name="nouvel-etat-livraison">
+                <option value="">Sélectionner un état</option>
+                <option value="en-cours">En cours de livraison</option>
+                <option value="livree">Livrée</option>
+                <option value="probleme">Problème rencontré</option>
+                <option value="retour">Retour au restaurant</option>
+            </select>
+
+            <button type="button" onclick="mettreAJourEtatLivraison()">Mettre à jour l'état</button>
+        </div>
+
+        <div class="module">
+            <h2>Consulter les itinéraires</h2>
+            <label for="itineraire-id">ID de la livraison (pour l'itinéraire):</label>
+            <input type="text" id="itineraire-id" name="itineraire-id" placeholder="Entrez l'ID de la livraison">
+            <button type="button" onclick="afficherItineraire()">Afficher l'itinéraire</button>
+            </div>
+
+        <div class="module">
+            <h2>Mettre à jour l'état de la disponibilité</h2>
+            <label>État de la disponibilité:</label>
+            <div class="availability-options">
+                <input type="radio" id="disponible" name="disponibilite" value="disponible">
+                <label for="disponible">Disponible</label>
+
+                <input type="radio" id="indisponible" name="disponibilite" value="indisponible">
+                <label for="indisponible">Indisponible</label>
+            </div>
+            <button type="button" onclick="mettreAJourDisponibilite()">Mettre à jour la disponibilité</button>
+        </div>
+    </div>
+
+    <script>
+        // Add this to your JavaScript
+        // Configuration
+        document.addEventListener('DOMContentLoaded', function() {
+    // Set up availability toggle
+    const availabilityToggle = document.getElementById('availability-toggle');
+    if (availabilityToggle) {
+        availabilityToggle.addEventListener('change', function() {
+            const isAvailable = this.checked;
+            document.getElementById('availability-status').textContent = 
+                isAvailable ? 'Disponible' : 'Indisponible';
+            
+            // Call function to update availability
+            updateAvailability(isAvailable);
+        });
+    }
+    
+    // Load orders
+    loadCommandes();
+});
+function loadCommandes() {
+    console.log("Attempting to load orders...");
+    // Rest of your loading code
+}
+        // Fonction (simulée) pour récupérer les commandes prêtes (à remplacer par un appel API)
+        function chargerCommandesPretes() {
+            // Simule une réponse du serveur avec les commandes prêtes
+            const commandes = [
+                { id: 123, client: "Nom du Client A", status: "prete" },
+                { id: 456, client: "Nom du Client B", status: "prete" },
+                { id: 789, client: "Nom du Client C", status: "prete" }
+            ];
+
+            const listeCommandes = document.getElementById("commandes-pretes");
+            listeCommandes.innerHTML = ""; // Effacer la liste existante
+
+            commandes.forEach(commande => {
+                const listItem = document.createElement("li");
+                listItem.classList.add("commande-item");
+                listItem.innerHTML = `
+                    <div class="commande-info">
+                        <strong>ID Commande:</strong> <span class="commande-id">${commande.id}</span><br>
+                        <strong>Client:</strong> <span class="commande-client">${commande.client}</span><br>
+                        <strong>Statut:</strong> <span class="commande-status ${commande.status}">${commande.status.charAt(0).toUpperCase() + commande.status.slice(1)}</span>
+                    </div>
+                    <div class="commande-actions">
+                        <button type="button" data-commande-id="${commande.id}" onclick="demarrerLivraison('${commande.id}')">Démarrer la livraison</button>
+                    </div>
+                `;
+                listeCommandes.appendChild(listItem);
+            });
+        }
+
+        function demarrerLivraison(commandeId) {
+            console.log(`Démarrer la livraison pour la commande ID: ${commandeId}`);
+            // Ici, vous ferez un appel à votre backend pour marquer la commande comme "en cours de livraison"
+            // et potentiellement rediriger le livreur vers la page de l'itinéraire pour cette commande.
+        }
+
+        function mettreAJourEtatLivraison() {
+            const livraisonId = document.getElementById("livraison-id-update").value;
+            const nouvelEtat = document.getElementById("nouvel-etat-livraison").value;
+
+            if (livraisonId && nouvelEtat) {
+                console.log(`Mettre à jour la livraison ${livraisonId} à l'état: ${nouvelEtat}`);
+                // Ici, vous ferez un appel à votre backend (e.g., using fetch) pour mettre à jour l'état
+                // de la livraison dans votre base de données.
+                // Exemple d'appel fetch (à adapter à votre backend):
+                /*
+                fetch('/api/livraisons/' + livraisonId, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ etat: nouvelEtat }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Succès:', data);
+                    // Afficher un message de succès à l'utilisateur
+                    alert(`L'état de la livraison ${livraisonId} a été mis à jour à ${nouvelEtat}.`);
+                    // Potentiellement mettre à jour l'affichage des commandes
+                    chargerCommandesPretes(); // Si l'état d'une commande en cours change
+                })
+                .catch((error) => {
+                    console.error('Erreur:', error);
+                    // Afficher un message d'erreur à l'utilisateur
+                    alert(`Erreur lors de la mise à jour de l'état de la livraison.`);
+                });
+                */
+            } else {
+                alert("Veuillez entrer l'ID de la livraison et sélectionner un nouvel état.");
+            }
+        }
+
+        function afficherItineraire() {
+            const itineraireId = document.getElementById("itineraire-id").value;
+            if (itineraireId) {
+                console.log(`Afficher l'itinéraire pour la livraison ID: ${itineraireId}`);
+                // Ici, vous ferez un appel à votre backend pour récupérer l'itinéraire de la livraison
+                // et l'afficher à l'utilisateur. Cela pourrait impliquer une redirection vers une autre page
+                // avec une carte ou l'affichage d'informations dans un élément HTML.
+                // Exemple de redirection (à adapter):
+                // window.location.href = `/itineraire/${itineraireId}`;
+            } else {
+                alert("Veuillez entrer l'ID de la livraison pour afficher l'itinéraire.");
+            }
+        }
+
+        function mettreAJourDisponibilite() {
+            const disponibilite = document.querySelector('input[name="disponibilite"]:checked');
+            if (disponibilite) {
+                const etatDisponibilite = disponibilite.value;
+                console.log(`Mettre à jour la disponibilité à: ${etatDisponibilite}`);
+                // Ici, vous ferez un appel à votre backend pour mettre à jour l'état de disponibilité du livreur.
+                // Exemple d'appel fetch (à adapter à votre backend):
+                /*
+                fetch('/api/livreurs/me/disponibilite', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ disponible: etatDisponibilite === 'disponible' }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Succès:', data);
+                    alert(`Votre disponibilité a été mise à jour à: ${etatDisponibilite}`);
+                })
+                .catch((error) => {
+                    console.error('Erreur:', error);
+                    alert(`Erreur lors de la mise à jour de la disponibilité.`);
+                });
+                */
+            } else {
+                alert("Veuillez sélectionner un état de disponibilité.");
+            }
+        }
+
+        // Charger les commandes prêtes au chargement de la page
+        window.onload = chargerCommandesPretes;
+
+        // Example toggle handler
+document.getElementById('availability-toggle').addEventListener('change', function() {
+    const isAvailable = this.checked;
+    const statusText = isAvailable ? 'Disponible' : 'Indisponible';
+    document.getElementById('availability-status').textContent = statusText;
+    
+    // Update the server
+    fetch('/update-availability/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCsrfToken() // Make sure to get CSRF token
+        },
+        body: JSON.stringify({
+            available: isAvailable
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Availability updated successfully', data);
+    })
+    .catch(error => {
+        console.error('Error updating availability', error);
+        // Revert the toggle if there was an error
+        this.checked = !isAvailable;
+        document.getElementById('availability-status').textContent = 
+            !isAvailable ? 'Disponible' : 'Indisponible';
+    });
+});
+    </script>
+</body>
+</html>

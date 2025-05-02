@@ -1,5 +1,7 @@
+/* Fixed CSS for Admin Cards */
 body {
-    background: url('../images/exemple.jpg') no-repeat center center fixed;
+    background-color: black; /* Changed from red to match your screenshot */
+    background-image: url('/static/images/pattern.jpg'); /* Optional: Add your pattern background */
     background-size: cover;
     font-family: Arial, sans-serif;
     color: white;
@@ -26,42 +28,47 @@ body {
     gap: 20px;
     flex-wrap: wrap;
     justify-content: center;
+    padding: 20px;
 }
 
 .admin-card {
     background-color: rgb(211, 150, 38);
-    width: 250px;
+    width: 300px; /* Increased width for better proportions */
     padding: 15px;
     border-radius: 10px;
     color: black;
-    box-shadow: 1px 1px 15px 15px rgb(54, 56, 56);
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    height: 380px; /* Ensures all cards are same height */
+    height: auto; /* Let content determine height */
     text-align: center;
 }
 
-.admin-card .top-content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-}
-
-.admin-card img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
+.admin-image {
+    background-color: white;
     border-radius: 10px;
-    margin-bottom: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.admin-card h2 {
-    font-size: 18px;
+.admin-image img {
+    max-width: 100%;
+    max-height: 170px;
+    object-fit: contain;
+}
+
+.admin-info {
+    margin-bottom: 15px;
+}
+
+.admin-name {
+    font-size: 22px;
     font-weight: bold;
     margin: 10px 0;
-    line-height: 1.4;
 }
 
 .phone {
@@ -75,25 +82,31 @@ body {
     color: black;
 }
 
+.restaurant-info {
+    margin: 15px 0;
+    font-weight: bold;
+}
+
 .btn-group {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 10px;
+    margin-top: auto; /* Push buttons to bottom */
 }
 
 .btn {
     background-color: black;
     color: white;
-    padding: 10px 0;
+    padding: 12px 0;
     border-radius: 20px;
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
     border: none;
     text-decoration: none;
-    width: 120px; /* même largeur pour tous les boutons */
+    width: 100%; /* Full width buttons */
     text-align: center;
+    transition: background-color 0.3s;
 }
 
 .btn:hover {
@@ -114,6 +127,7 @@ body {
     cursor: pointer;
     text-decoration: none;
     box-shadow: 0px 0px 10px black;
+    z-index: 100;
 }
 
 .add-button span {
@@ -121,17 +135,23 @@ body {
     font-weight: bold;
     color: black;
 }
+
 .btn-supadmin i {
     font-size: 18px;
 }
+
 .back-button {
     margin-bottom: 1.5rem;
-    background-color:white;
+    background-color: white;
     padding: 10px;
     height: 34px;
     position: absolute;
     left: 10px;
+    top: 10px;
     border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .back-button:hover {

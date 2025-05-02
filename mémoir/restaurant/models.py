@@ -5,13 +5,14 @@ from SuperAdmin.models import Categorie,Ingredient,Plat,PlatIngredient
 from django.utils import timezone
 from django.utils.timesince import timesince
 from SuperAdmin.models import Restaurant
-
+from django.conf import settings
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 
 class Client(AbstractUser):
     phone = models.CharField(max_length=15, unique=True)
     address = models.TextField()
-
-    
+   
     groups = models.ManyToManyField(
         'auth.Group', 
         related_name='client_set',  
@@ -106,6 +107,7 @@ class Commande(models.Model):
 def total_journee():
     total = sum(commande.calculer_prix_total() for commande in Commande.objects.all())
     return total
+
       
 class CommandePlat(models.Model):
     commande = models.ForeignKey(Commande, on_delete=models.CASCADE)  
@@ -124,3 +126,81 @@ class Evaluation(models.Model):
     def __str__(self):
         return f"Évaluation de la commande {self.commande.id}: {self.note} étoiles"    
     
+from django.db import models
+from django.utils import timezone
+from django.conf import settings
+
+class Livreur(models.Model):
+    id_livr = models.AutoField(primary_key=True)
+    nom_livr = models.CharField(max_length=100)
+    statut_dispo = models.BooleanField(default=True)
+    statut_disponibilité = models.CharField(max_length=20, choices=[
+        ('disponible', 'Disponible'),
+        ('indisponible', 'Indisponible'),
+    ], default='disponible')
+   
+    def __str__(self):
+        return f"{self.nom_livr} (ID: {self.id_livr})"
+    
+    def is_available(self):
+        return self.statut_dispo and self.statut_disponibilité == 'disponible'
+    
+    def set_disponible(self, disponible=True):
+        self.statut_disponibilité = 'disponible' if disponible else 'indisponible'
+        self.statut_dispo = disponible
+        self.save()
+    
+    def assign_delivery(self, commande):
+        """Assigne une commande à ce livreur"""
+        if not self.is_available():
+            return False
+        
+        # Crée une nouvelle livraison
+        livraison = Livraison(
+            id_livr=self,
+            id_cmd=commande,
+            etat_livraison='en_cours',
+            adresse=commande.adresse,
+            date=timezone.now()
+        )
+        livraison.save()
+        
+        # Met à jour le statut de la commande
+        commande.statut = 'en_cours'
+        commande.save()
+        
+        return True
+
+
+class Livraison(models.Model):
+    ETAT_CHOICES = [
+        ('attente', 'En attente'),
+        ('en_cours', 'En cours'),
+        ('livree', 'Livrée'),
+        ('annulee', 'Annulée'),
+        ('probleme', 'Problème'),
+    ]
+    
+    id_livr = models.ForeignKey(Livreur, on_delete=models.CASCADE)
+    id_cmd = models.ForeignKey('Commande', on_delete=models.CASCADE, default=1)  # Use a valid ID
+    etat_livraison = models.CharField(max_length=20, choices=ETAT_CHOICES, default='attente')
+    adresse = models.CharField(max_length=255)
+    date = models.DateTimeField(default=timezone.now)
+    
+    def __str__(self):
+        return f"Livraison {self.id} - Commande {self.id_cmd.id}"
+    
+    def mark_as_delivered(self):
+        """Marque la livraison comme livrée"""
+        self.etat_livraison = 'livree'
+        self.save()
+        
+        # Met à jour aussi le statut de la commande
+        commande = self.id_cmd
+        commande.statut = 'livree'
+        commande.save()
+        
+        # Rend le livreur à nouveau disponible
+        livreur = self.id_livr
+        livreur.set_disponible(True)
+        livreur.save()
