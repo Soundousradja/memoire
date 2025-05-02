@@ -329,7 +329,7 @@ def determine_redirect_url(user):
     # Vérification par superuser, groupes et rôle
     if user.is_superuser:
         print("Redirecting to superadmin_interface")
-        return reverse('home')
+        return reverse('offre')
     elif user.is_staff:
         if user.groups.filter(name='Admin').exists():
             print("Redirecting to gestion_admin")
@@ -358,7 +358,7 @@ def determine_redirect_url(user):
         return reverse('fournisseur_interface')  
     elif user.role == 'admin':
         print("Redirecting to fournisseur_interface based on role")
-        return reverse('gestion_admin')  
+        return reverse('home')  
     else:
         print("Redirecting to client_interface")
         return reverse('acceuil')
