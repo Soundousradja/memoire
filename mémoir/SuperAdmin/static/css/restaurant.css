@@ -147,16 +147,16 @@ header{
      cursor: pointer;
      
   }
-  .back-button {
-    margin-bottom: 1.5rem;
-    background-color:white;
-    padding: 10px;
-    height: 34px;
-    position: absolute;
-    left: 10px;
-    border-radius: 10px;
+  .back-btn {
+    margin-bottom: 1.5rem !important;
+    background-color: white !important;
+    padding: 10px !important;
+    height: 34px !important;
+    position: absolute !important;
+    left: 10px !important;
+    border-radius: 10px !important;
 }
 
-.back-button:hover {
-    background-color: #7f8c8d;
+.back-btn:hover {
+    background-color: orange !important;
 }

@@ -1,0 +1,309 @@
+<!-- templates/delivery/available_deliveries.html -->
+{% extends 'base.html' %}
+
+{% block title %}Available Deliveries{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Commands Available for Delivery</h1>
+    
+    {% if not available_commands %}
+        <div class="alert alert-info">
+            <p>There are currently no commands ready for delivery.</p>
+        </div>
+    {% else %}
+        <div class="row">
+            {% for command in available_commands %}
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">Order #{{ command.id }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-subtitle mb-2 text-muted">
+                                Ready for Delivery
+                            </h6>
+                            
+                            <p><strong>Client:</strong> {{ command.client.username }}</p>
+                            <p><strong>Address:</strong> {{ command.adresse }}</p>
+                            <p><strong>Telephone:</strong> {{ command.telephone }}</p>
+                            <p><strong>Order Date:</strong> {{ command.date|date:"F j, Y, g:i a" }}</p>
+                            <p><strong>Items:</strong></p>
+                            <ul>
+                                {% for cp in command.commandeplat_set.all %}
+                                    <li>{{ cp.plat.name }} x {{ cp.quantity }}</li>
+                                {% endfor %}
+                            </ul>
+                            <p><strong>Total:</strong> {{ command.calculer_prix_total }}</p>
+                            <p><strong>Payment Method:</strong> {{ command.get_mode_paiement_display }}</p>
+                            
+                            <div class="livreur-selection mt-3">
+                                <h6>Available Delivery Personnel:</h6>
+                                <div class="list-group">
+                                    {% for livreur in livreurs_disponibles %}
+                                        <a href="{% url 'accept_delivery' command.id livreur.id %}" 
+                                           class="list-group-item list-group-item-action">
+                                            {{ livreur.nom_livr }}
+                                            <span class="badge bg-success float-end">Available</span>
+                                        </a>
+                                    {% empty %}
+                                        <div class="list-group-item text-danger">
+                                            No delivery personnel available at the moment.
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+<!-- templates/delivery/livreur_dashboard.html -->
+{% extends 'base.html' %}
+
+{% block title %}Delivery Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Delivery Dashboard</h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <h5>
+                Status: 
+                <span class="badge {% if livreur.statut_disponibilite == 'Disponible' %}bg-success{% elif livreur.statut_disponibilite == 'En livraison' %}bg-warning{% else %}bg-danger{% endif %}">
+                    {{ livreur.get_statut_disponibilite_display }}
+                </span>
+            </h5>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0">Delivery Person Information</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Name:</strong> {{ livreur.nom_livr }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Status:</strong> {{ livreur.get_statut_disponibilite_display }}</p>
+                </div>
+                {% if livreur.telephone %}
+                <div class="col-md-6">
+                    <p><strong>Telephone:</strong> {{ livreur.telephone }}</p>
+                </div>
+                {% endif %}
+                {% if livreur.email %}
+                <div class="col-md-6">
+                    <p><strong>Email:</strong> {{ livreur.email }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {% if active_deliveries %}
+        <h2 class="mb-3">Active Deliveries</h2>
+        
+        {% for delivery in active_deliveries %}
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">Delivery #{{ delivery.id }} - In Progress</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Order Information</h6>
+                            <p><strong>Order Number:</strong> {{ delivery.commande.id }}</p>
+                            <p><strong>Client:</strong> {{ delivery.commande.client.username }}</p>
+                            <p><strong>Address:</strong> {{ delivery.adresse }}</p>
+                            <p><strong>Telephone:</strong> {{ delivery.commande.telephone }}</p>
+                            <p><strong>Order Date:</strong> {{ delivery.commande.date|date:"F j, Y, g:i a" }}</p>
+                            <p><strong>Payment Method:</strong> {{ delivery.commande.get_mode_paiement_display }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Items</h6>
+                            <ul class="list-group mb-3">
+                                {% for cp in delivery.commande.commandeplat_set.all %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ cp.plat.name }}
+                                        <span class="badge bg-primary rounded-pill">x {{ cp.quantity }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <p><strong>Total:</strong> {{ delivery.commande.calculer_prix_total }}</p>
+                            
+                            <form action="{% url 'complete_delivery' delivery.id livreur.id %}" method="post" class="mt-3">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success w-100">
+                                    Mark as Delivered
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        {% if is_available %}
+            <div class="alert alert-info">
+                <h4 class="alert-heading">No Active Deliveries</h4>
+                <p>You currently have no active deliveries. Check available deliveries to accept a new one.</p>
+                <hr>
+                <p class="mb-0">
+                    <a href="{% url 'available_deliveries' %}" class="btn btn-primary">
+                        View Available Deliveries
+                    </a>
+                </p>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                <h4 class="alert-heading">Currently Unavailable</h4>
+                <p>You are currently marked as unavailable for new deliveries.</p>
+            </div>
+        {% endif %}
+    {% endif %}
+    
+    <div class="mt-4">
+        <a href="{% url 'available_deliveries' %}" class="btn btn-primary">
+            Available Deliveries
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+<!-- templates/delivery/livreur_list.html -->
+{% extends 'base.html' %}
+
+{% block title %}Delivery Personnel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Delivery Personnel</h1>
+        <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addLivreurModal">
+            <i class="bi bi-plus-circle"></i> Add New
+        </a>
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Delivery Personnel List</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Contact</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for livreur in livreurs %}
+                            <tr>
+                                <td>{{ livreur.id }}</td>
+                                <td>{{ livreur.nom_livr }}</td>
+                                <td>
+                                    <span class="badge {% if livreur.statut_disponibilite == 'Disponible' %}bg-success{% elif livreur.statut_disponibilite == 'En livraison' %}bg-warning{% else %}bg-danger{% endif %}">
+                                        {{ livreur.get_statut_disponibilite_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if livreur.telephone %}
+                                        <div>Tel: {{ livreur.telephone }}</div>
+                                    {% endif %}
+                                    {% if livreur.email %}
+                                        <div>Email: {{ livreur.email }}</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'livreur_dashboard' livreur.id %}" class="btn btn-sm btn-info">
+                                            <i class="bi bi-eye"></i> Dashboard
+                                        </a>
+                                        
+                                        {% if livreur.statut_disponibilite != 'En livraison' %}
+                                            <a href="{% url 'toggle_livreur_status' livreur.id %}" class="btn btn-sm {% if livreur.statut_disponibilite == 'Disponible' %}btn-warning{% else %}btn-success{% endif %}">
+                                                {% if livreur.statut_disponibilite == 'Disponible' %}
+                                                    <i class="bi bi-pause-circle"></i> Set Unavailable
+                                                {% else %}
+                                                    <i class="bi bi-play-circle"></i> Set Available
+                                                {% endif %}
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">
+                                    No delivery personnel found
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for adding a new delivery person -->
+<div class="modal fade" id="addLivreurModal" tabindex="-1" aria-labelledby="addLivreurModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'add_livreur' %}">
+                {% csrf_token %}
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="addLivreurModalLabel">Add New Delivery Person</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nom_livr" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="nom_livr" name="nom_livr" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telephone" class="form-label">Telephone</label>
+                        <input type="tel" class="form-control" id="telephone" name="telephone">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="statut_disponibilite" class="form-label">Initial Status</label>
+                        <select class="form-select" id="statut_disponibilite" name="statut_disponibilite">
+                            <option value="Disponible">Available</option>
+                            <option value="Indisponible">Unavailable</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Delivery Person</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

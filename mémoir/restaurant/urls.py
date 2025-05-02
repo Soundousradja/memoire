@@ -21,4 +21,18 @@ urlpatterns = [
      
     path('verifier-reservation/', views.verifier_reservation, name='verifier_reservation'),
     path('restaurant/evaluer/<int:commande_id>/', views.evaluer_commande, name='evaluer_commande'),
+    
+     path('interface-livreur/', views.interface_livreur, name='interface_livreur'),
+    
+    # APIs pour les commandes et livraisons
+    path('landing_page', views.landing_page, name='landing'),
+    path('api/commandes/', views.get_commandes, name='get_commandes'),
+    path('api/livreur/disponibilite/', views.update_livreur_disponibilite, name='update_livreur_disponibilite'),
+    path('api/livraison/accepter/', views.accept_delivery, name='accept_delivery'),
+    path('api/livraison/livrer/', views.mark_as_delivered, name='mark_as_delivered'),
+    path('api/livraison/refuser/', views.refuse_delivery, name='refuse_delivery'),
+
+
 ]
+   
+

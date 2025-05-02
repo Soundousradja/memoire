@@ -1,0 +1,213 @@
+/* Delivery Management CSS */
+
+/* Main Container Styling */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+  
+  /* Page Title */
+  h1.mb-4 {
+    color: #2c3e50;
+    font-weight: 600;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 10px;
+    margin-bottom: 30px !important;
+  }
+  
+  /* Card Styling */
+  .card {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 25px;
+    border: none;
+  }
+  
+  .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 15px 20px;
+  }
+  
+  .card-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #2c3e50;
+    font-weight: 600;
+  }
+  
+  .card-body {
+    padding: 20px;
+  }
+  
+  /* Livreur Status Cards */
+  .livreur-card {
+    transition: transform 0.2s;
+    height: 100%;
+  }
+  
+  .livreur-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .card-title {
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  /* Status Badge Styling */
+  .badge {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 4px;
+  }
+  
+  .bg-success {
+    background-color: #28a745 !important;
+  }
+  
+  .bg-warning {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+  }
+  
+  .bg-danger {
+    background-color: #dc3545 !important;
+  }
+  
+  /* Form Controls */
+  .form-select {
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+  }
+  
+  .input-group {
+    margin-top: 10px;
+  }
+  
+  .btn {
+    border-radius: 4px;
+    padding: 8px 15px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  
+  .btn-primary {
+    background-color: #3498db;
+    border-color: #3498db;
+  }
+  
+  .btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+  }
+  
+  .btn-success {
+    background-color: #2ecc71;
+    border-color: #2ecc71;
+  }
+  
+  .btn-success:hover {
+    background-color: #27ae60;
+    border-color: #27ae60;
+  }
+  
+  .btn-sm {
+    padding: 5px 10px;
+    font-size: 0.875rem;
+  }
+  
+  /* Table Styling */
+  .table {
+    margin-bottom: 0;
+  }
+  
+  .table th {
+    background-color: #f8f9fa;
+    color: #2c3e50;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+  }
+  
+  .table td, .table th {
+    padding: 12px 15px;
+    vertical-align: middle;
+  }
+  
+  .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+  
+  /* Alert Messages */
+  .alert {
+    border-radius: 4px;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border: none;
+  }
+  
+  .alert-success {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .card-title {
+      font-size: 1.1rem;
+    }
+    
+    .table-responsive {
+      font-size: 0.9rem;
+    }
+    
+    .btn {
+      font-size: 0.9rem;
+    }
+  }
+  
+  /* Empty State Message */
+  .text-center {
+    color: #6c757d;
+    font-style: italic;
+  }
+  
+  /* Make form elements take full width on mobile */
+  @media (max-width: 576px) {
+    .input-group {
+      flex-direction: column;
+    }
+    
+    .input-group .form-select,
+    .input-group .btn {
+      width: 100%;
+      margin-top: 5px;
+      border-radius: 4px !important;
+    }
+  }
+  
+  /* Additional class for livreur cards */
+  .livreur-status-card {
+    transition: all 0.3s;
+    border-left: 5px solid transparent;
+  }
+  
+  .livreur-status-available {
+    border-left-color: #2ecc71;
+  }
+  
+  .livreur-status-delivery {
+    border-left-color: #f39c12;
+  }
+  
+  .livreur-status-unavailable {
+    border-left-color: #e74c3c;
+  }

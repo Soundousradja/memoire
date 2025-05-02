@@ -1,7 +1,7 @@
 body {
     background: url('/static/images/exemple.jpg') no-repeat center center fixed;
     background-size: cover;
-    color:white;
+    color: white;
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -9,6 +9,7 @@ body {
 
 .container {
     padding: 40px;
+    position: relative;
 }
 
 .header {
@@ -19,14 +20,13 @@ body {
 }
 
 .tag {
-   
     align-items: center;
     text-align: center;
     padding: 10px 20px;
     font-weight: bold;
     clip-path: polygon(0 0, 90% 0, 100% 50%, 90% 100%, 0 100%);
     background-color: transparent;
-    color:rgb(211, 150, 38);
+    color: rgb(211, 150, 38);
     border: 2px solid rgb(211, 150, 38);
     cursor: pointer;
     position: relative;
@@ -36,15 +36,13 @@ body {
     transition: all 0.3s ease;
     box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
     width: 200px;
-
 }
-.tag :hover {
+
+.tag:hover {
     background-color: rgba(255, 215, 0, 0.1);
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
     transform: translateY(-3px);
 }
-
-
 
 .ingredient-box {
     display: grid;
@@ -59,7 +57,7 @@ body {
 }
 
 .ingredient {
-    background-color:black;
+    background-color: black;
     color: rgb(211, 150, 38);
     border: 2px solid rgb(211, 150, 38);
     padding: 10px;
@@ -87,8 +85,8 @@ body {
     border-radius: 50%;
     font-weight: bold;
     cursor: pointer;
-    
 }
+
 .ingredient-input {
     grid-column: span 2;
     padding: 10px;
@@ -109,11 +107,37 @@ body {
     margin-top: 5px;
     border-radius: 10px;
 }
-h2{
+
+h2 {
     text-align: center;
     font-weight: bold;
-    color:rgb(211, 150, 38);
+    color: rgb(211, 150, 38);
     border: 2px solid rgb(211, 150, 38);
     letter-spacing: 2px;
     padding: 10px 20px;
+}
+
+/* New logout button styling */
+.logout-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: transparent;
+    color: rgb(211, 150, 38);
+    border: 2px solid rgb(211, 150, 38);
+    padding: 8px 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 10px;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 14px;
+}
+
+.logout-btn:hover {
+    background-color: rgb(211, 150, 38);
+    color: black;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
 }

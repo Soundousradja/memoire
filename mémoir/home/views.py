@@ -290,6 +290,8 @@ def login_view(request):
     else:
         form = LoginForm()
     return render(request, 'app/login.html', {'form': form})
+from django.urls import reverse
+
 def determine_redirect_url(user):
     print(f"--- Redirect Check for User: {user.username} ---")
     print(f"Is superuser: {user.is_superuser}")
@@ -300,46 +302,34 @@ def determine_redirect_url(user):
     # Vérification par superuser, groupes et rôle
     if user.is_superuser:
         print("Redirecting to superadmin_interface")
-        return 'home'
+        return reverse('home')
     elif user.is_staff:
         if user.groups.filter(name='Admin').exists():
             print("Redirecting to gestion_admin")
-            return 'gestion_admin'
+            return reverse('gestion_admin')
         elif user.groups.filter(name='Chef').exists() or user.role == 'chef':
             print("Redirecting to chef_interface")
-            return 'menu:pagechef'
+            return reverse('menu:pagechef')
         elif user.groups.filter(name='Serveur').exists() or user.role == 'serveur':
             print("Redirecting to serveur_interface")
-            return 'serveur_interface'
-        elif user.groups.filter(name='Livreur').exists() or user.role == 'livreur':
-            print("Redirecting to livreur_interface")
-            return 'livreur_interface'
-        elif user.groups.filter(name='Fournisseur').exists() or user.role == 'fournisseur':
-            print("Redirecting to fournisseur_interface")
-            return 'fournisseur_interface'
-        elif user.groups.filter(name='Technicien').exists():
-            print("Redirecting to technicien_interface")
-            return 'technicien_interface'
-        else:
-            print("Redirecting to staff_default_interface")
-            return 'staff_default_interface'
-    # Vérification supplémentaire par le champ role pour les non-staff
-    elif user.role == 'chef':
-        print("Redirecting to chef_interface based on role")
-        return 'menu:pagechef'
-    elif user.role == 'serveur':
-        print("Redirecting to serveur_interface based on role")
-        return 'serveur_interface'
+            return reverse('serveur_interface')
+        elif user.groups.filter(name='Livreur').exists() or getattr(user, 'role', None) == 'livreur':
+            print("Redirecting to landing_page")
+            return reverse('restaurant:landing_page')
+        # ... other conditions ...
+    
+    # ... more conditions ...
+    
     elif user.role == 'livreur':
         print("Redirecting to livreur_interface based on role")
-        return 'livreur_interface'
-    elif user.role == 'fournisseur':
-        print("Redirecting to fournisseur_interface based on role")
-        return 'fournisseur_interface'
+        # Use absolute URL as a fallback if reverse() doesn't work
+        return '/restaurant/landing_page'
+    
+    # ... more conditions ...
+    
     else:
         print("Redirecting to client_interface")
-        return 'acceuil'
-
+        return reverse('acceuil')
 @login_required
 def superadmin_interface(request):
     return render(request, 'pages/index.html') # Create this template
@@ -371,7 +361,7 @@ def fournisseur_interface(request):
 def livreur_interface(request):
     if not request.user.is_staff or not request.user.groups.filter(name='Livreur').exists():
         return redirect('access_denied')
-    return render(request, 'app/livreur_interface.html')     # Create this template
+    return render(request, 'restaurant/landing_page.html')    
 
 
 @login_required
