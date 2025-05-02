@@ -13,7 +13,7 @@ urlpatterns = [
     path('supprimer-du-panier/<int:plat_id>/', views.supprimer_du_panier, name='supprimer_du_panier'),
     path('modifier-panier/<int:plat_id>/<int:quantity>/', views.modifier_panier, name='modifier_panier'),
     path('offres/', views.afficher_offres, name='afficher_offres'),
-    path('serveur', views.serveuracceuil, name='serveuracceuil'),
+    path('serveur/', views.serveur_interface, name='serveur_interface'),
     path('serveurmenu', views.serveurmenu, name='serveurmenu'),
     path('serveur/reservations/', views.serveur_reservations, name='serveur_reservations'),
     path('serveur/reservations/<int:reservation_id>/<str:reponse>/', views.repondre_reservation, name='repondre_reservation'),
@@ -24,4 +24,5 @@ urlpatterns = [
     path('restaurant/evaluer/<int:commande_id>/', views.evaluer_commande, name='evaluer_commande'),
     path('profile/', views.profile_view, name='profile'),
      path('logout/', views.logout_view, name='logout'),
+     path('logout1/', views.logout_serveur, name='logout1'),
 ]

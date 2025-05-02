@@ -21,7 +21,7 @@
             <h1>Menu</h1>
             <div class="categories-filter">
                 {% for categorie in categories %}
-                    <button class="category-btn {% if forloop.first %}active{% endif %}" data-category="{{ categorie.id }}">{{ categorie.nom }}</button>
+                    <button class="category-btn {% if forloop.first %}active{% endif %}" data-category="{{ categorie.id }}">{{ categorie.name }}</button>
                 {% endfor %}
             </div>
           
@@ -63,5 +63,10 @@
             </div>
         </div>
     </div>
+    
+    <footer>
+        <p>© 2025 The LFS Spot Restaurant. Tous droits réservés.</p>
+       
+       </footer>
 </body>
 </html>

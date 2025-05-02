@@ -86,7 +86,7 @@ class Plat(models.Model):
     image = models.ImageField(upload_to='plats/')
     price = models.DecimalField(max_digits=5, decimal_places=2)
     ingredients = models.ManyToManyField(Ingredient, through='PlatIngredient')  
-    categorie = models.ForeignKey(Categorie, on_delete=models.CASCADE)
+    categorie = models.ForeignKey(Categorie, on_delete=models.CASCADE,related_name='plats')
     
     description = models.TextField()
     is_available = models.BooleanField(default=False)

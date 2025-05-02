@@ -74,6 +74,7 @@ class Commande(models.Model):
     MODE_PAIEMENT_CHOICES = [
         ('cash', 'Paiement à la livraison'),
         ('carte', 'Carte bancaire'),
+        ('sur_place', 'Sur place')
     ]
     #paiement = models.CharField(max_length=10, choices=STATUT_PAIEMENT, default='Non Paye')
     mode_paiement = models.CharField(max_length=20, choices=MODE_PAIEMENT_CHOICES, default='cash')

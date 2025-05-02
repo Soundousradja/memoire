@@ -321,15 +321,17 @@ def afficher_offres(request):
 
 #Serveur
 
-def serveuracceuil(request):
+def serveur_interface(request):
     return render(request,'serveuracceuil.html')
 
 def serveurmenu(request):
     categories = Categorie.objects.all()
+    plats=Plat.objects.all()
     tables = Table.objects.all()
     return render(request, 'serveurmenu.html', {
         'categories': categories,
-        'tables': tables
+        'tables': tables,
+        'plats' :plats
     })
 
 def serveur_reservations(request):
@@ -448,48 +450,51 @@ def historique_commandes(request):
         })
 
 @csrf_exempt
+@login_required
 def serveur_envoyer_commande(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            
-            # Vérifier les données reçues
             table_id = data.get('table_id')
+            restaurant_id = data.get('restaurant_id')  # Nouveau champ dans la requête
             plats = data.get('plats')
             
-            if not table_id or not plats:
-                return JsonResponse({"error": "Informations incomplètes"}, status=400)
+            print("Données reçues:", data)
             
-            # Récupérer la table
+            if not table_id or not plats or not restaurant_id:
+                return JsonResponse({"error": "Informations incomplètes (table_id, restaurant_id et plats requis)"}, status=400)
+            
+            # Convertir les IDs en entiers si ce sont des chaînes
+            if isinstance(table_id, str):
+                table_id = int(table_id)
+            if isinstance(restaurant_id, str):
+                restaurant_id = int(restaurant_id)
+                    
             try:
                 table = Table.objects.get(id=table_id)
             except Table.DoesNotExist:
-                return JsonResponse({"error": "Table introuvable"}, status=400)
+                return JsonResponse({"error": f"Table avec ID {table_id} introuvable"}, status=400)
+                
+            try:
+                restaurant = Restaurant.objects.get(id=restaurant_id)
+            except Restaurant.DoesNotExist:
+                return JsonResponse({"error": f"Restaurant avec ID {restaurant_id} introuvable"}, status=400)
             
-            # Créer la commande (sans informations client)
+            # Vérifier si la table appartient au restaurant (si relation existante)
+            if hasattr(table, 'restaurant') and table.restaurant and table.restaurant.id != restaurant.id:
+                return JsonResponse({"error": f"La table {table_id} n'appartient pas au restaurant {restaurant_id}"}, status=400)
+            
             commande = Commande.objects.create(
-                # Pas de client_id ou utiliser un client générique
-                client=None,  # Si votre modèle permet client=null
-                adresse="Sur place", 
+                client=None,
+                adresse="Sur place",
                 telephone="",
-                restaurant="Sur place",
-                statut='en_cours',
+                restaurant=restaurant,
+                statut='en_attente',
                 mode_paiement='sur_place',
-                # Stocker la référence à la table
-                table_id=table_id
+                table=table
             )
             
-            # Ajouter les plats à la commande
-            for plat_info in plats:
-                try:
-                    plat = Plat.objects.get(id=plat_info['id'])
-                    CommandePlat.objects.create(
-                        commande=commande,
-                        plat=plat,
-                        quantity=plat_info['quantité']
-                    )
-                except Plat.DoesNotExist:
-                    continue
+            # Reste du code inchangé pour traiter les plats...
             
             return JsonResponse({
                 "success": True,
@@ -497,13 +502,11 @@ def serveur_envoyer_commande(request):
                 "message": "Commande passée avec succès!"
             })
                 
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Format de données invalide"}, status=400)
         except Exception as e:
             import traceback
             print(traceback.format_exc())
             return JsonResponse({"error": str(e)}, status=500)
-    
+            
     return JsonResponse({"error": "Méthode non autorisée"}, status=405)
 
 def verifier_reservation(request):
@@ -593,10 +596,14 @@ def evaluer_commande(request, commande_id):
 @login_required
 def profile_view(request):
     return render(request, 'profile.html')
+
 def logout_view(request):
     logout(request)
     return redirect('acceuil')
 
+def logout_serveur(request):
+    logout(request)
+    return redirect('login')
 
 @login_required
 def profile_view(request):

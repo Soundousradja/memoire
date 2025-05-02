@@ -1,28 +1,27 @@
 let panier = [];
 
-
 function ajouterAuPanier(id, name, price) {
-
     price = parseFloat(price);
     
     const plat = panier.find(p => p.id === id);
     if (plat) {
-        plat.quantité += 1;
+        plat.quantite += 1; // Changé "quantité" en "quantite" (sans accent)
     } else {
-        panier.push({id, name, price, quantité: 1});
+        panier.push({id, name, price, quantite: 1}); // Changé "quantité" en "quantite" (sans accent)
     }
     afficherPanier();
 }
+
 function supprimerDuPanier(id) {
     panier = panier.filter(p => p.id !== id);
     afficherPanier();
 }
-function modifierQuantite(id, delta) {
 
+function modifierQuantite(id, delta) {
     const plat = panier.find(p => p.id === id);
     if (plat) {
-        plat.quantité += delta;
-        if (plat.quantité <= 0) {
+        plat.quantite += delta; // Changé "quantité" en "quantite" (sans accent)
+        if (plat.quantite <= 0) {
             supprimerDuPanier(id);
         } else {
             afficherPanier();
@@ -30,11 +29,9 @@ function modifierQuantite(id, delta) {
     }
 }
 
-
 function calculerTotal() {
-    return panier.reduce((total, plat) => total + (plat.price * plat.quantité), 0).toFixed(2);
+    return panier.reduce((total, plat) => total + (plat.price * plat.quantite), 0).toFixed(2); // Changé "quantité" en "quantite" (sans accent)
 }
-
 
 function afficherPanier() {
     const panierDiv = document.getElementById('panier');
@@ -46,23 +43,18 @@ function afficherPanier() {
         panier.forEach(p => {
             const platDiv = document.createElement('div');
             platDiv.className = 'panier-item';
-          platDiv.innerHTML = `
-    <h3>${p.name}</h3>
-    <div class="quantite-controle">
-        <button onclick="modifierQuantite('${p.id}', -1)">-</button>
-        <span>${p.quantité}</span>
-        <button onclick="modifierQuantite('${p.id}', 1)">+</button>
-        <button class="supprimer" onclick="supprimerDuPanier('${p.id}')">X</button>
-    </div>
-    <div class="prix">${(p.price * p.quantité).toFixed(2)} DA</div>
-   
-`;
-
+            platDiv.innerHTML = `
+                <h3>${p.name}</h3>
+                <div class="quantite-controle">
+                    <button onclick="modifierQuantite('${p.id}', -1)">-</button>
+                    <span>${p.quantite}</span>
+                    <button onclick="modifierQuantite('${p.id}', 1)">+</button>
+                    <button class="supprimer" onclick="supprimerDuPanier('${p.id}')">X</button>
+                </div>
+                <div class="prix">${(p.price * p.quantite).toFixed(2)} DA</div>
+            `;
             panierDiv.appendChild(platDiv);
         });
-
-        
-        
         
         const totalDiv = document.createElement('div');
         totalDiv.className = 'total-section';
@@ -70,9 +62,6 @@ function afficherPanier() {
         panierDiv.appendChild(totalDiv);
     }
 }
-    
-   
-  
 
 // Fonction pour annuler la commande
 function annulerCommande() {
@@ -87,8 +76,23 @@ function envoyerCommande() {
     }
     
     const tableId = document.getElementById('table').value;
-    // Récupérer le token CSRF depuis les cookies
+    if (!tableId) {
+        alert("Veuillez sélectionner une table.");
+        return;
+    }
+    
     const csrftoken = getCookie('csrftoken');
+    
+    // Préparation des données de plats sans accents
+    const platsData = panier.map(p => ({
+        id: p.id,
+        quantite: p.quantite // Changé "quantité" en "quantite" (sans accent)
+    }));
+    
+    console.log("Données envoyées:", JSON.stringify({
+        table_id: tableId,
+        plats: platsData
+    }));
     
     fetch("/restaurant/serveur/envoyer-commande/", {
         method: 'POST',
@@ -98,22 +102,29 @@ function envoyerCommande() {
         },
         body: JSON.stringify({
             table_id: tableId,
-            plats: panier
+            restaurant_id: restaurantId,  // Ajouter cette ligne
+            plats: platsData
         })
-    }).then(response => {
-        if (response.ok) {
-            return response.json();
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                console.error("Erreur serveur:", text);
+                throw new Error("Erreur lors de l'envoi de la commande: " + response.status);
+            });
         }
-        throw new Error("Erreur lors de l'envoi de la commande !");
+        return response.json();
     })
     .then(data => {
         alert(`Commande N°${data.commande_id} envoyée avec succès !`);
         annulerCommande();
     })
     .catch(error => {
+        console.error("Erreur détaillée:", error);
         alert(error.message);
     });
 }
+
 // Fonction pour obtenir un cookie (pour le token CSRF)
 function getCookie(name) {
     let cookieValue = null;
@@ -166,57 +177,4 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Afficher le panier vide au chargement
     afficherPanier();
-});
-
-
- // Script pour vérifier la disponibilité des tables
- document.addEventListener('DOMContentLoaded', function() {
-    const dateInput = document.getElementById('date');
-    const timeInput = document.getElementById('time');
-    
-    // Vérifier la disponibilité quand la date ou l'heure change
-    dateInput.addEventListener('change', checkAvailability);
-    timeInput.addEventListener('change', checkAvailability);
-    
-    function checkAvailability() {
-        const date = dateInput.value;
-        const time = timeInput.value;
-        
-        if (date && time) {
-            // Appel AJAX pour vérifier la disponibilité
-            fetch(`/restaurant/check-availability/?date=${date}&time=${time}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        document.getElementById('disponibilite-tables').innerHTML = 
-                            `<p class="error-message">${data.error}</p>`;
-                        return;
-                    }
-                    
-                    // Générer dynamiquement la liste des disponibilités
-                    let disponibiliteHTML = '';
-                    
-                    // Trier les clés pour afficher les tables par ordre de capacité
-                    const keys = Object.keys(data).sort((a, b) => {
-                        // Extraire les nombres de "disponibles_X"
-                        const numA = parseInt(a.split('_')[1]);
-                        const numB = parseInt(b.split('_')[1]);
-                        return numA - numB;
-                    });
-                    
-                    // Générer le HTML pour chaque capacité
-                    keys.forEach(key => {
-                        const capacite = key.split('_')[1];
-                        disponibiliteHTML += `<p>Tables pour ${capacite} personnes: <span>${data[key]} disponible(s)</span></p>`;
-                    });
-                    
-                    document.getElementById('disponibilite-tables').innerHTML = disponibiliteHTML;
-                })
-                .catch(error => {
-                    console.error('Erreur:', error);
-                    document.getElementById('disponibilite-tables').innerHTML = 
-                        '<p class="error-message">Erreur lors de la vérification de disponibilité</p>';
-                });
-        }
-    }
 });
