@@ -8,16 +8,57 @@
     <title>Gestion du Menu</title>
     <link rel="stylesheet" href="{% static 'css/category.css' %}">
     <script src="{% static 'js/category.js' %}" defer></script>
+    <style>
+        .add-plat-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .add-plat-btn {
+            background-color:black;
+            color: white;
+            padding: 12px 24px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .add-plat-btn:hover {
+            background-color: rgb(211, 150, 38);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .add-plat-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .fas {
+            margin-right: 8px;
+        }
+    </style>
 </head>
 <body>
-
+   
     <div class="container">
+        
         {% if categorie_id %}
+        <button class="back-btn" onclick="window.location.href='{% url 'supadmin' %}'">Retour a l'acceil</button>
             <!-- ÉTAPE 3: Affichage des plats pour une catégorie -->
             <h1>Plats dans {{ categorie.name }}</h1>
            
             <div class="plats">
                 {% for plat in plats %}
+    
                     <div class="plat">
                         {% if plat.image %}
                             <img src="{{ plat.image.url }}" alt="{{ plat.name }}">
@@ -25,7 +66,11 @@
                             <img src="{% static 'images/plat-default.jpg' %}" alt="Plat">
                         {% endif %}
                         <h3>{{ plat.name }}</h3>
-                        <p>{{ plat.price }} €</p>
+                        <p>{{ plat.price }} DA</p>
+                        <div class="description-container">
+                            <p class="description"><strong>Description:</strong> {{ plat.description|default:"Aucune description disponible" }}</p>
+                        </div>
+                        <p>{{ plat.etape }}</p>
                         <div class="plat-actions">
                             <button class="modifier-btn" data-plat-id="{{ plat.id }}">Modifier</button>
 
@@ -36,16 +81,19 @@
             </div>
             
            
-            <div class="add-plat-button">
-                <a href="{% url 'ajouter_plat'  categorie_id=categorie.id %}" class="button">
-                    Ajouter un plat
+            <div class="add-plat-container">
+                <a href="{% url 'ajouter_plat' categorie_id=categorie.id %}" class="add-plat-btn">
+                    <i class="fas fa-plus-circle"></i> Ajouter un plat
                 </a>
             </div>
+            
+            
         {% else %}
-            <!-- ÉTAPE 1: Affichage direct des catégories -->
+           
             <h1>Catégories de plats</h1>
             <div class="categories">
                 {% for categorie in categories %}
+                
                     <div class="category">
                         {% if categorie.image %}
                             <img src="{{ categorie.image.url }}" alt="{{ categorie.name }}">
@@ -56,7 +104,6 @@
                         
                             <button onclick="window.location.href='{% url 'categorie_plats' categorie.id %}'">Voir les plats</button>
                             
-                        
                     </div>
                 {% endfor %}
             </div>

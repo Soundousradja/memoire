@@ -30,22 +30,25 @@
             <h2>Description:</h2>
             <input type="text" id="description" name="description" required>
             
+            <h2>Étape:</h2>
+            <input type="text" id="etape" name="etape" required>
+
             <h2>Prix du plat :</h2>
             <input type="number" id="platPrice" name="price" placeholder="Entrez le prix du plat" step="0.01" required>
 
             <h2>Liste des ingrédients :</h2>
-            <div id="ingredient-container">
-                <div class="ingredient-row" id="ingredient-row-0">
-                    <select class="ingredientsList" name="ingredients[0][ingredient]" required>
-                        <option value="" disabled selected>Sélectionnez un ingrédient</option>
-                        {% for ingredient in ingredients %}
-                            <option value="{{ ingredient.id }}">{{ ingredient.name }}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="number" class="quantites" name="ingredients[0][quantity]" placeholder="Quantité" required>
-                    
-                </div>
-            </div>
+<div id="ingredients-container">
+    <!-- Initial ingredient row -->
+    <div class="ingredient-row">
+        <select class="ingredientsList" name="ingredients[0][ingredient]" required>
+            <option value="" disabled selected>Sélectionnez un ingrédient</option>
+            {% for ingredient in ingredients %}
+                <option value="{{ ingredient.id }}">{{ ingredient.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="number" class="quantites" name="ingredients[0][quantity]" placeholder="Quantité" required min="1">
+    </div>
+</div>
 
             
 
@@ -62,6 +65,7 @@
 
     <!-- Intégrer le JavaScript directement dans la page pour éviter les problèmes -->
     <script>
+        
         // Variables globales
         let rowIndex = 1; // Commence à 1 car on a déjà un élément avec index 0
 

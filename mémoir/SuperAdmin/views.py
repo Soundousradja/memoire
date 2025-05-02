@@ -7,7 +7,6 @@ from .forms import AdminForm
 from .models import Restaurant
 from .models import Admin
 from django.utils.text import slugify
-
 from .forms import PlatForm
 
 from decimal import Decimal, InvalidOperation
@@ -131,21 +130,28 @@ def modifier_admin(request, id):
 
 def modifier_admin(request, id):
     admin = get_object_or_404(Admin, id=id)
+    restaurants = Restaurant.objects.all()  # Fetch all restaurants
 
     if request.method == "POST":
-        admin.name = request.POST.get("name", admin.name)
-        admin.phone = request.POST.get("phone", admin.phone)
+        form = AdminForm(request.POST, request.FILES, instance=admin)  # Initialize form with instance
+        if form.is_valid():
+            form.save()
+            return JsonResponse({"success": True})
+        else:
+            return render(request, "app/modifier_admin.html", {
+                "admin": admin,
+                "restaurants": restaurants,
+                "form": form,
+            })
+    else:
+        form = AdminForm(instance=admin)  # Initialize form for GET request
 
-        if "image" in request.FILES:
-            admin.image = request.FILES["image"]
+    return render(request, "app/modifier_admin.html", {
+        "admin": admin,
+        "restaurants": restaurants,
+        "form": form,
+    })
 
-        try:
-            admin.save()
-            return JsonResponse({"success": True})  # This sends the success response in JSON format
-        except Exception as e:
-            return JsonResponse({"success": False, "error": str(e)})  # Send a failure response with an error message
-
-    return render(request, "app/modifier_admin.html", {"admin": admin})
 def supprimer_restaurant(request, id):
     if request.method == "POST":
         restaurant = get_object_or_404(Restaurant, id=id)
@@ -299,12 +305,14 @@ def ajouter_plat(request, categorie_id):
         try:
             name = request.POST.get('name')
             description = request.POST.get('description')
+            etape = request.POST.get('etape')
             price = request.POST.get('price')
             is_available = request.POST.get('is_available') == 'true'
             
             plat = Plat(
                 name=name,
                 description=description,
+                etape=etape,
                 price=price,
                 is_available=is_available,
                 categorie=categorie
@@ -520,5 +528,7 @@ def boisson_view(request):
 
 
  
+
+
 
 

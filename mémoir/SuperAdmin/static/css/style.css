@@ -21,7 +21,7 @@ body {
     display: flex;
     gap: 10px;
     flex-direction: column;
-    height: 400px;
+    height: 500px;
     width: 300px;
     box-shadow: 1px 1px 15px 15px rgb(54, 56, 56);
 }

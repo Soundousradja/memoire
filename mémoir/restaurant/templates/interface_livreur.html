@@ -1,0 +1,673 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+
+<!-- Leaflet JavaScript (Make sure to load after the CSS) -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface Livreur</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #f5a623;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .header-title {
+            margin: 0;
+            font-size: 24px;
+        }
+        .availability-toggle {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        .availability-toggle label {
+            margin-right: 10px;
+            font-weight: bold;
+            color: white;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .status-indicator {
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        .livreur-info {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .livreur-info h2 {
+            color: #333;
+            margin-top: 0;
+            font-size: 18px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .commandes-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .commandes-header {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .commandes-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #333;
+        }
+        .commandes-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .commande-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 20px;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+        }
+        .commande-item:last-child {
+            border-bottom: none;
+        }
+        .commande-item:hover {
+            background-color: #f9f9f9;
+        }
+        .commande-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px 20px;
+        }
+        .commande-field {
+            margin-bottom: 5px;
+        }
+        .commande-field span {
+            font-weight: bold;
+            color: #555;
+        }
+        .commande-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .btn-accept {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-accept:hover {
+            background-color: #3e8e41;
+        }
+        .btn-refuse {
+            background-color: #f44336;
+            color: white;
+        }
+        .btn-refuse:hover {
+            background-color: #d32f2f;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-en-attente {
+            background-color: #FFC107;
+            color: #333;
+        }
+        .status-en-cours {
+            background-color: #2196F3;
+            color: white;
+        }
+        .status-prete {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .status-livree {
+            background-color: #9C27B0;
+            color: white;
+        }
+        .status-annulee {
+            background-color: #9E9E9E;
+            color: white;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active {
+            border-bottom: 2px solid #f5a623;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        .empty-state i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 10px;
+        }
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .commande-item {
+                grid-template-columns: 1fr;
+            }
+            .commande-actions {
+                margin-top: 10px;
+                justify-content: flex-end;
+            }
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        .toast.success {
+            background-color: #4CAF50;
+        }
+        .toast.error {
+            background-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="header-title">Interface Livreur</h1>
+            <div class="availability-toggle">
+                <label>Disponibilité:</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="availability-toggle" {% if livreur.statut_dispo %}checked{% endif %}>
+                    <span class="slider"></span>
+                </label>
+                <span class="status-indicator" id="availability-status">
+                    {% if livreur.statut_dispo %}Disponible{% else %}Indisponible{% endif %}
+                </span>
+            </div>
+        </header>
+
+        <div class="livreur-info">
+            <h2>Informations du Livreur</h2>
+            <div class="commande-details">
+                <div class="commande-field">
+                    <span>Nom:</span> {{ livreur.nom_livr }}
+                </div>
+                <div class="commande-field">
+                    <span>ID Livreur:</span> {{ livreur.id_livr }}
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="all">Toutes les commandes</div>
+            <div class="tab" data-tab="ready">Prêtes à livrer</div>
+            <div class="tab" data-tab="inprogress">En cours de livraison</div>
+            <div class="tab" data-tab="delivered">Livrées</div>
+        </div>
+
+        <div class="commandes-container">
+            <div class="commandes-header">
+                <h2>Commandes</h2>
+            </div>
+
+            <div class="tab-content active" id="tab-all">
+                <div class="loading">Chargement des commandes...</div>
+                <ul class="commandes-list" id="commandes-list"></ul>
+            </div>
+
+            <div class="tab-content" id="tab-ready">
+                <div class="loading">Chargement des commandes prêtes...</div>
+                <ul class="commandes-list" id="commandes-ready"></ul>
+            </div>
+
+            <div class="tab-content" id="tab-inprogress">
+                <div class="loading">Chargement des commandes en cours...</div>
+                <ul class="commandes-list" id="commandes-inprogress"></ul>
+            </div>
+
+            <div class="tab-content" id="tab-delivered">
+                <div class="loading">Chargement des commandes livrées...</div>
+                <ul class="commandes-list" id="commandes-delivered"></ul>
+            </div>
+        </div>
+    </div>
+    <div class="module map-container" style="height: 400px; margin-bottom: 20px; display: none;" id="map-container">
+        <h2>Carte des livraisons</h2>
+        <div id="map" style="height: 350px; width: 100%;"></div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Configuration
+        const LIVREUR_ID = {{ livreur.id_livr }};
+        const API_URLS = {
+    getCommandes: "{% url 'get_commandes' %}",
+    updateDisponibilite: "{% url 'update_livreur_disponibilite' %}",
+    acceptDelivery: "{% url 'accept_delivery' %}",
+    markAsDelivered: "{% url 'mark_as_delivered' %}",
+    refuseDelivery: "{% url 'refuse_delivery' %}"
+};
+    
+        // Helper function to get status badge class
+        function getStatusBadgeClass(status) {
+            switch(status.toLowerCase()) {
+                case 'en_attente':
+                case 'en attente':
+                    return 'status-en-attente';
+                case 'en_cours':
+                case 'en cours':
+                case 'en cours de préparation':
+                    return 'status-en-cours';
+                case 'prête':
+                    return 'status-prete';
+                case 'livree':
+                case 'livrée':
+                    return 'status-livree';
+                case 'annulee':
+                case 'annulée':
+                    return 'status-annulee';
+                default:
+                    return '';
+            }
+        }
+    
+        // Helper function to format status display text
+        function formatStatus(status) {
+            switch(status.toLowerCase()) {
+                case 'en_attente':
+                    return 'En attente';
+                case 'en_cours':
+                    return 'En cours';
+                case 'prête':
+                    return 'Prête';
+                case 'livree':
+                    return 'Livrée';
+                case 'annulee':
+                    return 'Annulée';
+                default:
+                    return status.charAt(0).toUpperCase() + status.slice(1);
+            }
+        }
+    
+        // Create commande item HTML
+        function createCommandeItem(commande) {
+            const isReady = commande.statut.toLowerCase() === 'prête';
+            const isInProgress = commande.statut.toLowerCase() === 'en_cours' || commande.statut.toLowerCase() === 'en cours';
+            
+            let actionsHtml = '';
+            if (isReady) {
+                actionsHtml = `
+                    <button class="btn btn-accept" onclick="acceptDelivery(${commande.id})">Accepter</button>
+                    <button class="btn btn-refuse" onclick="refuseDelivery(${commande.id})">Refuser</button>
+                `;
+            } else if (isInProgress && commande.livreur_id == LIVREUR_ID) {
+                actionsHtml = `
+                    <button class="btn btn-accept" onclick="markAsDelivered(${commande.id})">Marquer comme livrée</button>
+                `;
+            }
+    
+            return `
+                <li class="commande-item" data-id="${commande.id}" data-status="${commande.statut}">
+                    <div class="commande-details">
+                        <div class="commande-field">
+                            <span>ID:</span> ${commande.id}
+                        </div>
+                        <div class="commande-field">
+                            <span>Client:</span> ${commande.client}
+                        </div>
+                        <div class="commande-field">
+                            <span>Adresse:</span> ${commande.adresse}
+                        </div>
+                        <div class="commande-field">
+                            <span>Téléphone:</span> ${commande.telephone}
+                        </div>
+                        <div class="commande-field">
+                            <span>Restaurant:</span> ${commande.restaurant || 'Non spécifié'}
+                        </div>
+                        <div class="commande-field">
+                            <span>Date:</span> ${new Date(commande.created_at).toLocaleString()}
+                        </div>
+                        <div class="commande-field">
+                            <span>Statut:</span> 
+                            <span class="status-badge ${getStatusBadgeClass(commande.statut)}">${formatStatus(commande.statut)}</span>
+                        </div>
+                        <div class="commande-field">
+                            <span>Paiement:</span> ${commande.mode_paiement === 'cash' ? 'Espèces' : 'Carte bancaire'}
+                        </div>
+                        <div class="commande-field">
+                            <span>Total:</span> ${commande.prix_total}€
+                        </div>
+                    </div>
+                    <div class="commande-actions">
+                        ${actionsHtml}
+                    </div>
+                </li>
+            `;
+        }
+    
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show ' + type;
+            
+            setTimeout(() => {
+                toast.className = toast.className.replace('show', '');
+            }, 3000);
+        }
+    
+        // Load commandes from API
+        async function loadCommandes(status = 'all') {
+            try {
+                const loadingElement = document.querySelector(`#tab-${status} .loading`);
+                const listElement = document.querySelector(`#tab-${status} .commandes-list`);
+                
+                loadingElement.style.display = 'block';
+                listElement.innerHTML = '';
+                
+                const response = await fetch(`${API_URLS.getCommandes}?livreur_id=${LIVREUR_ID}&status=${status}`);
+                
+                if (!response.ok) {
+                    throw new Error('Erreur lors du chargement des commandes');
+                }
+                
+                const data = await response.json();
+                
+                if (data.commandes && data.commandes.length > 0) {
+                    data.commandes.forEach(commande => {
+                        listElement.innerHTML += createCommandeItem(commande);
+                    });
+                } else {
+                    listElement.innerHTML = `
+                        <div class="empty-state">
+                            <div>Aucune commande disponible</div>
+                        </div>
+                    `;
+                }
+                
+                loadingElement.style.display = 'none';
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur lors du chargement des commandes', 'error');
+            }
+        }
+    
+        // Toggle livreur availability
+        async function toggleAvailability() {
+            const toggle = document.getElementById('availability-toggle');
+            const statusElement = document.getElementById('availability-status');
+            
+            try {
+                const response = await fetch(API_URLS.updateDisponibilite, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        livreur_id: LIVREUR_ID,
+                        disponible: toggle.checked
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la mise à jour');
+                }
+                
+                const data = await response.json();
+                statusElement.textContent = data.disponible ? 'Disponible' : 'Indisponible';
+                showToast(`Statut mis à jour: ${statusElement.textContent}`, 'success');
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                toggle.checked = !toggle.checked;
+                showToast('Erreur lors de la mise à jour de disponibilité', 'error');
+            }
+        }
+    
+       // Accept a delivery
+async function acceptDelivery(commandeId) {
+    try {
+        console.log("Accepting delivery for order ID:", commandeId);
+        console.log("API URL:", API_URLS.acceptDelivery);
+        console.log("Sending data:", { livreur_id: LIVREUR_ID, commande_id: commandeId });
+        
+        const response = await fetch(API_URLS.acceptDelivery, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken()  // Make sure you have a function to get CSRF token
+            },
+            body: JSON.stringify({
+                livreur_id: LIVREUR_ID,
+                commande_id: commandeId
+            })
+        });
+        
+        console.log("Response status:", response.status);
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error accepting order');
+        }
+        
+        const data = await response.json();
+        console.log("Response data:", data);
+        
+        showToast('Commande acceptée avec succès', 'success');
+        // Reload all tabs
+        ['all', 'ready', 'inprogress'].forEach(tab => loadCommandes(tab));
+        
+    } catch (error) {
+        console.error('Error:', error);
+        showToast('Erreur lors de l\'acceptation de la commande: ' + error.message, 'error');
+    }
+}
+
+// Helper function to get CSRF token (if you're using CSRF protection)
+function getCsrfToken() {
+    const csrfCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('csrftoken='));
+    return csrfCookie ? csrfCookie.split('=')[1] : '';
+}
+        async function markAsDelivered(commandeId) {
+            try {
+                const response = await fetch(API_URLS.markAsDelivered, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        livreur_id: LIVREUR_ID,
+                        commande_id: commandeId
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la mise à jour');
+                }
+                
+                showToast('Commande marquée comme livrée', 'success');
+                // Reload all tabs
+                ['all', 'inprogress', 'delivered'].forEach(tab => loadCommandes(tab));
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur lors de la mise à jour de la commande', 'error');
+            }
+        }
+    
+        // Refuse a delivery
+        async function refuseDelivery(commandeId) {
+            if (!confirm('Êtes-vous sûr de vouloir refuser cette commande?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(API_URLS.refuseDelivery, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        livreur_id: LIVREUR_ID,
+                        commande_id: commandeId
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erreur lors du refus');
+                }
+                
+                showToast('Commande refusée', 'success');
+                // Reload all tabs
+                ['all', 'ready'].forEach(tab => loadCommandes(tab));
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                showToast('Erreur lors du refus de la commande', 'error');
+            }
+        }
+    
+        // Tab switching functionality
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and contents
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    const tabName = tab.getAttribute('data-tab');
+                    document.getElementById(`tab-${tabName}`).classList.add('active');
+                    
+                    // Load data for this tab
+                    loadCommandes(tabName);
+                });
+            });
+        }
+    
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup availability toggle
+            const toggle = document.getElementById('availability-toggle');
+            toggle.addEventListener('change', toggleAvailability);
+            
+            // Setup tabs
+            setupTabs();
+            
+            // Load initial data
+            loadCommandes('all');
+        });
+        
+    </script>

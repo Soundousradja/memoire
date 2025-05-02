@@ -8,6 +8,66 @@
     <title>Ajouter un Admin</title>
     <link rel="stylesheet" href="{% static 'css/ajouteradmin.css' %}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+    <style>
+        input:nth-of-type(2n),
+        textarea:nth-of-type(2n),
+        button:nth-of-type(2n) {
+    margin-bottom: 30px; 
+}
+
+.form-container label {
+    display: block;
+    margin-top: 16px; 
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+
+label[for="fileInput"] {
+    margin-top: 16px;
+    margin-bottom: 4px;
+}
+
+.form-container input[type="text"],
+.form-container input[type="tel"],
+.form-container select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px; /* Keep some space below the input fields */
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 16px;
+    border-radius: 20px;
+}
+
+.upload-btn {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 10px; /* Keep some space below the button */
+    border-radius: 20px;
+}
+
+.form-container button {
+    background-color: rgb(211, 150, 38);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 18px;
+    width: 100%;
+}
+
+.form-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+    </style>
 </head>
 <body>
     <div class="form-container">

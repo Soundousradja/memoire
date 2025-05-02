@@ -6,13 +6,20 @@
 {% block title %}Super Admin - The LFS Spot{% endblock %}
 
 {% block content %}
-<div class="menu-container">
-   <img src="{% static 'images/logo.png'%}" alt="Delivery Manager" class="logo">
+<div class="menu-container" style="height: 530px;">
+   <img src="{% static 'images/logo_transparent.png'%}" alt="Delivery Manager" class="logo">
+   <a href="/login/">
+    <button class="option-button button" style="background-color: #f5b041; color: black;">Déconnexion</button>
+</a>
     <a href="/super/restaurants">
         <button class="option-button button">Restaurants</button>
     </a>
+  
     <a href="/super/gestion_admin/">
         <button class="option-button button">Admins</button>
+    </a>
+    <a href="/super/gestion_ingredients/">
+        <button class="option-button button">Ingrédients</button>
     </a>
     <a href="/super/category_selection/">
         <button class="option-button button">Menus</button>
@@ -20,8 +27,8 @@
     <a href="/super/tableau_ventes/">
         <button class="option-button button">Ventes</button>
     </a>
+    
 </div>
-
 
 
 {% endblock %}

@@ -619,6 +619,202 @@ def evaluer_commande(request, commande_id):
             messages.error(request, f"Une erreur s'est produite: {str(e)}")
             return redirect('historique_commandes')
     
-    # Si la méthode n'est pas POST, rediriger vers l'historique
+    # Si la méthode n'est pas POST, rediriger vers l'
+    # 
+    # historique
     return redirect('historique_commandes')
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from .models import Livreur, Livraison, Commande
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+def interface_livreur(request):
+    """
+    Vue principale pour l'interface du livreur.
+    Permet de consulter les commandes et d'interagir avec elles.
+    """
+    # Dans un système réel, le livreur serait identifié par son authentification
+    # Mais puisque vous avez mentionné que le livreur n'a pas besoin d'être authentifié,
+    # nous allons utiliser un ID de livreur codé en dur ou passé en paramètre
+    
+    livreur_id = request.GET.get('livreur_id', 1)  # ID par défaut = 1
+    livreur = get_object_or_404(Livreur, id_livr=livreur_id)
+    
+    context = {
+        'livreur': livreur,
+        
+    }
+    
+    return render(request, 'interface_livreur.html', context)
+
+def get_commandes(request):
+    livreur_id = request.GET.get('livreur_id')
+    status_filter = request.GET.get('status', 'all')
+    
+    # Commandes prêtes à livrer (non assignées)
+    commandes_pretes = Commande.objects.filter(statut='Prête')
+    
+    # Commandes en cours pour ce livreur
+    mes_livraisons = []
+    if livreur_id:
+        mes_livraisons = Livraison.objects.filter(
+            id_livr_id=livreur_id
+        ).select_related('id_cmd')
+    
+    result = []
+    
+    # Ajouter les commandes prêtes à livrer
+    if status_filter in ['all', 'ready']:
+        for commande in commandes_pretes:
+            result.append({
+                'id': commande.id,  # Changed from id_cmd to id
+                'client': commande.client.username if commande.client else "Client inconnu",
+                'adresse': commande.adresse,
+                'telephone': commande.telephone,
+                'restaurant': commande.restaurant,
+                'date': commande.date.strftime("%Y-%m-%d %H:%M"),
+                'statut': commande.statut,
+                'mode_paiement': commande.mode_paiement,
+                'prix_total': str(commande.calculer_prix_total()),
+            })
+    
+    # Ajouter les commandes en cours de livraison par ce livreur
+    if status_filter in ['all', 'inprogress', 'delivered']:
+        for livraison in mes_livraisons:
+            commande = livraison.id_cmd
+            
+            # Filtrer par statut si nécessaire
+            if status_filter == 'inprogress' and livraison.etat_livraison != 'en_cours':
+                continue
+            if status_filter == 'delivered' and livraison.etat_livraison != 'livree':
+                continue
+                
+            result.append({
+                'id': commande.id,  # Changed from id_cmd to id
+                'client': commande.client.username if commande.client else "Client inconnu",
+                'adresse': commande.adresse,
+                'telephone': commande.telephone,
+                'restaurant': commande.restaurant,
+                'date': commande.date.strftime("%Y-%m-%d %H:%M"),
+                'statut': livraison.etat_livraison,
+                'mode_paiement': commande.mode_paiement,
+                'prix_total': str(commande.calculer_prix_total()),
+                'livraison_id': livraison.id,
+            })
+    
+    return JsonResponse({'commandes': result})
+
+@csrf_exempt
+def update_livreur_disponibilite(request):
+    """
+    API pour mettre à jour la disponibilité d'un livreur.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Méthode non autorisée'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        livreur_id = data.get('livreur_id')
+        disponible = data.get('disponible', True)
+        
+        livreur = get_object_or_404(Livreur, id_livr=livreur_id)
+        livreur.set_disponible(disponible)
+        
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+@csrf_exempt
+@csrf_exempt
+def accept_delivery(request):
+    """
+    API pour qu'un livreur accepte une commande.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Méthode non autorisée'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        commande_id = data.get('commande_id')
+        livreur_id = data.get('livreur_id')
+        
+        print(f"Accepting delivery: commande_id={commande_id}, livreur_id={livreur_id}")  # Debug logging
+        
+        # Make sure both IDs are provided
+        if not commande_id or not livreur_id:
+            return JsonResponse({'success': False, 'error': 'commande_id et livreur_id sont requis'}, status=400)
+        
+        commande = get_object_or_404(Commande, id=commande_id)  # Changed from id_cmd to id
+        livreur = get_object_or_404(Livreur, id_livr=livreur_id)
+        
+        # Vérifier que la commande est prête à être livrée
+        if commande.statut != 'Prête':
+            return JsonResponse({'success': False, 'error': 'Cette commande n\'est pas prête à être livrée'}, status=400)
+        
+        # Vérifier que le livreur est disponible
+        if not livreur.is_available():
+            return JsonResponse({'success': False, 'error': 'Vous n\'êtes pas disponible pour accepter des livraisons'}, status=400)
+        
+        # Assigner la commande au livreur
+        success = livreur.assign_delivery(commande)
+        
+        if success:
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'error': 'Impossible d\'assigner la commande'}, status=400)
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())  # Better error logging
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+@csrf_exempt
+def mark_as_delivered(request):
+    """
+    API pour marquer une livraison comme livrée.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Méthode non autorisée'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        livraison_id = data.get('livraison_id')
+        
+        livraison = get_object_or_404(Livraison, id=livraison_id)
+        
+        # Vérifier que la livraison est en cours
+        if livraison.etat_livraison != 'en_cours':
+            return JsonResponse({'success': False, 'error': 'Cette livraison n\'est pas en cours'}, status=400)
+        
+        # Marquer comme livrée
+        livraison.mark_as_delivered()
+        
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+@csrf_exempt
+def refuse_delivery(request):
+    """
+    API pour qu'un livreur refuse une commande.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Méthode non autorisée'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        commande_id = data.get('commande_id')
+        
+        commande = get_object_or_404(Commande, id_cmd=commande_id)
+        
+        # On pourrait implémenter une logique pour marquer la commande comme refusée
+        # ou la réassigner à un autre livreur, mais pour l'instant on ne fait rien
+        
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    
+def landing_page(request):
+    return render(request, 'landing_page.html')
