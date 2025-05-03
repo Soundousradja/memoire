@@ -344,7 +344,7 @@ def determine_redirect_url(user):
             return reverse('serveur_interface')
         elif user.groups.filter(name='Livreur').exists() or getattr(user, 'role', None) == 'livreur':
             print("Redirecting to landing_page")
-            return reverse('restaurant:landing_page')
+            return reverse('landing')
         # ... other conditions ...
     
     # ... more conditions ...
@@ -352,7 +352,7 @@ def determine_redirect_url(user):
     elif user.role == 'livreur':
         print("Redirecting to livreur_interface based on role")
 # Use absolute URL as a fallback if reverse() doesn't work
-        return '/restaurant/landing_page'
+        return reverse('landing')
     elif user.role == 'fournisseur':
         print("Redirecting to fournisseur_interface based on role")
         return reverse('fournisseur_interface')  
@@ -396,7 +396,7 @@ def fournisseur_interface(request):
 def livreur_interface(request):
     if not request.user.is_staff or not request.user.groups.filter(name='Livreur').exists():
         return redirect('access_denied')
-    return render(request, 'restaurant/landing_page.html')    
+    return render(request, 'app/landing_page.html')    
 
 
 @login_required
