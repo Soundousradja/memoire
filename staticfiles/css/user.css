@@ -1,0 +1,207 @@
+body {
+    background-color: #000000;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+.container {
+    max-width: 90%;
+    height: 500px;
+    margin: auto;
+    padding: 20px;
+}
+.scroll-container {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    
+}
+.users-wrapper {
+    /*display: flex;
+    /*overflow-x: auto;*/
+    flex-wrap:wrap ;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 colonnes */
+     /* Espacement */
+    scroll-behavior: smooth;
+    gap: 30px;
+    padding-bottom: 10px;
+    scrollbar-width: none;
+    
+    margin-left:60px ;
+}
+.users-wrapper::-webkit-scrollbar {
+    display: none;
+}
+.user-card {
+    background-color: #0c0c0c;
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid #FFD700;
+    text-align: center;
+    width: 250px;
+    height: 240px;
+    flex: 0 0 auto;
+}
+.user-icon {
+    width: 60px;
+    height: 50px;
+    background-color: #FFD700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: black;
+    margin-bottom: 20px;
+    margin: auto;
+    margin-top: 7px;
+}
+.buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 7px;
+    border-radius: 7px;
+}
+.btn-ajouter {
+    background-color: #FFD700;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 10px;
+    width: 50%;
+    margin-top: 20px;
+}
+.scroll-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    z-index: 10;
+}
+.left-scroll {
+    left: 0;
+}
+.right-scroll {
+    right: 0;
+}
+/*.hidden {
+    display: none;
+    
+    
+}
+.form-container {
+    background-color: white;
+    color: black;
+    padding: 20px;
+    width: 40%;
+    margin: auto;
+    border-radius: 10px;
+
+}*/
+input{
+    margin-top: 20px;
+    width: 500px;
+    border: 1px solid;
+    border-radius: 7px;
+    
+}
+button{
+    background-color: #FFD700;
+    border: 1px solid black;
+    margin-top: 15px;
+    
+    
+}
+.button{
+    background-color: rgb(241, 245, 4);
+    border: 1px solid black;
+    margin-top: 15px;
+    margin-right: 15px;
+    width: 200px;
+    border-radius: 12px;
+    padding: 10;
+    height: 35px;
+}
+/* Masquer le formulaire avec une opacité 0 et en bas de l'écran */
+.hidden {
+visibility: hidden;
+opacity: 0;
+transform: translateY(50px);
+transition: opacity 0.5s ease, transform 0.5s ease, visibility 0s linear 0.5s;
+}
+
+/* Ajouter un fond assombri quand le formulaire est visible */
+.overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.6);
+display: flex;
+justify-content: center;
+align-items: center;
+visibility: hidden;
+opacity: 0;
+transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+}
+
+/* Afficher le formulaire et l'overlay */
+.overlay.active {
+visibility: visible;
+opacity: 1;
+transition: opacity 0.5s ease;
+
+background-color: rgba(0, 0, 0, 0.3); /* Noir avec 30% de transparence */
+backdrop-filter: blur(10px); /* Ajoute un effet de flou */
+
+}
+
+.form-container {
+background-color: #0c0c0c;
+border: 1px yellow solid;
+color: rgb(241, 245, 4);
+padding: 20px;
+width: 50%;
+height: 50%;
+border-radius: 10px;
+text-align: center;
+transform: translateY(0);
+opacity: 1;
+transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.LesChamps{
+margin-top: 7px;
+margin-bottom: 18px;
+}
+.Personne{
+margin-top: 15px;
+}
+.btn-modifier{
+border-radius: 7px;
+width:150px;
+border: 1px solid black;
+margin-right: 15px;
+background-color: rgb(241, 245, 4);
+}
+.btn-supprimer{
+border-radius: 7px;
+width:150px;
+border: 1px solid black;
+background-color: red;
+}
+h1{
+margin-top: 50px;
+color: #FFD700;
+}
+
+

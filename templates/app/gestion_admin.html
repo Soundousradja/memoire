@@ -1,0 +1,262 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Admins</title>
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymoustys"></script>
+    <style>
+        /* Fixed CSS for Admin Cards */
+body {
+    
+  
+    background-size: cover;
+    font-family: Arial, sans-serif;
+    color: white;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.header {
+    background-color: rgb(211, 150, 38);
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-size: 24px;
+    font-weight: bold;
+    color: black;
+    margin: 20px;
+    margin-top: 50px;
+}
+
+.admin-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 20px;
+}
+
+.admin-card {
+    background-color: rgb(211, 150, 38);
+    width: 250px; /* Increased width for better proportions */
+    padding: 15px;
+    border-radius: 10px;
+    color: black;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    height: auto; /* Let content determine height */
+    text-align: center;
+}
+
+.admin-image {
+    background-color: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.admin-image img {
+    max-width: 100%;
+    max-height: 170px;
+    object-fit: contain;
+}
+
+.admin-info {
+    margin-bottom: 15px;
+}
+
+.admin-name {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.phone {
+    font-weight: bold;
+    background-color: white;
+    padding: 10px;
+    border-radius: 20px;
+    margin: 10px auto;
+    width: 90%;
+    font-size: 16px;
+    color: black;
+}
+
+.restaurant-info {
+    margin: 15px 0;
+    font-weight: bold;
+}
+
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: auto; /* Push buttons to bottom */
+}
+
+.btn {
+    background-color: black;
+    color: white;
+    padding: 12px 0;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    text-decoration: none;
+    width: 100%; /* Full width buttons */
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #333;
+}
+
+.add-button {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    background-color: rgb(211, 150, 38);
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0px 0px 10px black;
+    z-index: 100;
+}
+
+.add-button span {
+    font-size: 40px;
+    font-weight: bold;
+    color: black;
+}
+
+.btn-supadmin i {
+    font-size: 18px;
+}
+
+.back-button {
+    margin-bottom: 1.5rem;
+    background-color: white;
+    padding: 10px;
+    height: 34px;
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.back-button:hover {
+    background-color: #7f8c8d;
+}
+    .back-btn {
+    margin-bottom: 1.5rem !important;
+    background-color: white !important;
+    padding: 10px !important;
+    height: 34px !important;
+    position: absolute !important;
+    left: 10px !important;
+    border-radius: 10px !important;
+}
+
+.back-btn:hover {
+    background-color: orange !important;
+}
+    </style>
+
+</head>
+<body>
+    <div class="header">Les Admins</div>
+    
+    <button class="back-btn" onclick="window.location.href='{% url 'supadmin' %}'">Retour à l'accueil</button>
+    
+    <div class="admin-container" id="adminContainer">
+        {% for admin in admins %}
+            <div class="admin-card">
+                <img src="{{ admin.image.url }}" alt="{{ admin.name }}">
+                <h2>{{ admin.name }}</h2>
+                <p class="phone">Téléphone : {{ admin.phone }}</p>
+                <p class="restaurant">Restaurant : {{ admin.restaurant.name }}</p> <!-- Restaurant name -->
+                <div class="btn-group">
+                    <a href="{% url 'modifier_admin' admin.id %}" class="btn">Modifier</a>
+                    <button class="btn" onclick="deleteAdmin('{{ admin.id }}')">Supprimer</button>
+                </div>
+            </div>
+        {% empty %}
+            <p>Aucun admin disponible.</p>
+        {% endfor %}
+    </div>
+
+    <a href="{% url 'ajouter_admin' %}" class="add-button">
+        <span>+</span>
+    </a>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/admin.js' %}"></script>
+    <script src="{% static 'js/ajouteradmin.js' %}"></script>
+    <script src="{% static 'js/modifieradmin.js' %}"></script>
+</body>
+<script>
+    function getCSRFToken() {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith('csrftoken=')) {
+                return cookie.substring('csrftoken='.length);
+            }
+        }
+        return null;
+    }
+    
+    function deleteAdmin(adminId) {
+        if (confirm("Voulez-vous vraiment supprimer cet Admin ?")) {
+            console.log("Deleting admin with ID:", adminId);
+            
+            fetch(`/super/supprimer_admin/${adminId}/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken(),
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+            .then(response => {
+                console.log("Response status:", response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log("Response data:", data);
+                if (data.success) {
+                    alert("Admin supprimé !");
+                    window.location.reload();
+                } else {
+                    alert("Erreur lors de la suppression: " + (data.error || "Raison inconnue"));
+                }
+            })
+            .catch(error => {
+                console.error("Erreur:", error);
+                alert("Une erreur est survenue lors de la suppression: " + error.message);
+            });
+        }
+    }
+    </script>
+</html>

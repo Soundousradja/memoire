@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+    <title>Document</title>
+</head>
+<body>
+    <header>
+        <img src="/static/image/logo.png" alt="" class="logo">
+        <nav>
+            <ul>
+                <li><a href="/restaurant/">Accueil</a></li> 
+                <li><a href="/restaurant/M">Menu</a></li>
+                <li><a href="/restaurant/R">Réservation</a></li>
+                <li><a href="/restaurant/historique/">Historique</a></li>
+                <li><a href="/restaurant/offres/">Offre Promo</a></li>
+
+                <li><a href="#" id="cart-icon">Panier <span id="cart-count">0</span></a></li>
+            </ul>
+        </nav>
+    </header>
+    
+        {% if user.is_authenticated %} 
+        {% if reservation_details %}
+            <h3 class="results-title">Vos réservations</h3>
+            
+            <table class="reservations-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Client</th>
+                        <th>Date</th>
+                        <th>Heure</th>
+                        <th>Table</th>
+                        <th>Personnes</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reservation in reservation_details %}
+                        <tr>
+                            <td>{{ reservation.id }}</td>
+                            <td>{{ reservation.client.username }}</td>
+                            <td>{{ reservation.date|date:"d/m/Y" }}</td>
+                            <td>{{ reservation.time|time:"H:i" }}</td>
+                            <td>N°{{ reservation.table.numéro }} ({{ reservation.table.capacité }} pers.)</td>
+                            <td>{{ reservation.guests }}</td>
+                            <td>
+                                {% if reservation.statut == 'en_attente' %}
+                                    <span class="status-badge status-pending">
+                                        En attente
+                                    </span>
+                                {% elif reservation.statut == 'acceptee' %}
+                                    <span class="status-badge status-accepted">
+                                        Acceptée ✓
+                                    </span>
+                                {% elif reservation.statut == 'refusee' %}
+                                    <span class="status-badge status-rejected">
+                                        Refusée ✗
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    {% endif %}
+    <footer>
+        <div class="footer-container">
+            <img src="/static/image/logo.png" alt="" class="logof">
+            <div class="footer-section">
+                <h3>Navigation</h3>
+                <ul class="footer-links">
+                    <li><a href="/restaurant/">Accueil</a></li>
+                    <li><a href="/restaurant/M">Menu</a></li>
+                    <li><a href="/restaurant/R">Réservation</a></li>
+                    <li><a href="/restaurant/historique/">Historique</a></li>
+                    <li><a href="/restaurant/offres/">Offre Promo</a></li>
+     
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Suivez-nous</h3>
+                <div class="social-icons">
+                    <a href="#"><img src="/static/image/facebook.png" alt="Facebook"></a>
+                    <a href="#"><img src="/static/image/instagram.png" alt="Instagram"></a>
+                    <a href="#"><img src="/static/image/twitter.png" alt="Twitter"></a>
+                </div>
+            </div>
+        </div>
+        <p class="footer-bottom">© 2025 The LFS Spot Restaurant. Tous droits réservés.</p>
+    </footer>
+</body>
+</html>

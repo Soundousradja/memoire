@@ -1,0 +1,51 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier un Plat</title>
+    <link rel="stylesheet" href="{% static 'css/modifierplat.css' %}">
+    <script src="{% static 'js/modifierplat.js' %}" defer></script>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Modifier le Plat</h1>
+
+        <form id="platForm" method="POST" enctype="multipart/form-data" action="{% url 'modifier_plat' plat_id=plat.id %}">
+            {% csrf_token %}
+            
+            <label for="platName">Nom du Plat</label>
+            <input type="text" id="platName" name="name" value="{{ plat.name }}" required>
+
+            <label for="fileInput">Changer l'image</label>
+            <input type="file" id="fileInput" name="image" accept="image/*">
+            <br>
+            <img id="imagePreview" class="preview" src="{{ plat.image.url }}" alt="Aperçu de l'image">
+            
+            <h2>Description:</h2>
+            <input type="text" id="description" name="description" required>
+            
+            <h2>étape:</h2>
+            <input type="text" id="description" name="description" required>
+
+            <label for="platPrice">Prix</label>
+            <input type="number" id="platPrice" name="price" value="{{ plat.price }}" required step="0.01">
+
+            <label for="platIngredients">Ingrédients</label>
+            <select id="platIngredients" name="ingredients" multiple required>
+                {% for ingredient in all_ingredients %}
+                    <option value="{{ ingredient.id }}"
+                        {% if ingredient in plat.ingredients.all %}
+                            selected
+                        {% endif %}
+                    >{{ ingredient.name }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" id="updateRestaurant">Mettre à jour</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{% load static %}            
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier un Admin</title>
+    <link rel="stylesheet" href="{% static 'css/modifieradmin.css' %}">
+    <script src="{% static 'js/modifieradmin.js' %}" defer></script>
+    <style>
+        .form-container input[type="text"],
+.form-container input[type="tel"],
+.form-container select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px; /* Keep some space below the input fields */
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    font-size: 16px;
+    border-radius: 20px;
+}
+
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Modifier l'Admin</h1>
+
+        <form id="adminForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="text" id="adminName" name="name" value="{{ admin.name }}" required>
+            
+            <input type="file" id="fileInput" accept="image/*">
+            <label for="fileInput" class="upload-btn">Changer la photo</label>
+            <br>                                   
+            <img id="imagePreview" class="preview" src="{{ admin.image.url }}" alt="Aperçu de la photo">
+            
+            <h1>Numéro de téléphone :</h1>
+            <input type="tel" id="adminPhone" name="phone" value="{{ admin.phone }}" required>
+            <label for="restaurantSelect" class="label" >Choisir un restaurant :</label> <br>
+            <select id="restaurantSelect" name="restaurant" required>
+                <option value="">Sélectionnez un restaurant</option>
+                {% for restaurant in restaurants %}
+                    <option value="{{ restaurant.id }}">{{ restaurant.name }}</option>
+                {% endfor %}
+            </select>
+            
+            <button type="submit" id="updateAdmin">Mettre à jour</button>
+        </form>
+    </div>                                              
+</body>
+</html>

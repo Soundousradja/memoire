@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/serveur.css'%}">
+</head>
+<body>
+<div class="container">
+    <p class="serveur-restaurant">Serveur : {{ serveur_restaurant }}</p>
+    <p class="adresse-restaurant">Restaurant : {{ adresse_restaurant }}</p>
+
+    <div class="container-form">
+        <img src="{% static 'image/logo.png'%}" alt="Delivery Manager" class="logo">
+        <div class="menu">
+       <a href="http://127.0.0.1:8000/restaurant/serveurmenu"><button>Menu</button></a> 
+       <a href="http://127.0.0.1:8000/restaurant/serveur/reservations/"><button>Réservation</button></a>
+        </div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'logout1' %}" class="dec">Déconnexion</a>
+        {% endif %}
+    </div>   
+  
+
+
+</div>
+</body>
+</html>

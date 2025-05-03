@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offres Spéciales</title>
+    <link rel="stylesheet" href="{% static 'css/offre.css' %}">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="http://127.0.0.1:8000/restaurant/">Accueil</a></li> 
+                <li><a href="http://127.0.0.1:8000/restaurant/M">Menu</a></li>
+                <li><a href="http://127.0.0.1:8000/restaurant/R">Réservation</a></li> 
+              <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
+              <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre Promo</a></li>
+              <li><a href="/panier/" id="cart-icon">
+                <img src="{% static 'image/paniers.png' %}" alt=""style="width: 20px; color:yellow;">
+                <span id="cart-count">0</span>
+              </a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <h2 class="text-center">Nos offres spéciales</h2>
+        
+        {% if offres %}
+            <div class="offres-grid">
+                {% for offre in offres %}
+                    <div class="offre-card">
+                        {% if offre.image %}
+                            <img src="{{ offre.image.url }}" class="offre-image" alt="{{ offre.Nom_Offre }}">
+                        {% else %}
+                            <div class="image-placeholder">
+                                <div>⊙</div>
+                                <p class="placeholder-text">Pas d'image disponible</p>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="offre-contenu">
+                            <h3 class="offre-titre">{{ offre.Nom_Offre }}</h3>
+                            <p class="offre-dates">
+                                Du {{ offre.Date_Debut|date:"d/m/Y" }} au {{ offre.Date_Fin|date:"d/m/Y" }}
+                            </p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="message-info">
+                Aucune offre disponible pour le moment.
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

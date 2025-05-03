@@ -1,0 +1,33 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>The LFS Spot</title>
+    <link rel="stylesheet" href="{% static 'css/menuinterface.css' %}">
+    <script src="{% static 'js/menuinterface.js' %}" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div></div>
+        
+        </div>
+        
+        <div>
+            <a href=>
+                <button class="menu-button">Menu</button>
+            </a>
+        </div>
+        
+        <div class="options-container">
+            <a href="{% url 'gestion_ingredients' %}">
+                <button class="option-button">Gestion des ingrédients</button>
+            </a>
+            <a href="{% url 'category_selection' %}">
+                <button class="option-button">Gestion du Menu</button>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

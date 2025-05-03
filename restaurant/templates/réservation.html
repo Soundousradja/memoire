@@ -1,0 +1,172 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réservation</title>
+    <link rel="stylesheet" href="{% static 'css/réservation.css' %}">
+</head>
+<body>
+    <header>
+        <div class="sortie">
+           <a href="http://127.0.0.1:8000/restaurant/serveur"><img src="{% static 'image\sortie.png'%}" alt=""></a> 
+        </div>
+        Gestion des Réservations
+        
+    </header>
+    <div class="container">
+    
+        
+        {% if messages %}
+        <div class="row">
+            <div class="col-md-12">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">×</button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="filter">
+                        <h5>Filtrer les réservations</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="get">
+                            <div class="row">
+                                <div class="date">
+                                    <label for="date" class="form-label">Date</label> 
+                                    <input type="date" class="form-control" id="date" name="date" value="{{ request.GET.date }}">
+                                </div>
+                               
+                            
+                                <div class="statut">
+                                    <label for="statut" class="form-label">Statut</label>
+                                    <select class="form-select" id="statut" name="statut">
+                                        <option value="">Tous</option>
+                                        <option value="en_attente" {% if request.GET.statut == 'en_attente' %}selected{% endif %}>En attente</option>
+                                        <option value="acceptee" {% if request.GET.statut == 'acceptee' %}selected{% endif %}>Acceptée</option>
+                                        <option value="refusee" {% if request.GET.statut == 'refusee' %}selected{% endif %}>Refusée</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="table" class="form-label">Table</label>
+                                    <select class="form-select" id="table" name="table">
+                                        <option value="">Toutes</option>
+                                        {% for table in tables %}
+                                        <option value="{{ table.id }}" {% if request.GET.table == table.id|stringformat:"i" %}selected{% endif %}>
+                                            Table {{ table.numéro }} ({{ table.capacité }} pers.)
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="button">
+                                    <button type="submit" >Filtrer</button><br>
+                    
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div class="cardliste">
+                    <div class="card-header">
+                        <h5 class="mb-0">Liste des réservations</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if reservations %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Client</th>
+                                        <th>Contact</th>
+                                        <th>Table</th>
+                                        <th>Personnes</th>
+                                        <th>Date</th>
+                                        <th>Heure</th>
+                                        <th>Créée le</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reservation in reservations %}
+                                    <tr>
+                                        <td>{{ reservation.client.username }}</td>
+                                        <td>
+                                            <strong>Tél:</strong> {{ reservation.client.phone }}<br>
+                                            {% if reservation.client.email %}
+                                            <strong>Email:</strong> {{ reservation.client.email }}
+                                            {% endif %}
+                                        </td>
+                                        <td>Table {{ reservation.table.numéro }}</td>
+                                        <td>{{ reservation.guests }}</td>
+                                        <td>{{ reservation.date|date:"d/m/Y" }}</td>
+                                        <td>{{ reservation.time|time:"H:i" }}</td>
+                                        <td>{{ reservation.created_at|date:"d/m/Y H:i" }}</td>
+                                        <td>
+                                            {% if reservation.statut == 'en_attente' %}
+                                            <span class="badge bg-warning">En attente</span>
+                                            {% elif reservation.statut == 'acceptee' %}
+                                            <span class="badge bg-success">Acceptée</span>
+                                            {% elif reservation.statut == 'refusee' %}
+                                            <span class="badge bg-danger">Refusée</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if reservation.statut == 'en_attente' %}
+                                            <div class="btn-group">
+                                                <form method="post" action="{% url 'repondre_reservation' reservation.id 'acceptee' %}" class="me-2">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="accepté">
+                                                        Accepter
+                                                    </button>
+                                                </form>
+                                                <form method="post" action="{% url 'repondre_reservation' reservation.id 'refusee' %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="refusé">
+                                                        Refuser
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            {% else %}
+                                            <button type="button" class="traité" disabled>
+                                                Traité
+                                            </button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="aucune">
+                            Aucune réservation trouvée.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+     <p>© 2025 The LFS Spot Restaurant. Tous droits réservés.</p>
+    
+    </footer>
+</body>
+
+</html>
+
+</html>

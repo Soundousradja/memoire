@@ -1,0 +1,142 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voir Panier</title>
+    <link rel="stylesheet" href="{% static 'css/panier.css' %}">
+</head>
+<body>
+    <header>
+        <img src="{% static 'image/logo.png' %}" alt="" class="logo">
+        <nav>
+            <ul>
+                <li><a href="http://127.0.0.1:8000/restaurant/">Accueil</a></li> 
+                <li><a href="http://127.0.0.1:8000/restaurant/M">Menu</a></li>
+                <li><a href="http://127.0.0.1:8000/restaurant/R">Réservation</a></li> 
+                <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
+                <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre Promo</a></li>
+                <li><a href="/panier/" id="cart-icon">
+                    <img src="{% static 'image/paniers.png' %}" alt="" style="width: 20px; color:yellow;">
+                    <span id="cart-count">0</span>
+                </a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="panier-container">
+        <h1>Votre Panier</h1>
+
+        <div id="panier-content">
+            {% if panier %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Plat</th>
+                            <th>Prix unitaire</th>
+                            <th>Quantité</th>
+                            <th>Prix total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in panier %}
+                            <tr class="plat-panier" data-id="{{ item.plat.id }}">
+                                <td>
+                                    {% if item.plat.image %}
+                                        <img src="{{ item.plat.image.url }}" alt="{{ item.plat.nom }}" class="panier-image">
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.plat.name }}</td>
+                                <td>{{ item.plat.price }} DA</td>
+                                <td>
+                                    <div class="quantity-control">
+                                        <button class="quantity-btn decrement" data-id="{{ item.plat.id }}">-</button>
+                                        <input type="number" min="1" value="{{ item.quantity }}" class="quantity-input" data-id="{{ item.plat.id }}">
+                                        <button class="quantity-btn increment" data-id="{{ item.plat.id }}">+</button>
+                                    </div>
+                                </td>
+                                <td>{{ item.prix_total }} DA</td>
+                                <td>
+                                    <form method="POST" action="{% url 'supprimer_du_panier' item.plat.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-supprimer">Supprimer</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div id="total">
+                    <h2>Total : {{ total }} DA</h2>
+                </div>
+
+                <div id="formulaire-commande">
+                    <h2>Informations de livraison</h2>
+                    <form id="order-form">
+                        {% csrf_token %}
+                        
+                        <label for="restaurant">Choisissez le restaurant :</label>
+                        <select id="restaurant" name="restaurant" required>
+                            {% for restaurant in restaurants %}
+                                <option value="{{ restaurant.id }}">{{ restaurant.name }}</option>
+                            {% endfor %}
+                        </select>
+                    
+                        <label>Mode de paiement :</label>
+                        <div class="payment-options">
+                        <input type="radio" id="cash" name="paiement" value="cash" checked>
+                        <label for="cash">Espèces</label>
+                        <input type="radio" id="card" name="paiement" value="carte">
+                        <label for="card">Carte</label>
+                        </div>
+                        {% if user.is_authenticated %}
+                        <button type="submit" class="btn-commander">Passer la commande</button>
+                        {% else %}
+                        <button onclick="window.location.href='http://127.0.0.1:8000/login'">Passer la commande</button>
+                        {% endif %}
+                    </form>
+                </div>
+            {% else %}
+                <div class="panier-vide">
+                    <p>Votre panier est vide.</p>
+                    <a href="{% url 'menu' %}" class="btn btn-retour">Retourner au menu</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="{% static 'js/panier.js' %}"></script>
+
+    <footer>
+        <div class="footer-container">
+            <img src="{% static 'image/logo.png' %}" alt="" class="logof">
+            <div class="footer-section">
+                <h3>Navigation</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Accueil</a></li>
+                    <li><a href="#">Menu</a></li>
+                    <li><a href="#">Réservation</a></li>
+                    <li><a href="#">Historique</a></li>
+                    <li><a href="#">Offre Promo</a></li>
+                </ul>
+            </div>
+    
+            <div class="footer-section">
+                <h3>Suivez-nous</h3>
+                <div class="social-icons">
+                    <a href="#"><img src="{% static 'image/facebook.png' %}" alt="Facebook"></a>
+                    <a href="#"><img src="{% static 'image/instagram.png' %}" alt="Instagram"></a>
+                    <a href="#"><img src="{% static 'image/twitter.png' %}" alt="Twitter"></a>
+                </div>
+            </div>
+        </div>
+        <p class="footer-bottom">© 2025 The LFS Spot Restaurant. Tous droits réservés.</p>
+    </footer>
+    
+</body>
+</html>

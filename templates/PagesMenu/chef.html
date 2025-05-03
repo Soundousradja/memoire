@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% csrf_token %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/chef.css' %}"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+    <div class="container">
+        <div class="button">
+            <img src="{% static 'image/logo.png' %}" alt="Logo" class="logo">
+            {% if user.is_authenticated %}
+            <button onclick="window.location.href='{% url 'menu:chef' %}'"> Etat de commande </button> <br>{% else %} <button onclick="window.location.href='{% url 'login' %}'"> Etat de commande </button> <br> {% endif %}
+            <button onclick="window.location.href='{% url 'menu:menuchef' %}'">Menu</button>
+            <button onclick="window.location.href='{% url 'menu:logout' %}'" class="dcn"><i class="fas fa-sign-out-alt"></i> Déconnexion </button>
+           
+           
+        </div>
+    </div>
+    
+    
+</body>
+</html>

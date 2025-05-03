@@ -1,0 +1,138 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Plat</title>
+    <link rel="stylesheet" href="{% static 'css/ajouter_plat.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+</head>
+<body>
+    <div class="form-container">
+        
+        <h2>Nom du plat :</h2>
+
+        <form id="platForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Champs cachés pour les identifiants -->
+            <input type="hidden" name="categorie_id" value="{{ categorie_id }}">
+            <input type="hidden" name="restaurant_id" value="{{ restaurant_id }}">
+
+            <input type="text" id="platName" name="name" placeholder="Entrez le nom du plat" required>
+             
+            <h2>Image du plat :</h2>
+            <input type="file" id="fileInput" name="image" accept="image/*">
+            <label for="fileInput" class="upload-btn">Insérer une photo</label>
+
+            <h2>Description:</h2>
+            <input type="text" id="description" name="description" required>
+            
+            <h2>Étape:</h2>
+            <input type="text" id="etape" name="etape" required>
+
+            <h2>Prix du plat :</h2>
+            <input type="number" id="platPrice" name="price" placeholder="Entrez le prix du plat" step="0.01" required>
+
+            <h2>Liste des ingrédients :</h2>
+<div id="ingredients-container">
+    <!-- Initial ingredient row -->
+    <div class="ingredient-row">
+        <select class="ingredientsList" name="ingredients[0][ingredient]" required>
+            <option value="" disabled selected>Sélectionnez un ingrédient</option>
+            {% for ingredient in ingredients %}
+                <option value="{{ ingredient.id }}">{{ ingredient.name }}</option>
+            {% endfor %}
+        </select>
+        <input type="number" class="quantites" name="ingredients[0][quantity]" placeholder="Quantité" required min="1">
+    </div>
+</div>
+
+            
+
+            <label for="is_available">Disponible:</label>
+            <select id="is_available" name="is_available">
+                <option value="true">Oui</option>
+                <option value="false" selected>Non</option>
+            </select>
+
+            <br><br>
+            <button type="submit" id="addPlat">Ajouter</button>
+        </form>
+    </div>
+
+    <!-- Intégrer le JavaScript directement dans la page pour éviter les problèmes -->
+    <script>
+        
+        // Variables globales
+        let rowIndex = 1; // Commence à 1 car on a déjà un élément avec index 0
+
+        // Fonction pour ajouter un nouvel ingrédient
+        function addIngredient() {
+            const container = document.getElementById('ingredient-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'ingredient-row';
+            newRow.id = `ingredient-row-${rowIndex}`;
+            
+            // Récupérer les options des ingrédients depuis le premier select
+            const firstSelect = document.querySelector('.ingredientsList');
+            const optionsHTML = Array.from(firstSelect.options)
+                .map(opt => `<option value="${opt.value}">${opt.textContent}</option>`)
+                .join('');
+            
+            newRow.innerHTML = `
+                <select class="ingredientsList" name="ingredients[${rowIndex}][ingredient]" required>
+                    <option value="" disabled selected>Sélectionnez un ingrédient</option>
+                    ${optionsHTML}
+                </select>
+                <input type="number" class="quantites" name="ingredients[${rowIndex}][quantity]" placeholder="Quantité" required>
+                <button type="button" class="remove-ingredient-btn" onclick="removeIngredient(${rowIndex})">Supprimer</button>
+            `;
+            
+            container.appendChild(newRow);
+            rowIndex++;
+        }
+        
+        // Fonction pour supprimer un ingrédient
+        function removeIngredient(index) {
+            const row = document.getElementById(`ingredient-row-${index}`);
+            if (row) {
+                row.remove();
+            }
+        }
+
+        // Gestionnaire d'événement pour la soumission du formulaire
+        document.getElementById("platForm").addEventListener("submit", function (e) {
+            e.preventDefault(); // Empêche la soumission classique
+            
+            // Créer un objet FormData à partir du formulaire
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            fetch(form.action || window.location.href, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirection si tout est OK
+                    window.location.href = data.redirect_url;
+                } else {
+                    // Affiche les erreurs
+                    alert("Erreur lors de l'ajout du plat : " + JSON.stringify(data.errors));
+                }
+            })
+            .catch(error => {
+                console.error("Erreur AJAX :", error);
+                alert("Erreur de connexion au serveur.");
+            });
+        });
+    </script>
+</body>
+</html>

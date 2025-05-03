@@ -1,0 +1,118 @@
+/* Enhanced Menu Interface CSS with improved design */
+body {
+    background: url('../images/exemple.jpg') no-repeat center center fixed;
+    color: #f0f0f0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-size: cover;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    box-sizing: border-box;
+}
+
+.header {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 50px;
+    position: relative;
+}
+
+.logo {
+    color: rgb(211, 150, 38);
+    font-size: 32px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    border-bottom: 2px solid rgb(211, 150, 38);
+    padding-bottom: 10px;
+}
+
+.menu-button-container {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.menu-button {
+    background-color: transparent;
+    color:rgb(211, 150, 38);
+    border: 2px solid rgb(211, 150, 38);
+    border-radius: 30px;
+    padding: 15px 40px;
+    cursor: pointer;
+    position: relative;
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    width: 200px;
+}
+
+.menu-button:hover {
+    background-color: rgba(255, 215, 0, 0.1);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    transform: translateY(-3px);
+}
+
+.menu-button:after {
+    content: "▶";
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+}
+
+.options-container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 60px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.option-button {
+    background-color: rgb(211, 150, 38);
+    color: #000;
+    border: none;
+    border-radius: 30px;
+    padding: 15px 0;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    width: 200px;
+    font-size: 14px;
+}
+
+.option-button:hover {
+    background-color:rgb(211, 150, 38);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.option-link {
+    text-decoration: none;
+    display: inline-block;
+}
+
+@media (max-width: 600px) {
+    .options-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .option-button, .menu-button {
+        width: 80%;
+        margin-bottom: 15px;
+    }
+}

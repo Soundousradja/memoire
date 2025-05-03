@@ -1,0 +1,837 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The LFS Spot - Gestion de Restaurant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Import Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js" crossorigin="anonymous"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+        a {
+            text-decoration: none;
+            color: #f5f5f5;
+        }
+        li {
+            list-style: none;
+        }
+        .side-menu {
+            position: fixed;
+            background-color: rgb(236, 143, 3);
+            min-height: 100vh;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        .brand-name {
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 40px;
+        }
+
+        .brand-name h1 {
+            color: white;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+        }
+        .side-menu ul {
+            width: 100%;
+        }
+        .side-menu li {
+            font-size: 18px;
+            padding: 16px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        .side-menu li i {
+            margin-right: 15px;
+            font-size: 20px;
+            width: 25px;
+            text-align: center;
+        }
+        .side-menu li:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left: 4px solid white;
+        }
+        .side-menu li.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid white;
+        }
+        .container {
+            position: sticky;
+            top: 0;
+            z-index: 15;
+            height: 8vw;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            background-color: white;
+            margin-left: 340px;
+            margin-right: 150px;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 150px;
+        }
+        .point {
+            margin-top: 15px;
+            background-color: white;
+            border-bottom: 0.5px solid rgb(252, 248, 248);
+        }
+        .total {
+            background-color: white;
+            margin-top: 10px;
+            height: 8vw;
+        }
+        button {
+            background-color: rgb(236, 143, 3);
+            padding: 10px;
+            width: 158px;
+            height: 40px;
+            color: white;
+            font-weight: 500;
+            font-size: 15px;
+            font-family: 'Poppins', sans-serif;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: rgba(223, 150, 15, 0.85);
+        }
+        button li.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid white;
+        }
+        .categorie {
+            display: flex;
+            position: fixed;
+            left: 24vw;
+            margin-top: 50px;
+            width: 100%;
+        }
+        .user-button {
+            margin-right: 50px;
+            background-color: white;
+            padding: 15px;
+            width: 160px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border-radius: 4px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .user-button:hover {
+            background-color: rgb(236, 143, 3);
+            color: white;
+        }
+        .user-button.active {
+            background-color: rgb(236, 143, 3);
+            color: white;
+        }
+        .hidden {
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.5s ease, transform 0.5s ease, visibility 0s linear 0.5s;
+        }
+        input {
+            margin-top: 20px;
+            width: 500px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            height: 35px;
+            background-color: white;
+            padding: 0 10px;
+        }
+       
+        .button1 {
+            background-color: #efa00e;
+            border: none;
+            margin-top: 15px;
+            margin-right: 15px;
+            width: 200px;
+            border-radius: 12px;
+            padding: 10px;
+            height: 40px;
+        }
+        /* Ajouter un fond assombri quand le formulaire est visible */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+            z-index: 1000;
+        }
+
+        /* Afficher le formulaire et l'overlay */
+        .overlay.active {
+            visibility: visible;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+            background-color: rgba(0, 0, 0, 0.3); /* Noir avec 30% de transparence */
+            backdrop-filter: blur(10px); /* Ajoute un effet de flou */
+        }
+        
+        .form-container {
+            background-color: #fff;
+            border-radius: 8px;
+            color: rgb(50, 50, 50);
+            padding: 30px;
+            width: 550px;
+            text-align: center;
+            transform: translateY(0);
+            opacity: 1;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .form-container h3 {
+            color: rgb(236, 143, 3);
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        .LesChamps {
+            margin-top: 7px;
+            margin-bottom: 18px;
+        }
+
+        /* Correction du style pour le tableau */
+        .table-container {
+            width: calc(100% - 350px);
+            margin-left: 340px;
+            margin-top: 150px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        #users-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        #users-table th, #users-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            word-wrap: break-word;
+            max-width: 200px;
+        }
+
+        #users-table th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+
+        #users-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .btn-modifier, .btn-supprimer {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            color: white;
+            border: none;
+            margin-bottom: 5px;
+            width: 100px;
+        }
+
+        .btn-modifier {
+            background-color: #efa00e;
+            margin-right: 5px;
+        }
+
+        .btn-supprimer {
+            background-color: #ff4444;
+        }
+
+        .btn-modifier:hover {
+            background-color: #d99209;
+        }
+
+        .btn-supprimer:hover {
+            background-color: #cc0000;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+        }
+        
+        .ajouter {
+            width: 200px;
+            padding: 10px;
+            height: 40px;
+            background-color: rgb(236, 143, 3);
+            border: none;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+
+        /* Style pour l'affichage du mot de passe */
+        .password-text {
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+
+        .password-eye {
+            cursor: pointer;
+            color: #666;
+            margin-left: 8px;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .password-eye i {
+            margin-right: 5px;
+        }
+
+        .password-eye:hover {
+            color: #000;
+        }
+        
+        /* Ajustement spécifique des colonnes */
+        #users-table th:nth-child(5), #users-table td:nth-child(5) {
+            width: 180px;
+        }
+
+        #users-table th:nth-child(6), #users-table td:nth-child(6) {
+            width: 220px;
+            text-align: center;
+        }
+        
+        /* Styles pour l'avatar utilisateur */
+        .contenu {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: white;
+            border-bottom: 1px solid #ddd;
+            position: relative;
+            margin-left: 340px;
+            margin-right: 150px;
+            height: 8vw;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: black;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            position: absolute;
+            right: -100px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .user-avatar:hover {
+            background-color: rgb(236, 143, 3);
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            width: 180px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .user-menu-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .user-menu-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .user-menu-item i {
+            margin-right: 10px;
+            color: rgb(236, 143, 3);
+        }
+
+        .show-menu {
+            display: block;
+        }
+        
+        .buttons-container {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .table-container {
+                width: calc(100% - 320px);
+            }
+            .categorie {
+                left: 310px;
+            }
+            .contenu {
+                margin-left: 320px;
+                margin-right: 20px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .user-button {
+                width: 120px;
+                margin-right: 20px;
+                font-size: 14px;
+            }
+        }
+        .logo{
+    width:300px;
+    height:88px;
+    margin-bottom: 15px;
+    margin-top: 20px;
+    
+}
+    </style>
+</head>
+<body>
+   
+    <div class="side-menu">
+        <div class="brand-name">
+            <img src="{% static 'image/logo11.jpg' %}" alt="Logo" class="logo">
+        </div>
+    
+        <ul>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'home' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-users"></i> &nbsp;
+                    <span>Utilisateur</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'menu:menu_Journalier' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-utensils"></i> &nbsp;
+                    <span>Menu Journalier</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'menu:Liste_Achat' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-shopping-cart"></i> &nbsp;
+                    <span>Liste des achats</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'menu:commande' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-clipboard-list"></i> &nbsp;
+                    <span>Gestion des commandes</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'offre' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-tags"></i> &nbsp;
+                    <span>Gestion des offres</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% if user.is_authenticated %}{% url 'menu:Gestiontable' %}{% else %}{% url 'login' %}{% endif %}">
+                    <i class="fas fa-table"></i> &nbsp;
+                    <span>Gestion des tables</span>
+                </a>
+            </li>
+            <div class="login-prompt" style="text-align: center; margin-top: 20px;">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'menu:logout' %}" class="login-button" style="
+                        display: inline-block;
+                        background-color: white;
+                        color: rgb(236, 143, 3);
+                        padding: 8px 20px;
+                        margin-top: 10px;
+                        border-radius: 4px;
+                        font-weight: bold;
+                        text-decoration: none;
+                        transition: all 0.3s ease;
+                    ">
+                        <i class="fas fa-sign-out-alt"></i> Déconnecter
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="login-button" style="
+                        display: inline-block;
+                        background-color: white;
+                        color: rgb(236, 143, 3);
+                        padding: 8px 20px;
+                        margin-top: 10px;
+                        border-radius: 4px;
+                        font-weight: bold;
+                        text-decoration: none;
+                        transition: all 0.3s ease;
+                    ">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </a>
+                {% endif %}
+            </div>
+        </ul>
+    </div>
+    
+    <div class="total">
+        <div class="contenu">
+            <div class="titre"><h2>Gestion des Utilisateurs</h2></div>
+            
+            <div class="buttons-container">
+                <button onclick="toggleForm()" class="ajouter"><i class="fas fa-user-plus"></i> Ajouter Utilisateur</button>
+                
+                <!-- Avatar utilisateur ajouté ici -->
+                <div class="user-avatar" id="userAvatar">
+                    {% if user.is_authenticated %}
+                        {{ user.first_name|first|default:user.username|first|upper }}
+                    {% else %}
+                        U
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Menu déroulant pour l'avatar -->
+        <div class="user-menu" id="userMenu">
+            <a href="{% url 'menu:logout' %}" class="user-menu-item">
+                <i class="fas fa-sign-out-alt"></i> Déconnecter
+            </a>
+        </div>
+        
+        <div class="point"></div>
+    </div>
+    
+    <div class="categorie">
+        <div class="user-button" data-role="client" onclick="redirigerVersUtilisateurs('client')"><i class="fa-solid fa-user"></i>  Client</div>
+        <div class="user-button" data-role="chef" onclick="redirigerVersUtilisateurs('chef')"><i class="fas fa-utensils"></i> Chef Cuisinier</div>
+        <div class="user-button" data-role="livreur" onclick="redirigerVersUtilisateurs('livreur')"> <i class="fas fa-motorcycle"></i> Livreur</div>
+        <div class="user-button" data-role="serveur" onclick="redirigerVersUtilisateurs('serveur')"> <i class="fas fa-concierge-bell"></i> Serveur</div>
+        <div class="user-button" data-role="fournisseur" onclick="redirigerVersUtilisateurs('fournisseur')"> <i class="fas fa-truck"></i>  Fournisseur</div>
+    </div>
+    
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    
+    <div id="overlay" class="overlay">
+        <div class="form-container">
+            <h3>Ajouter un Utilisateur</h3>
+            <div class="LesChamps">
+                <input type="text" id="nom" placeholder="Nom" required> <br>
+                <input type="email" id="email" placeholder="Email" required> <br>
+                <input type="password" id="password" placeholder="Mot de passe" required> <br>
+                <input type="text" id="adresse" placeholder="Adresse" required> <br>
+                <input type="text" id="telephone" placeholder="Téléphone" required> <br>
+            </div>
+            <button class="button1" onclick="ajouterUtilisateur()">Ajouter</button>
+            <button class="button1" onclick="toggleForm()">Fermer</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table id="users-table">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Adresse</th>
+                    <th>Téléphone</th>
+                    <th>Mot de passe</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Les données des utilisateurs seront insérées ici -->
+            </tbody>
+        </table>
+    </div>
+    
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const role = urlParams.get('role') || 'client'; 
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Activer le bouton correspondant au rôle
+            const currentButton = document.querySelector(`.user-button[data-role="${role}"]`);
+            if (currentButton) {
+                currentButton.classList.add('active');
+            }
+            
+            // Charger les utilisateurs
+            afficherUtilisateurs();
+            
+            // Récupération des éléments DOM pour l'avatar
+            const userAvatar = document.getElementById("userAvatar");
+            const userMenu = document.getElementById("userMenu");
+            
+            // Gestion du clic sur l'avatar utilisateur
+            userAvatar.addEventListener("click", function() {
+                userMenu.classList.toggle("show-menu");
+            });
+            
+            // Cacher le menu quand on clique ailleurs
+            document.addEventListener("click", function(event) {
+                if (!userAvatar.contains(event.target) && !userMenu.contains(event.target)) {
+                    userMenu.classList.remove("show-menu");
+                }
+            });
+        });
+
+        function redirigerVersUtilisateurs(role) {
+            // Retirer la classe 'active' de tous les boutons
+            document.querySelectorAll('.user-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Ajouter la classe 'active' au bouton cliqué
+            document.querySelector(`.user-button[data-role="${role}"]`).classList.add('active');
+            
+            // Redirection vers la bonne URL
+            window.location.href = `/utilisateur/?role=${role}`;
+        }
+
+        function afficherUtilisateurs() {
+    fetch(`/utilisateurs/${role}/`)
+        .then(response => response.json())
+        .then(data => {
+            let tableBody = document.getElementById("table-body");
+            tableBody.innerHTML = "";  // Vider le contenu du tableau
+            
+            if (data.utilisateurs && data.utilisateurs.length > 0) {
+                data.utilisateurs.forEach(utilisateur => {
+                    const passwordId = `mdp-${utilisateur.id}`;
+                    const eyeId = `eye-${utilisateur.id}`;
+                    let row = document.createElement("tr");
+                    
+                    row.innerHTML = `
+                        <td>${utilisateur.nom || '-'}</td>
+                        <td>${utilisateur.email || '-'}</td>
+                        <td>${utilisateur.adresse || '-'}</td>
+                        <td>${utilisateur.telephone || '-'}</td>
+                        <td>
+                            <span id="${passwordId}" class="password-text">•••••••</span>
+                            <div id="${eyeId}" class="fa-solid fa-eye password-eye"
+                               onclick="togglePassword('${passwordId}', '${eyeId}', '${utilisateur.mot_de_passe_clair}')">afficher</div>
+                        </td>
+                        <td>
+                            <button class="btn-modifier" onclick="modifierUtilisateur(${utilisateur.id})">Modifier</button>
+                            <button class="btn-supprimer" onclick="supprimerUtilisateur(${utilisateur.id})">Supprimer</button>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+            } else {
+                tableBody.innerHTML = `<tr><td colspan="6" class="no-data">Aucun utilisateur trouvé pour ce rôle</td></tr>`;
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la récupération des utilisateurs:', error);
+            document.getElementById("table-body").innerHTML = 
+                `<tr><td colspan="6" class="no-data">Erreur lors du chargement des données</td></tr>`;
+        });
+}
+        function toggleForm() {
+            let overlay = document.getElementById("overlay");
+            if (overlay.classList.contains("active")) {
+                overlay.classList.remove("active");
+                setTimeout(() => overlay.style.visibility = "hidden", 500);
+            } else {
+                overlay.style.visibility = "visible";
+                setTimeout(() => overlay.classList.add("active"), 10);
+            }
+        }
+
+        function togglePassword(passId, eyeId, passwordValue) {
+    const passwordElement = document.getElementById(passId);
+    const eyeElement = document.getElementById(eyeId);
+
+    // Débogage - afficher la valeur reçue
+    console.log("Valeur du mot de passe reçue:", passwordValue);
+
+    if (!passwordValue || passwordValue === '') {
+        passwordElement.innerText = 'Mot de passe non disponible';
+        setTimeout(() => {
+            passwordElement.innerText = '•••••••';
+        }, 3000);  // Revient aux points après 3 secondes
+        return;
+    }
+
+
+    if (passwordElement.innerText === '•••••••') {
+        passwordElement.innerText = passwordValue; // Affiche le mot de passe clair
+        eyeElement.classList.remove("fa-eye");
+        eyeElement.classList.add("fa-eye-slash");
+        eyeElement.innerText = "masquer";
+    } else {
+        passwordElement.innerText = '•••••••'; // Masque le mot de passe
+        eyeElement.classList.remove("fa-eye-slash");
+        eyeElement.classList.add("fa-eye");
+        eyeElement.innerText = "afficher";
+    }
+}
+        function ajouterUtilisateur() {
+            let nom = document.getElementById("nom").value;
+            let email = document.getElementById("email").value;
+            let password = document.getElementById("password").value;
+            let adresse = document.getElementById("adresse").value;
+            let telephone = document.getElementById("telephone").value;
+
+            if (nom && email && password && adresse && telephone) {
+                fetch('/ajouter_utilisateur/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify({
+                        nom: nom,
+                        email: email,
+                        password: password,
+                        adresse: adresse,
+                        telephone: telephone,
+                        role: role
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Utilisateur ajouté avec succès !");
+                        toggleForm(); // Fermer le formulaire
+                        
+                        // Réinitialiser les champs du formulaire
+                        document.getElementById("nom").value = "";
+                        document.getElementById("email").value = "";
+                        document.getElementById("password").value = "";
+                        document.getElementById("adresse").value = "";
+                        document.getElementById("telephone").value = "";
+                        
+                        afficherUtilisateurs(); // Rafraîchir la liste des utilisateurs
+                    } else {
+                        alert("Erreur : " + data.error);
+                    }
+                })
+                .catch(error => console.error('Erreur:', error));
+            } else {
+                alert("Veuillez remplir tous les champs.");
+            }
+        }
+
+        function getCSRFToken() {
+            return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        }
+
+        function modifierUtilisateur(userId) {
+            let nouveauNom = prompt("Entrez le nouveau nom :");
+            if (nouveauNom === null) return; // L'utilisateur a annulé
+            
+            let nouvelleAdresse = prompt("Entrez la nouvelle adresse :");
+            if (nouvelleAdresse === null) return;
+            
+            let nouveauTelephone = prompt("Entrez le nouveau téléphone :");
+            if (nouveauTelephone === null) return;
+            
+            let nouveauEmail = prompt("Entrez le nouvel email (laisser vide pour ne pas changer) :");
+            if (nouveauEmail === null) return;
+
+            if (nouveauNom && nouvelleAdresse && nouveauTelephone) {
+                fetch(`/modifier_utilisateur/${userId}/`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCSRFToken()
+                    },
+                    body: JSON.stringify({
+                        nom: nouveauNom,
+                        adresse: nouvelleAdresse,
+                        telephone: nouveauTelephone,
+                        email: nouveauEmail || "",
+                        role: role
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Utilisateur modifié avec succès !");
+                        afficherUtilisateurs(); // Met à jour le tableau
+                    } else {
+                        alert("Erreur : " + data.error);
+                    }
+                })
+                .catch(error => console.error("Erreur :", error));
+            } else {
+                alert("Les champs nom, adresse et téléphone sont requis !");
+            }
+        }
+
+        function supprimerUtilisateur(userId) {
+            if (confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
+                fetch(`/supprimer_utilisateur/${userId}/`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRFToken": getCSRFToken()
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Utilisateur supprimé avec succès !");
+                        afficherUtilisateurs();
+                    } else {
+                        alert("Erreur : " + data.error);
+                    }
+                })
+                .catch(error => console.error("Erreur :", error));
+            }
+        }
+    </script>
+</body>
+</html>

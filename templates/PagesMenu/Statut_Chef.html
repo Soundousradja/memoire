@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des commandes</title>
+    <link rel="stylesheet" href="{% static 'css/Plat-chef.css' %}"> 
+    <style>
+      
+    </style>
+</head>
+<body>
+
+    <div class="total">
+        <div class="container">
+            <div class="titre"><h1>Commande</h1></div>
+            <a href="javascript:history.back()">
+                <img src="{% static 'image/sortie.png' %}" alt="Retour" style="cursor: pointer;">
+            </a>
+        </div>
+    </div>
+    <div class="TableContenu">
+
+    <table>
+        <tr>
+            <th>Commande</th>
+            <th>Action</th>
+            <th>Temps</th>
+            <th>Statut</th>
+        </tr>
+        <tbody id="commandeTable">
+            <!-- Les commandes seront ajoutées ici dynamiquement -->
+        </tbody>
+    </table>
+</div>
+   <!-- 💬 MODALE POUR LES PLATS -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fermerModal()">&times;</span>
+        <h2 id="modal-titre">Plats de la commande</h2>
+        <ul id="modal-liste-plats"></ul>
+    </div>
+</div>
+
+
+    <script>
+        async function fetchCommandes() {
+            const response = await fetch('/menu/commandes/liste/');
+            const commandes = await response.json();
+            const tableBody = document.getElementById('commandeTable');
+            tableBody.innerHTML = '';
+
+            commandes.forEach(cmd => {
+                let row = `<tr>
+                    <td>${cmd.id} <br> <br>
+
+
+                        <button onclick="afficherDetails(${cmd.id})">Voir les plats</button></td>
+                    <td>
+                        <select id="statut-${cmd.id}" onchange="updateStatut(${cmd.id})">
+                            <option value="En cours de préparation" ${cmd.statut === "En cours de préparation" ? "selected" : ""}>En cours de préparation</option>
+                            <option value="Prête" ${cmd.statut === "Prête" ? "selected" : ""}>Prête</option>
+                             <option value="En attente" ${cmd.statut === "En attente" ? "selected" : ""}>En attente</option>
+
+                        </select>
+                        
+                    </td>
+                     <td>${cmd.temps}</td>
+                    <td class="${cmd.statut === 'Prête' ? 'pret' : cmd.statut === 'En préparation' ? 'en-preparation' : 'en-attente'}">
+    <span id="statut-text-${cmd.id}">${cmd.statut}</span>
+</td>
+
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        async function updateStatut(commandeId) {
+            const newStatut = document.getElementById(`statut-${commandeId}`).value;
+            const response = await fetch(`/menu/commandes/update-statut/${commandeId}/`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ statut: newStatut })
+            });
+
+            if (response.ok) {
+                document.getElementById(`statut-text-${commandeId}`).textContent = newStatut;
+                document.getElementById(`statut-text-${commandeId}`).className = 
+    (newStatut === "Prête") 
+        ? "pret" 
+        : (newStatut === "En préparation") 
+            ? "en-preparation" 
+            : "en-attente";
+            } else {
+                alert("Erreur lors de la mise à jour");
+            }
+        }
+
+        fetchCommandes();
+        function afficherDetails(id) {
+    fetch(`/menu/commande-details/${id}/`)
+        .then(res => res.json())
+        .then(data => {
+            const liste = document.getElementById("modal-liste-plats");
+            liste.innerHTML = "";
+
+            data.plats.forEach(plat => {
+                let item = document.createElement("li");
+                item.textContent = `${plat.nom} (x${plat.quantite})`;
+                liste.appendChild(item);
+            });
+              // 🆕 Afficher le numéro de la commande dans le titre
+              const titre = document.getElementById("modal-titre");
+            titre.textContent = `${data.num_commande}`;
+
+            document.getElementById("modal").style.display = "block";
+        });
+}
+
+function fermerModal() {
+    document.getElementById("modal").style.display = "none";
+}
+
+// Optionnel : fermer la modale si on clique en dehors
+window.onclick = function(event) {
+    const modal = document.getElementById("modal");
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+}
+
+// Charger automatiquement à l'ouverture
+window.onload = chargerCommandes;
+    </script>
+
+</body>
+</html>

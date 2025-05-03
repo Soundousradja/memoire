@@ -1,0 +1,120 @@
+body {
+    background-color: #efa00e;
+    color: #ffd700;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    margin: 0;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    text-align: center;
+    /*background-color: rgba(19, 18, 18, 0.5);*/
+    background-color: #000;
+    backdrop-filter: blur(5px); /* Effet de flou derrière */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(112, 112, 109, 0.5);
+    width: 50%;
+    height: 50%;
+    margin-top: 150px;
+}
+
+
+.buttons1 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 30px;
+}
+.buttons2 {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 60px;
+}
+
+.user-button {
+    background-color: #efa00e;
+    color: #181717;
+    
+    padding: 10px 20px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.3s;
+    width: 200px;
+    justify-content: center;
+    box-shadow: 0 5px 10px rgba(255, 215, 0, 0.3);
+    text-align: center;
+    height: 25px;
+    font-size: 12px;
+
+}
+
+.user-button i {
+    font-size: 18px;
+    color: #000;
+}
+
+.user-button:hover {
+    background-color: #fff;
+    transform: scale(1.05);
+}
+
+
+.user-boxes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 2 colonnes */
+    grid-auto-rows: auto; /* Hauteur automatique */
+    gap: 20px; /* Espacement entre les cartes */
+    justify-content: center;
+    
+}
+
+.user-card {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 200px;
+    border: 1px yellow solid;
+    color: #000;
+}
+.contenu{
+    text-align: center;
+    background-color: rgba(19, 18, 18, 0.5);
+    backdrop-filter: blur(5px); /* Effet de flou derrière */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(112, 112, 109, 0.5);
+    width: auto;
+    height: auto;
+    margin-top: 60px;
+    
+}
+.h1 {
+    color: #FFD700; /* Jaune doré */
+    font-size: 32px;
+    text-align: center;
+    margin-bottom: 20px; /* Espacement entre le titre et les boîtes */
+    padding: 10px;
+    background-color: rgba(255, 52, 52, 0.8); /* Fond semi-transparent */
+    display: inline-block;
+    border-radius: 10px;
+    margin-bottom: -18px;
+}
+/* ---------------------------*/

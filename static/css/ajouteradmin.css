@@ -1,0 +1,51 @@
+body {
+    background: url('../images/exemple.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    color: white;
+}
+.form-container {
+    background: transparent;
+    padding: 30px;
+    border-radius: 10px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 1px 1px 15px 15px rgb(51, 54, 54);
+}
+input, textarea, button {
+    width: 90%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 20px;
+    font-size: 16px;
+    text-align: center;
+}
+textarea { height: 80px; resize: none; }
+input[type="file"] { display: none; }
+.upload-btn {
+    display: inline-block;
+    width: 90%;
+    padding: 10px;
+    background-color: black;
+    color: white;
+    cursor: pointer;
+}
+button {
+    background-color: rgb(211, 150, 38);
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+}
+.label{
+    margin-top:10px;
+}
+option{
+    background-color:white;
+    padding:10px;
+}

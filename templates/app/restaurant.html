@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Restaurants</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="sortie">
+            <a href="http://127.0.0.1:8000/super/supadmin/"><img src="{% static 'images\sortie.png'%}" alt=""></a> 
+         </div>
+    </header>
+   
+    <img src="{% static 'images/logo.png' %}" alt="Delivery Manager" class="logo">
+    <a href="/restaurants/">
+
+    <div class="header">Les retaurants</div>
+    <div class="restaurant-container">
+        {% for restaurant in restaurants %}
+            <div class="restaurant-card">
+                <h2>{{ restaurant.name }}</h2>
+                <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}">
+                <div class="address-box">Adresse: {{ restaurant.address }}</div>
+                <div class="btn-group">
+                    <a href="{% url 'edit_restaurant' restaurant.id %}" class="btn">Modifier</a>
+                    <a href="{% url 'delete_restaurant' restaurant.id %}" class="btn" onclick="return confirm('Voulez-vous vraiment supprimer ce restaurant ?');">Supprimer</a>
+                </div>
+            </div>
+            
+        {% endfor %}
+    </div>
+    <a href="{% url 'add_restaurant' %}" class="add-button">
+        <span>+</span>
+    </a>
+    <p>URL correcte : {% url 'ajouter_restaurant' %}</p>
+   
+{% endblock %}
+<a href="{% url 'supadmin' %}" class="btn-supadmin">
+    <i class="fi fi-rr-undo"></i>
+    <span>Super Admin</span>
+</a>
+    <script src="{% static 'js/restaurant.js' %}"></script>
+    <script src="{% static 'js/ajouterrest.js' %}"></script>
+    <script src="{% static 'js/modifierrest.js' %}"></script>
+</body>
+</html>

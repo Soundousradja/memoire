@@ -1,0 +1,73 @@
+*{
+    margin: 0;
+    text-decoration: none;
+}
+body {
+    background: url('../image/img1.png') no-repeat center center fixed;
+    background-size: cover;
+  }
+.container-form{
+   display: flex;
+   flex-direction: column;
+    
+    width:280px;
+    height: 300px;
+ margin-left: 110px;
+   margin-top: 70px;
+    padding: 20px;
+    background-color: #000000;
+    border-radius: 10px;
+    box-shadow: 1px 1px 15px 15px rgb(54, 56, 56);
+}
+
+
+.menu{
+    margin-top: 30px;
+    margin-left: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.menu button{
+    width: 270px;
+    height: 40px;
+    border: none;
+    border-radius: 20px;
+    background-color: rgb(77, 74, 74);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+button:hover{
+    background-color:#f5b041;
+    color: black;
+}
+
+.dec{
+    margin-top: 20px;
+    width: 270px;
+    height: 30px;
+    border: none;
+    border-radius: 20px;
+    background-color: #f5b041;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 8px;
+    text-align: center;
+    padding-top: 8px;
+    font-size: 14px;
+}
+.adresse-restaurant {
+    font-size: 16px;
+    margin-left: 20px;
+    font-weight: bold;
+    color: #ffffff;
+}
+.serveur-restaurant{
+    margin-top: 10px;
+    font-size: 16px;
+    margin-left: 20px;
+    font-weight: bold;
+    color: #ffffff;
+}

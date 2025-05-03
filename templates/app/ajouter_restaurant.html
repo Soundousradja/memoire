@@ -1,0 +1,35 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Restaurant</title>
+    <link rel="stylesheet" href="{% static 'css/ajouterrest.css' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Nom du restaurant:</h1>
+
+        <form id="restaurantForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}  <!-- ✅ Add CSRF token here -->
+
+            <input type="text" id="restaurantName" placeholder="Entrez le nom">
+
+            <input type="file" id="fileInput" accept="image/*">
+            <label for="fileInput" class="upload-btn">Insérer une image</label>
+
+            <h1>Adresse:</h1>
+            <textarea id="restaurantAddress" placeholder="Entrez l'adresse"></textarea>
+            
+            <button type="button" id="addRestaurant">Ajouter</button>  
+        </form>
+
+       
+    </div>
+
+    <script src="{% static 'js/ajouterrest.js' %}" defer></script>
+</body>
+</html>

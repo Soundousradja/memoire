@@ -1,0 +1,175 @@
+/* Conteneur principal des offres */
+body{
+    background-color: black;
+    
+}
+h1{
+    color:#ddd;
+}
+.container{
+    text-align: center;
+}
+/* Conteneur principal des offres */
+/* Conteneur principal des offres */
+.offers-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+/* Style de la table */
+.offers-table {
+    width: 80%; /* Ajustez la largeur selon votre besoin */
+    border-collapse: collapse;
+    table-layout: fixed; /* Forcer des colonnes de largeur égale */
+    text-align: center;
+}
+
+/* En-tête de la table */
+.offers-table thead {
+    background: linear-gradient(to right, #fad91d, #e7c012);
+    color: rgb(19, 19, 19);
+    font-weight: bold;
+}
+
+/* Colonnes */
+.offers-table th, .offers-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    width: 20%; /* Chaque colonne prend 20% */
+}
+
+/* Contenu de la table */
+.offers-table tbody tr {
+    background: #f9f9f9;
+    transition: background 0.2s;
+}
+
+.offers-table tbody tr:hover {
+    background: #e8f0ff;
+}
+
+/* Bouton Supprimer */
+.delete-btn {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+   
+}
+.modifier{
+    background:linear-gradient(to right, #fad91d, #e7c012);
+    color: rgb(10, 10, 10);
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s;
+
+}
+
+.delete-btn ,.modifier:hover {
+    background: #cc0000;
+}
+.button1{
+    width:275px;
+    padding:10x;
+    height: 40px;
+    background-color: #ffd903;
+    margin-bottom: 20px;
+    margin-top: 10px;
+    border: 1px solid black;
+    border-radius: 20px;
+}
+/* Conteneur du formulaire (invisible par défaut) */
+.form-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgb(15, 15, 15);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    display: none; /* Caché par défaut */
+    z-index: 1000;
+    width: 800px;
+    height: 370px;
+    text-align: center;
+    border:1px solid yellow
+}
+
+/* Fond semi-transparent derrière le formulaire */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none; /* Caché par défaut */
+    z-index: 999;
+}
+
+/* Bouton de fermeture */
+.close-btn {
+    background: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    float: right;
+}
+form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: bisque;
+    
+}
+input{
+    margin-bottom: 18px;
+    width: 600px;
+    height: 37px;
+    border: 1px solid black;
+    background-color:white;
+    margin-right: 10px;
+    border-radius: 13px;
+}
+h3{
+    color:yellow;
+    font-size: 30px;
+}
+label{
+    margin-left: 18px;
+    padding:10px;
+    
+
+}
+.champ2{
+    margin-left: 17px;
+}
+.champ3{
+    margin-left: 50px;
+    
+    margin-bottom: 13px;
+}
+.image{
+    height:35px;
+}
+.ajouter{
+    background-color: #e7c012;
+    width: 250px;
+    padding: 10px;
+    border: 1px solid black;
+    border-radius: 13px;
+    margin-bottom: 20px;
+}
+
+
