@@ -7,7 +7,19 @@
     <title>Gestion des commandes</title>
     <link rel="stylesheet" href="{% static 'css/Plat-chef.css' %}"> 
     <style>
-      
+        /* You can add additional styles here if needed */
+        .en-attente {
+            color: rgb(223, 150, 14);
+            font-weight: bold;
+        }
+        .en-preparation {
+            color: blue;
+            font-weight: bold;
+        }
+        .pret {
+            color: green;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -45,94 +57,141 @@
 
 
     <script>
+        // Function to load all orders
         async function fetchCommandes() {
-            const response = await fetch('/menu/commandes/liste/');
-            const commandes = await response.json();
-            const tableBody = document.getElementById('commandeTable');
-            tableBody.innerHTML = '';
+            try {
+                const response = await fetch('/menu/commandes/liste/');
+                if (!response.ok) {
+                    throw new Error('Erreur lors du chargement des commandes');
+                }
+                const commandes = await response.json();
+                const tableBody = document.getElementById('commandeTable');
+                tableBody.innerHTML = '';
 
-            commandes.forEach(cmd => {
-                let row = `<tr>
-                    <td>${cmd.id} <br> <br>
+                commandes.forEach(cmd => {
+                    // Make sure to use the correct property name from your API response
+                    const status = cmd.statut || "En attente"; // Default to "En attente" if undefined
+                    
+                    let statusClass = "";
+                    if (status === "Prête") {
+                        statusClass = "pret";
+                    } else if (status === "En cours de préparation") {
+                        statusClass = "en-preparation";
+                    } else {
+                        statusClass = "en-attente";
+                    }
 
-
-                        <button onclick="afficherDetails(${cmd.id})">Voir les plats</button></td>
-                    <td>
-                        <select id="statut-${cmd.id}" onchange="updateStatut(${cmd.id})">
-                            <option value="En cours de préparation" ${cmd.statut === "En cours de préparation" ? "selected" : ""}>En cours de préparation</option>
-                            <option value="Prête" ${cmd.statut === "Prête" ? "selected" : ""}>Prête</option>
-                             <option value="En attente" ${cmd.statut === "En attente" ? "selected" : ""}>En attente</option>
-
-                        </select>
-                        
-                    </td>
-                     <td>${cmd.temps}</td>
-                    <td class="${cmd.statut === 'Prête' ? 'pret' : cmd.statut === 'En préparation' ? 'en-preparation' : 'en-attente'}">
-    <span id="statut-text-${cmd.id}">${cmd.statut}</span>
-</td>
-
-                </tr>`;
-                tableBody.innerHTML += row;
-            });
-        }
-
-        async function updateStatut(commandeId) {
-            const newStatut = document.getElementById(`statut-${commandeId}`).value;
-            const response = await fetch(`/menu/commandes/update-statut/${commandeId}/`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ statut: newStatut })
-            });
-
-            if (response.ok) {
-                document.getElementById(`statut-text-${commandeId}`).textContent = newStatut;
-                document.getElementById(`statut-text-${commandeId}`).className = 
-    (newStatut === "Prête") 
-        ? "pret" 
-        : (newStatut === "En préparation") 
-            ? "en-preparation" 
-            : "en-attente";
-            } else {
-                alert("Erreur lors de la mise à jour");
+                    let row = `<tr>
+                        <td>${cmd.id} <br> <br>
+                            <button onclick="afficherDetails(${cmd.id})">Voir les plats</button>
+                        </td>
+                        <td>
+                            <select id="statut-${cmd.id}" onchange="updateStatut(${cmd.id})">
+                                <option value="En attente" ${status === "En attente" ? "selected" : ""}>En attente</option>
+                                <option value="En cours de préparation" ${status === "En cours de préparation" ? "selected" : ""}>En cours de préparation</option>
+                                <option value="Prête" ${status === "Prête" ? "selected" : ""}>Prête</option>
+                            </select>
+                        </td>
+                        <td>${cmd.temps}</td>
+                        <td class="${statusClass}">
+                            <span id="statut-text-${cmd.id}">${status}</span>
+                        </td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error("Erreur:", error);
+                alert("Une erreur est survenue lors du chargement des commandes");
             }
         }
 
-        fetchCommandes();
+        // Function to update order status
+        async function updateStatut(commandeId) {
+            try {
+                const newStatut = document.getElementById(`statut-${commandeId}`).value;
+                const response = await fetch(`/menu/commandes/update-statut/${commandeId}/`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ statut: newStatut })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la mise à jour du statut');
+                }
+
+                const result = await response.json();
+                
+                // Update the status text and class
+                const statusTextElement = document.getElementById(`statut-text-${commandeId}`);
+                statusTextElement.textContent = newStatut;
+                
+                // Reset class and apply the correct one
+                statusTextElement.parentElement.className = "";
+                if (newStatut === "Prête") {
+                    statusTextElement.parentElement.classList.add("pret");
+                } else if (newStatut === "En cours de préparation") {
+                    statusTextElement.parentElement.classList.add("en-preparation");
+                } else {
+                    statusTextElement.parentElement.classList.add("en-attente");
+                }
+                
+                console.log("Statut mis à jour avec succès:", result);
+            } catch (error) {
+                console.error("Erreur:", error);
+                alert("Erreur lors de la mise à jour du statut");
+            }
+        }
+
+        // Function to display order details
         function afficherDetails(id) {
-    fetch(`/menu/commande-details/${id}/`)
-        .then(res => res.json())
-        .then(data => {
-            const liste = document.getElementById("modal-liste-plats");
-            liste.innerHTML = "";
+            fetch(`/menu/commande-details/${id}/`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error('Erreur lors du chargement des détails');
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    const liste = document.getElementById("modal-liste-plats");
+                    liste.innerHTML = "";
 
-            data.plats.forEach(plat => {
-                let item = document.createElement("li");
-                item.textContent = `${plat.nom} (x${plat.quantite})`;
-                liste.appendChild(item);
-            });
-              // 🆕 Afficher le numéro de la commande dans le titre
-              const titre = document.getElementById("modal-titre");
-            titre.textContent = `${data.num_commande}`;
+                    data.plats.forEach(plat => {
+                        let item = document.createElement("li");
+                        item.textContent = `${plat.nom} (x${plat.quantite})`;
+                        liste.appendChild(item);
+                    });
+                      
+                    // Afficher le numéro de la commande dans le titre
+                    const titre = document.getElementById("modal-titre");
+                    titre.textContent = `Commande #${data.num_commande}`;
 
-            document.getElementById("modal").style.display = "block";
+                    document.getElementById("modal").style.display = "block";
+                })
+                .catch(error => {
+                    console.error("Erreur:", error);
+                    alert("Une erreur est survenue lors du chargement des détails");
+                });
+        }
+
+        function fermerModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById("modal");
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Load orders on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchCommandes();
+            
+            // Refresh orders every 30 seconds
+            setInterval(fetchCommandes, 30000);
         });
-}
-
-function fermerModal() {
-    document.getElementById("modal").style.display = "none";
-}
-
-// Optionnel : fermer la modale si on clique en dehors
-window.onclick = function(event) {
-    const modal = document.getElementById("modal");
-    if (event.target === modal) {
-        modal.style.display = "none";
-    }
-}
-
-// Charger automatiquement à l'ouverture
-window.onload = chargerCommandes;
     </script>
 
-</body>
-</html>
+</body></html>

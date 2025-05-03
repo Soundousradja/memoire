@@ -284,12 +284,48 @@ def Pagechef(request):
     return render(request, 'PagesMenu/chef.html')
 
 # ✅ Liste commandes
+# Updated views.py - liste_commandes function
 @login_required
 def liste_commandes(request):
     restaurant = get_restaurant_for_user(request.user)
-    commandes = Commande.objects.filter(restaurant=restaurant)
-    data = [{"id": cmd.id, "statut_preparation": cmd.statut, "temps": timesince(cmd.created_at) + " ago"} for cmd in commandes]
+    if restaurant:
+        commandes = Commande.objects.filter(restaurant=restaurant)
+    else:
+        commandes = Commande.objects.none()
+
+    data = [{
+        "id": cmd.id,
+        "statut": cmd.statut,  # Changed from statut_preparation to match your model field
+        "temps": timesince(cmd.created_at)
+    } for cmd in commandes]
+    restaurant = get_restaurant_for_user(request.user)
+    print("Restaurant associé à l'utilisateur :", restaurant)
+
     return JsonResponse(data, safe=False)
+
+# Updated update_statut_commande function
+@csrf_exempt
+@login_required
+def update_statut_commande(request, commande_id):
+    if request.method == "PUT":
+        try:
+            data = json.loads(request.body)
+            commande = Commande.objects.get(id=commande_id)
+            if "statut" in data:
+                # Validate that the status is one of the acceptable values
+                valid_statuses = ["En attente", "En cours de préparation", "Prête"]
+                if data["statut"] in valid_statuses:
+                    commande.statut = data["statut"]
+                    commande.save()
+                    return JsonResponse({"message": "Statut mis à jour", "nouveau_statut": commande.statut}, status=200)
+                else:
+                    return JsonResponse({"error": "Valeur de statut invalide"}, status=400)
+            else:
+                return JsonResponse({"error": "Champ 'statut' manquant"}, status=400)
+        except Commande.DoesNotExist:
+            return JsonResponse({"error": "Commande non trouvée"}, status=404)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Format JSON invalide"}, status=400)
 
 # ✅ Menu chef
 @login_required
@@ -319,21 +355,6 @@ def plat_chef(request):
         'plats': plats
     })
 # ✅ Update statut commande
-@csrf_exempt
-@login_required
-def update_statut_commande(request, commande_id):
-    if request.method == "PUT":
-        try:
-            data = json.loads(request.body)
-            commande = Commande.objects.get(id=commande_id)
-            if "statut" in data:
-                commande.statut = data["statut"]
-                commande.save()
-                return JsonResponse({"message": "Statut mis à jour", "nouveau_statut": commande.statut}, status=200)
-            else:
-                return JsonResponse({"error": "Champ 'statut' manquant"}, status=400)
-        except Commande.DoesNotExist:
-            return JsonResponse({"error": "Commande non trouvée"}, status=404)
 
 # ✅ Détail commande
 @login_required

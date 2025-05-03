@@ -382,9 +382,11 @@ def serveur_interface(request):
 
 @login_required
 def chef_interface(request):
-    if not request.user.is_staff or not request.user.groups.filter(name='Chef').exists():
+    if not request.user.is_staff or request.user.role != 'chef':
         return redirect('access_denied')
-    return render(request, 'PagesMenu/chef.html')        # Create this template
+
+    restaurant = request.user.restaurant
+    return render(request, 'PagesMenu/chef.html', {'restaurant': restaurant})        # Create this template
 
 @login_required
 def fournisseur_interface(request):
@@ -557,6 +559,8 @@ def sync_existing_users():
 def get_restaurant_for_user(user):
     if hasattr(user, 'admin_profile') and user.admin_profile:
         return user.admin_profile.restaurant
+    elif hasattr(user, 'restaurant') and user.restaurant:
+        return user.restaurant
     return None
 
 
