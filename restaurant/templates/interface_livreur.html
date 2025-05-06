@@ -298,10 +298,10 @@
             <h2>Informations du Livreur</h2>
             <div class="commande-details">
                 <div class="commande-field">
-                    <span>Nom:</span> {{ livreur.nom_livr }}
+                    <span>Nom:</span> {{ livreur_name }}
                 </div>
                 <div class="commande-field">
-                    <span>ID Livreur:</span> {{ livreur.id_livr }}
+                    <span>ID Livreur:</span> {{ livreur_id }}
                 </div>
             </div>
         </div>
@@ -431,7 +431,7 @@
                             <span>Téléphone:</span> ${commande.telephone}
                         </div>
                         <div class="commande-field">
-                            <span>Restaurant:</span> ${commande.restaurant || 'Non spécifié'}
+                            <span>Restaurant:</span> ${commande.restaurant.name || 'Non spécifié'}
                         </div>
                         <div class="commande-field">
                             <span>Date:</span> ${new Date(commande.created_at).toLocaleString()}

@@ -13,6 +13,8 @@ from home.models import Offre
 from django.utils.timezone import now
 from django.contrib import messages
 from django.shortcuts import render
+
+from home.views import get_restaurant_for_user
 from .models import Categorie, Evaluation, Plat
 from .models import Reservation, Table,Commande,CommandePlat
 from django.http import HttpResponse
@@ -28,29 +30,32 @@ def acceuil(request):
 #Menu
 
 def menu_view(request):
-    # Récupérer tous les restaurants
+    today = date.today()
     restaurants = Restaurant.objects.all()
-    
-    # Récupérer l'ID du restaurant sélectionné
     restaurant_id = request.GET.get('restaurant')
-    
-    # Pour tous les restaurants, afficher toutes les catégories et tous les plats
-    # indépendamment du restaurant sélectionné
+
+    categories = Categorie.objects.all()
+    plats = Plat.objects.none()
+
     if restaurant_id:
-        # Récupérer toutes les catégories disponibles
-        categories = Categorie.objects.all()
-        
-        # Récupérer tous les plats disponibles
-        plats = Plat.objects.filter(is_available=True)
-        
-        # Filtrer par catégorie si spécifiée
         categorie_id = request.GET.get('categorie')
+
+        # Filtrer HistoriquePlat pour aujourd'hui, le restaurant sélectionné et quantité > 0
+        historique_qs = HistoriquePlat.objects.filter(
+            date=today,
+            quantite__gt=0,
+            restaurant_id=restaurant_id
+        )
+
+        # Optionnel : filtrer par catégorie si précisée
         if categorie_id:
-            plats = plats.filter(categorie_id=categorie_id)
-    else:
-        # Si aucun restaurant n'est sélectionné, afficher toutes les catégories et aucun plat
-        categories = Categorie.objects.all()
-        plats = Plat.objects.none()
+            historique_qs = historique_qs.filter(plat__categorie_id=categorie_id)
+
+        # Obtenir les plats correspondants
+        plats = Plat.objects.filter(
+            id__in=historique_qs.values_list('plat_id', flat=True),
+            is_available=True
+        )
 
     return render(request, 'menu.html', {
         'restaurants': restaurants,
@@ -615,82 +620,103 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 import json
 
+@login_required
 def interface_livreur(request):
-    """
-    Vue principale pour l'interface du livreur.
-    """
-    livreur_id = request.GET.get('livreur_id', 1)  # Default to ID 1
+    if not request.user.is_authenticated or request.user.role != 'livreur':
+        return redirect('access_denied')
+        
+    # Récupérer les informations du livreur connecté
+    livreur_user = request.user
+    restaurant = livreur_user.restaurant
+    restaurant_name = restaurant.name if restaurant else "Non assigné"
     
+    # Récupérer ou créer l'objet Livreur correspondant
     try:
-        livreur = Livreur.objects.get(id_livr=livreur_id)
+        livreur = Livreur.objects.get(id_livr=livreur_user.id)
     except Livreur.DoesNotExist:
-        # If no livreur exists with this ID, create one for testing
         livreur = Livreur.objects.create(
-            nom_livr="Test Livreur",
+            id_livr=livreur_user.id,
+            nom_livr=f"{livreur_user.first_name} {livreur_user.last_name}" if livreur_user.first_name else livreur_user.username,
             statut_dispo=True
         )
     
     context = {
         'livreur': livreur,
+        'livreur_name': f"{livreur_user.first_name} {livreur_user.last_name}" if livreur_user.first_name else livreur_user.username,
+        'livreur_id': livreur_user.id,
+        'restaurant': restaurant,
+        'restaurant_name': restaurant_name
     }
     
     return render(request, 'interface_livreur.html', context)
-
+@login_required
 def get_commandes(request):
     livreur_id = request.GET.get('livreur_id')
     status_filter = request.GET.get('status', 'all')
-    
-    # Commandes prêtes à livrer (non assignées)
-    commandes_pretes = Commande.objects.filter(statut='Prête')
-    
-    # Commandes en cours pour ce livreur
+
+    # Obtenir le restaurant lié à l'utilisateur connecté
+    restaurant = get_restaurant_for_user(request.user)
+    if not restaurant:
+        return JsonResponse({'error': 'Aucun restaurant associé.'}, status=403)
+
+    # Commandes prêtes à livrer (non assignées), pour ce restaurant uniquement
+    commandes_pretes = Commande.objects.filter(statut='Prête', restaurant=restaurant)
+
+    # Commandes déjà assignées au livreur dans ce restaurant
     mes_livraisons = []
     if livreur_id:
         mes_livraisons = Livraison.objects.filter(
-            id_livr_id=livreur_id
+            id_livr_id=livreur_id,
+            id_cmd__restaurant=restaurant
         ).select_related('id_cmd')
-    
+
     result = []
-    
-    # Ajouter les commandes prêtes à livrer
+
+    # Ajouter les commandes prêtes
     if status_filter in ['all', 'ready']:
         for commande in commandes_pretes:
             result.append({
-                'id': commande.id,  # Changed from id_cmd to id
+                'id': commande.id,
                 'client': commande.client.username if commande.client else "Client inconnu",
                 'adresse': commande.adresse,
                 'telephone': commande.telephone,
-                'restaurant': commande.restaurant,
+                'restaurant': {
+                    'id': commande.restaurant.id,
+                    'name': commande.restaurant.name
+                },
                 'date': commande.date.strftime("%Y-%m-%d %H:%M"),
                 'statut': commande.statut,
                 'mode_paiement': commande.mode_paiement,
                 'prix_total': str(commande.calculer_prix_total()),
             })
-    
-    # Ajouter les commandes en cours de livraison par ce livreur
+
+    # Ajouter les commandes en cours / livrées
     if status_filter in ['all', 'inprogress', 'delivered']:
         for livraison in mes_livraisons:
             commande = livraison.id_cmd
-            
-            # Filtrer par statut si nécessaire
+
+            # Filtrage selon état
             if status_filter == 'inprogress' and livraison.etat_livraison != 'en_cours':
                 continue
             if status_filter == 'delivered' and livraison.etat_livraison != 'livree':
                 continue
-                
+
             result.append({
-                'id': commande.id,  # Changed from id_cmd to id
+                'id': commande.id,
                 'client': commande.client.username if commande.client else "Client inconnu",
                 'adresse': commande.adresse,
                 'telephone': commande.telephone,
-                'restaurant': commande.restaurant,
+                'restaurant': {
+                    'id': commande.restaurant.id,
+                    'name': commande.restaurant.name
+                },
                 'date': commande.date.strftime("%Y-%m-%d %H:%M"),
                 'statut': livraison.etat_livraison,
                 'mode_paiement': commande.mode_paiement,
                 'prix_total': str(commande.calculer_prix_total()),
                 'livraison_id': livraison.id,
             })
-    
+
     return JsonResponse({'commandes': result})
 
 @csrf_exempt

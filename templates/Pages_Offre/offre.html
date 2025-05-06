@@ -656,74 +656,137 @@
                 });
         }
 -
-        // Fonction pour modifier une offre
-        function modifierOffre(id) {
-            // Récupérer les détails de l'offre pour préremplir le formulaire
-            fetch(`/afficher/`)
-                .then(response => response.json())
-                .then(data => {
-                    const offre = data.offres.find(o => o.id === id);
-                    if (!offre) {
-                        alert("Offre non trouvée !");
-                        return;
-                    }
-                    
-                    // Mettre à jour le titre et le bouton du formulaire
-                    document.getElementById("formTitle").textContent = "Modifier l'offre";
-                    document.getElementById("submitOffre").textContent = "Enregistrer les modifications";
-                    
-                    // Préremplir le formulaire avec les données de l'offre
-                    document.getElementById("offreId").value = offre.id;
-                    document.getElementById("NomOffre").value = offre.Nom_Offre || '';
-                    document.getElementById("Debut").value = offre.Date_Debut || '';
-                    document.getElementById("fin").value = offre.Date_Fin || '';
-                    
-                    // Changer la fonction du bouton submit pour appeler sauvegarderModifications
-                    document.getElementById("submitOffre").onclick = sauvegarderModifications;
-                    
-                    // Afficher le formulaire
-                    toggleForm();
-                })
-                .catch(error => console.error('Erreur:', error));
-        }
-
-        // Fonction pour enregistrer les modifications d'une offre
-        function sauvegarderModifications() {
-            const offreId = document.getElementById("offreId").value;
-            if (!offreId) {
-                alert("Erreur: ID de l'offre manquant!");
+        // Fonction pour modifier une offre - version améliorée
+// Fonction pour modifier une offre - version corrigée
+function modifierOffre(id) {
+    console.log("Début de modification pour l'offre ID:", id);
+    
+    // Récupérer les détails de l'offre pour préremplir le formulaire
+    fetch('/afficher/')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erreur lors de la récupération des données (${response.status})`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Données reçues:", data);
+            // Recherche de l'offre avec l'ID correspondant
+            const offre = data.offres.find(o => o.id === id);
+            if (!offre) {
+                alert("Offre non trouvée !");
                 return;
             }
             
-            let formData = new FormData();
-            formData.append("Nom_Offre", document.getElementById("NomOffre").value);
-            formData.append("Date_Debut", document.getElementById("Debut").value);
-            formData.append("Date_Fin", document.getElementById("fin").value);
+            console.log("Offre à modifier:", offre);
             
-            let imageInput = document.getElementById("image").files[0];
-            if (imageInput) {
-                formData.append("image", imageInput);
+            // Mettre à jour le titre et le bouton du formulaire
+            document.getElementById("formTitle").textContent = "Modifier l'offre";
+            document.getElementById("submitOffre").textContent = "Enregistrer les modifications";
+            
+            // Préremplir le formulaire avec les données de l'offre
+            document.getElementById("offreId").value = offre.id;
+            document.getElementById("NomOffre").value = offre.Nom_Offre || '';
+            
+            // Formater les dates si elles existent (YYYY-MM-DD)
+            if (offre.Date_Debut) {
+                document.getElementById("Debut").value = formatDate(offre.Date_Debut);
+            }
+            if (offre.Date_Fin) {
+                document.getElementById("fin").value = formatDate(offre.Date_Fin);
             }
             
-            fetch(`/modifier_offre/${offreId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCSRFToken()
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Offre modifiée avec succès !");
-                    toggleForm();
-                    afficheroffre();  // Rafraîchir la liste des offres
-                } else {
-                    alert("Erreur : " + data.error);
-                }
-            })
-            .catch(error => console.error('Erreur:', error));
+            // Changer la fonction du bouton submit pour appeler sauvegarderModifications
+            document.getElementById("submitOffre").onclick = sauvegarderModifications;
+            
+            // Afficher le formulaire
+            toggleForm();
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert(`Une erreur s'est produite lors de la récupération des données de l'offre: ${error.message}`);
+        });
+}
+
+// Fonction utilitaire pour formater les dates
+function formatDate(dateString) {
+    // Si la date est déjà au format YYYY-MM-DD, on la retourne telle quelle
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+        return dateString;
+    }
+    
+    // Sinon, on essaie de la convertir
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            return ''; // Date invalide
         }
+        
+        // Format YYYY-MM-DD pour l'élément input type="date"
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    } catch (e) {
+        console.error("Erreur de formatage de date:", e);
+        return '';
+    }
+}
+
+// Fonction pour enregistrer les modifications d'une offre
+function sauvegarderModifications() {
+    const offreId = document.getElementById("offreId").value;
+    if (!offreId) {
+        alert("Erreur: ID de l'offre manquant!");
+        return;
+    }
+    
+    let formData = new FormData();
+    formData.append("Nom_Offre", document.getElementById("NomOffre").value);
+    formData.append("Date_Debut", document.getElementById("Debut").value);
+    formData.append("Date_Fin", document.getElementById("fin").value);
+    
+    let imageInput = document.getElementById("image").files[0];
+    if (imageInput) {
+        formData.append("image", imageInput);
+    }
+    
+    // Ajout du token CSRF explicitement
+    const csrftoken = getCSRFToken();
+    console.log("CSRF Token:", csrftoken ? "Présent" : "Manquant");
+    
+    console.log("Envoi de la requête de modification pour l'offre ID:", offreId);
+    console.log("URL:", `/modifier_offre/${offreId}/`);
+    
+    fetch(`/modifier_offre/${offreId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken
+        },
+        body: formData
+    })
+    .then(response => {
+        console.log("Statut de la réponse:", response.status);
+        if (!response.ok) {
+            throw new Error(`Erreur ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Réponse du serveur:", data);
+        if (data.success) {
+            alert("Offre modifiée avec succès !");
+            toggleForm();
+            afficheroffre();  // Rafraîchir la liste des offres
+        } else {
+            alert("Erreur : " + (data.error || "Une erreur inconnue s'est produite"));
+        }
+    })
+    .catch(error => {
+        console.error('Erreur détaillée:', error);
+        alert("Une erreur s'est produite lors de la modification de l'offre: " + error.message);
+    });
+}
 
         // Fonction pour supprimer une offre
         function supprimerOffre(id) {

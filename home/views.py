@@ -269,32 +269,60 @@ def supprimer_offre(request, offre_id):
 def modifier_offre(request, id):
     try:
         offre = Offre.objects.get(id=id)
+        
         if request.method == 'POST':
+            # Récupération des données du formulaire
             nom_offre = request.POST.get('Nom_Offre')
             date_debut_str = request.POST.get('Date_Debut')
             date_fin_str = request.POST.get('Date_Fin')
             
-            date_debut = datetime.strptime(date_debut_str, '%Y-%m-%d').date() if date_debut_str else None
-            date_fin = datetime.strptime(date_fin_str, '%Y-%m-%d').date() if date_fin_str else None
+            # Validation des données
+            if not nom_offre:
+                return JsonResponse({"success": False, "error": "Le nom de l'offre est requis."}, status=400)
             
+            if not date_debut_str or not date_fin_str:
+                return JsonResponse({"success": False, "error": "Les dates de début et de fin sont requises."}, status=400)
+            
+            try:
+                date_debut = datetime.strptime(date_debut_str, '%Y-%m-%d').date()
+                date_fin = datetime.strptime(date_fin_str, '%Y-%m-%d').date()
+            except ValueError:
+                return JsonResponse({"success": False, "error": "Format de date invalide. Utilisez YYYY-MM-DD."}, status=400)
+            
+            # Mise à jour de l'offre
             offre.Nom_Offre = nom_offre
-            offre.Date_Debut = date_debut
+            offre.Date_Debut = date_debut 
             offre.Date_Fin = date_fin
-
+            
+            # Traitement de l'image si présente
             if 'image' in request.FILES:
                 offre.image = request.FILES['image']
-                
+            
+            # Sauvegarde (le statut sera mis à jour automatiquement via la méthode save)
             offre.save()
-            return JsonResponse({'success': True})
-
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Offre modifiée avec succès',
+                'offre': {
+                    'id': offre.id,
+                    'Nom_Offre': offre.Nom_Offre,
+                    'Date_Debut': offre.Date_Debut.strftime('%Y-%m-%d'),
+                    'Date_Fin': offre.Date_Fin.strftime('%Y-%m-%d'),
+                    'statut': offre.statut,
+                    'image': offre.image.url if offre.image else None
+                }
+            })
+        
         else:
-            return JsonResponse({"success": False, "error": "Méthode non autorisée."}, status=405)
-
+            return JsonResponse({"success": False, "error": "Méthode non autorisée. Utilisez POST."}, status=405)
+    
     except Offre.DoesNotExist:
-        return JsonResponse({"success": False, "error": "Offre introuvable."}, status=404)
+        return JsonResponse({"success": False, "error": f"Offre avec ID {id} introuvable."}, status=404)
+    
     except Exception as e:
+        print(f"Erreur lors de la modification de l'offre {id}: {str(e)}")  # Log pour le débogage
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
 #ta3 lamisse
 
 def login_view(request):
@@ -398,7 +426,8 @@ def fournisseur_interface(request):
 def livreur_interface(request):
     if not request.user.is_staff or not request.user.groups.filter(name='Livreur').exists():
         return redirect('access_denied')
-    return render(request, 'app/landing_page.html')    
+    restaurant = request.user.restaurant
+    return render(request, 'app/landing_page.html', {'restaurant': restaurant})    
 
 
 @login_required
