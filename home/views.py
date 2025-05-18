@@ -357,7 +357,7 @@ def determine_redirect_url(user):
     # Vérification par superuser, groupes et rôle
     if user.is_superuser:
         print("Redirecting to superadmin_interface")
-        return reverse('offre')
+        return reverse('supadmin')
     elif user.is_staff:
         if user.groups.filter(name='Admin').exists():
             print("Redirecting to gestion_admin")
@@ -394,7 +394,7 @@ def determine_redirect_url(user):
         return reverse('acceuil')
 @login_required
 def superadmin_interface(request):
-    return render(request, 'pages/index.html') # Create this template
+    return render(request, 'app/supadmin.html') # Create this template
 
 @staff_member_required
 def admin_interface(request):

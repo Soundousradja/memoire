@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -84,6 +85,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             border: none;
             cursor: pointer;
+            margin-right: 10px;
         }
         
         .btn-livreur:hover {
@@ -97,6 +99,32 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
+        .btn-logout {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: transparent;
+            color: #f5a623;
+            border: 2px solid #f5a623;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-logout:hover {
+            background-color: #f5a623;
+            color: white;
+            box-shadow: 0 0 15px rgba(245, 166, 35, 0.5);
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
         @media (max-width: 768px) {
             h1 {
                 font-size: 2.5rem;
@@ -106,7 +134,7 @@
                 font-size: 1rem;
             }
             
-            .btn-livreur {
+            .btn-livreur, .btn-logout {
                 font-size: 1rem;
                 padding: 12px 24px;
             }
@@ -114,6 +142,12 @@
             .logo-img {
                 height: 40px;
             }
+            
+            .btn-logout {
+                padding: 6px 12px;
+
+
+}
         }
         
         @media (max-width: 480px) {
@@ -133,11 +167,15 @@
             <img src="{% static 'image/logo_transparent.png' %}" alt="THE LFS SPOT Logo" class="logo-img">
         </div>
         
+        <a href="{% url 'login' %}" class="btn-logout">Déconnexion</a>
+        
         <div class="content">
             <div class="brand-name">Bienvenue au THE LFS SPOT</div>
            
             <p>Notre équipe de livreurs professionnels est prête à apporter vos commandes à votre porte rapidement et en toute sécurité.</p>
-            <a href="/restaurant/interface-livreur/" class="btn-livreur">Accéder à l'interface Livreur</a>
+            <div class="button-container">
+                <a href="/restaurant/interface-livreur/" class="btn-livreur">Accéder à l'interface Livreur</a>
+            </div>
         </div>
     </div>
 </body>

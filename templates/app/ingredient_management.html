@@ -1,3 +1,4 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="fr">
@@ -9,7 +10,7 @@
     <script src="{% static 'js/ing.js' %}"></script>
     <style>
         body {
-    background: url('/static/images/exemple.jpg') no-repeat center center fixed;
+    background-color: aliceblue;
     background-size: cover;
     color: white;
     font-family: Arial, sans-serif;
@@ -127,7 +128,7 @@ h2 {
     padding: 10px 20px;
 }
 
-/* New logout button styling */
+/* Logout button styling */
 .logout-btn {
     position: absolute;
     top: 20px;
@@ -151,27 +152,54 @@ h2 {
     color: black;
     box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
 }
+
+/* Back button styling */
+.back-btn {
+    position: absolute;
+    top: 120px; /* Positioned below the logo */
+    left: 20px; /* Aligned with the logo */
+    background-color: transparent;
+    color: rgb(211, 150, 38);
+    border: 2px solid rgb(211, 150, 38);
+    padding: 6px 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 8px;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 12px;
+    width: 120px; /* Smaller width */
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.back-btn:hover {
+    background-color: rgb(211, 150, 38);
+    color: black;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
     </style>
 
+
 </head>
-<body >
-    <img src="{% static 'images/logo_transparent.png'%}" alt="Delivery Manager" class="logo " style="position: absolute;
+<body>
+    <img src="{% static 'images/logo_transparent.png'%}" alt="Delivery Manager" class="logo" style="position: absolute;
     top: 20px;
     left: 20px;
-    max-width: 180px;
-
-">
+    max-width: 180px;">
+    
+    <!-- Added Back Button -->
+    <a href="{% url 'supadmin' %}" class="back-btn">Retour</a>
+    
     <div class="container" style="top: 150px;">
-     
-            <div class="ingredient-box">
-                <!-- Loop through ingredients and display them as buttons -->
-                {% for ingredient in ingredients %}
-                    <button class="ingredient">{{ ingredient.name }}</button>
-                    
-                {% endfor %}
-                <button class="add-btn">+</button>
-            </div>
-           
+        <div class="ingredient-box">
+            <!-- Loop through ingredients and display them as buttons -->
+            {% for ingredient in ingredients %}
+                <button class="ingredient">{{ ingredient.name }}</button>
+            {% endfor %}
+            <button class="add-btn">+</button>
         </div>
     </div>
 </body>

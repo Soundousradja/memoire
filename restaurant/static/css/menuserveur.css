@@ -14,13 +14,18 @@ header{
 }
 .sortie{
     position: absolute;
-    position: absolute;
-   left: 1220px;
+  top:2px;
+   left: 20px;
 }
-.sortie img{
+.sortie button{
     cursor: pointer;
+    background-color: black;
+    color: #f5b041;
+    border-radius: 10px;
+    width: 100px;
     
- }
+
+}
 
 .container {
     display: flex;

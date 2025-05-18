@@ -1,4 +1,6 @@
+
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +16,7 @@
             {% if plat.image %}
                 <img src="{{ plat.image.url }}" alt="{{ plat.name }}">
             {% else %}
-                <img src="{% static 'image/pizzamenu.jpg' %} " alt="Image non disponible">
+                <img src="{% static 'image/pizzamenu.jpg' %}" alt="Image non disponible">
             {% endif %}
             <h3>{{ plat.name }}</h3>
             <p>{{ plat.description }}</p>
@@ -23,21 +25,29 @@
                 <span style="color: red; font-weight: bold;">(Indisponible)</span>
             {% endif %}
             <div class="add-button">
-                <button class="add-btn" 
-                data-id="{{ plat.id }}" 
-                data-nom="{{ plat.name }}" 
-                data-prix="{{ plat.price}}" 
-                {% if not plat.is_available %}disabled{% endif %}>
-                +
-            </button>
+                {% if user.is_authenticated %}
+                    <button class="add-btn"
+                     data-id="{{ plat.id }}"
+                     data-nom="{{ plat.name }}"
+                     data-prix="{{ plat.price }}"
+                     {% if not plat.is_available %}disabled{% endif %}>
+                    +
+                    </button>
+                {% else %}
+                    <button class="login-btn"
+                     onclick="window.location.href='http://127.0.0.1:8000/login'"
+                     {% if not plat.is_available %}disabled{% endif %}>
+                    +
+                    </button>
+                {% endif %}
             </div>
         </div>
     {% endfor %}
-{% else %}
+    {% else %}
     <div class="no-plats">
         <p>Aucun plat disponible pour le moment.</p>
     </div>
-{% endif %}
+    {% endif %}
 
 </body>
 </html>

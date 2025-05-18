@@ -9,19 +9,20 @@
 </head>
 <body>
     <header>
-        <nav>
-            <ul>
-                <li><a href="http://127.0.0.1:8000/restaurant/">Accueil</a></li> 
-                <li><a href="http://127.0.0.1:8000/restaurant/M">Menu</a></li>
-                <li><a href="http://127.0.0.1:8000/restaurant/R">Réservation</a></li> 
-              <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
-              <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre Promo</a></li>
-              <li><a href="/panier/" id="cart-icon">
-                <img src="{% static 'image/paniers.png' %}" alt=""style="width: 20px; color:yellow;">
-                <span id="cart-count">0</span>
-              </a></li>
-            </ul>
-        </nav>
+        <img src="{% static 'image/logo.png' %}" alt="" class="logo">
+    <nav>
+        <ul>
+            <li><a href="http://127.0.0.1:8000/restaurant/">Accueil</a></li> 
+            <li><a href="http://127.0.0.1:8000/restaurant/M">Menu</a></li>
+            <li><a href="http://127.0.0.1:8000/restaurant/R">Réservation</a></li> 
+          <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
+          <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre Promo</a></li>
+          <li><a href="/restaurant/panier/" id="cart-icon">
+            <img src="{% static 'image/paniers.png' %}" alt=""style="width: 20px; color:yellow;">
+            <span id="cart-count">0</span>
+          </a></li>
+        </ul>
+    </nav>
     </header>
     <div class="container">
         <h2 class="text-center">Nos offres spéciales</h2>
@@ -54,5 +55,37 @@
             </div>
         {% endif %}
     </div>
+
+      <footer>
+        <div class="footer-container">
+            <img src="{% static 'image/logo.png' %}" alt="" class="logof">
+            <div class="footer-section">
+                <h3>Navigation</h3>
+                <ul class="footer-links">
+                    <li><a href="http://127.0.0.1:8000/restaurant/">Accueil</a></li> 
+          <li><a href="http://127.0.0.1:8000/restaurant/M">Menu</a></li>
+          <li><a href="http://127.0.0.1:8000/restaurant/R">Réservation</a></li> 
+          <li><a href="http://127.0.0.1:8000/restaurant/historique/">Historique</a></li>
+          <li><a href="http://127.0.0.1:8000/restaurant/offres/">Offre </a></li>
+                    
+                </ul>
+            </div>
+    
+            
+            <div class="footer-section">
+                <h3>Suivez-nous</h3>
+                <div class="social-icons">
+                    <a href="#"><img src="{% static 'image/facebook.png' %}" alt="Facebook"></a>
+                    <a href="#"><img src="{% static 'image/instagram.png' %}" alt="Instagram"></a>
+                    <a href="#"><img src="{% static 'image/twitter.png' %}" alt="Twitter"></a>
+                </div>
+            </div>
+        </div>
+        <p class="footer-bottom">© 2025 The LFS Spot Restaurant. Tous droits réservés.</p>
+    </footer>
+    
+
+
 </body>
+
 </html>

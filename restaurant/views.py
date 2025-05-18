@@ -792,20 +792,57 @@ def mark_as_delivered(request):
     
     try:
         data = json.loads(request.body)
-        livraison_id = data.get('livraison_id')
+        commande_id = data.get('commande_id')
+        livreur_id = data.get('livreur_id')
         
-        livraison = get_object_or_404(Livraison, id=livraison_id)
+        print(f"Debug - Mark as delivered: commande_id={commande_id}, livreur_id={livreur_id}")
         
-        # Vérifier que la livraison est en cours
-        if livraison.etat_livraison != 'en_cours':
-            return JsonResponse({'success': False, 'error': 'Cette livraison n\'est pas en cours'}, status=400)
+        if not commande_id or not livreur_id:
+            return JsonResponse({'success': False, 'error': 'commande_id et livreur_id sont requis'}, status=400)
         
-        # Marquer comme livrée
+        # Find the command
+        try:
+            commande = Commande.objects.get(id=commande_id)
+            print(f"Debug - Found commande: {commande.id}, current status: {commande.statut}")
+        except Commande.DoesNotExist:
+            return JsonResponse({'success': False, 'error': f'Commande {commande_id} non trouvée'}, status=404)
+        
+        # Find the livraison
+        try:
+            livraison = Livraison.objects.filter(
+                id_cmd_id=commande_id,
+                id_livr_id=livreur_id
+            ).first()
+            
+            if not livraison:
+                # If no livraison exists, try to create one
+                livreur = Livreur.objects.get(id_livr=livreur_id)
+                livraison = Livraison.objects.create(
+                    id_livr=livreur,
+                    id_cmd=commande,
+                    etat_livraison='en_cours ',
+                    adresse=commande.adresse,
+                    date=timezone.now()
+                )
+                print(f"Debug - Created new livraison: {livraison.id}")
+            else:
+                print(f"Debug - Found livraison: {livraison.id}, current status: {livraison.etat_livraison}")
+            
+        except Exception as e:
+            print(f"Error finding livraison: {str(e)}")
+            return JsonResponse({'success': False, 'error': f'Erreur lors de la recherche de la livraison: {str(e)}'}, status=500)
+        
+        # Update using the model's method for consistency
         livraison.mark_as_delivered()
+        print(f"Debug - Updated livraison status to: {livraison.etat_livraison}")
+        print(f"Debug - Updated commande status to: {livraison.id_cmd.statut}")
         
         return JsonResponse({'success': True})
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+        import traceback
+        print(f"Exception in mark_as_delivered: {str(e)}")
+        print(traceback.format_exc())
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @csrf_exempt
 def refuse_delivery(request):

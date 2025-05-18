@@ -1,3 +1,4 @@
+
 {% load static %}
 
 <!DOCTYPE html>
@@ -151,43 +152,41 @@ body {
     font-size: 18px;
 }
 
-.back-button {
-    margin-bottom: 1.5rem;
-    background-color: white;
-    padding: 10px;
-    height: 34px;
+/* Updated back button styling */
+.back-btn {
     position: absolute;
-    left: 10px;
     top: 10px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.back-button:hover {
-    background-color: #7f8c8d;
-}
-    .back-btn {
-    margin-bottom: 1.5rem !important;
-    background-color: white !important;
-    padding: 10px !important;
-    height: 34px !important;
-    position: absolute !important;
-    left: 10px !important;
-    border-radius: 10px !important;
+    left: 10px;
+    background-color: transparent;
+    color: rgb(211, 150, 38);
+    border: 2px solid rgb(211, 150, 38);
+    padding: 6px 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 8px;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 12px;
+    width: 120px;
+    text-align: center;
+    box-sizing: border-box;
 }
 
 .back-btn:hover {
-    background-color: orange !important;
+    background-color: rgb(211, 150, 38);
+    color: black;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
 }
     </style>
+
 
 </head>
 <body>
     <div class="header">Les Admins</div>
     
-    <button class="back-btn" onclick="window.location.href='{% url 'supadmin' %}'">Retour à l'accueil</button>
+    <a href="{% url 'supadmin' %}" class="back-btn">Retour</a>
     
     <div class="admin-container" id="adminContainer">
         {% for admin in admins %}
@@ -231,7 +230,7 @@ body {
         if (confirm("Voulez-vous vraiment supprimer cet Admin ?")) {
             console.log("Deleting admin with ID:", adminId);
             
-            fetch(`/super/supprimer_admin/${adminId}/`, {
+            fetch(/super/supprimer_admin/${adminId}/, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -11,20 +11,20 @@ from mémoir import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-class Client(AbstractUser):
-    phone = models.CharField(max_length=15, unique=True)
-    address = models.TextField()
+# class Client(AbstractUser):
+#     phone = models.CharField(max_length=15, unique=True)
+#     address = models.TextField()
    
-    groups = models.ManyToManyField(
-        'auth.Group', 
-        related_name='client_set',  
-        blank=True
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission', 
-        related_name='client_permissions', 
-        blank=True
-    )
+#     groups = models.ManyToManyField(
+#         'auth.Group', 
+#         related_name='client_set',  
+#         blank=True
+#     )
+#     user_permissions = models.ManyToManyField(
+#         'auth.Permission', 
+#         related_name='client_permissions', 
+#         blank=True
+#     )
 
 
 

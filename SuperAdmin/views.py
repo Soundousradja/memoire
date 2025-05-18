@@ -552,6 +552,7 @@ from datetime import datetime
 
 from decimal import Decimal
 
+
 def tableau_ventes(request):
     # Récupérer toutes les dépenses sans filtrage
     depenses = Depense.objects.all()
@@ -598,13 +599,13 @@ def tableau_ventes(request):
             .filter-box label {{
                 margin-right: 10px;
                 font-weight: bold;
-                color: #FFD700; /* Labels en jaune */
+                color: #c78c19; 
             }}
 
             .filter-box select, .filter-box input {{
                 padding: 8px 12px;
                 margin-right: 15px;
-                border: 2px solid #FFD700;
+                border: 2px solid  #c78c19;
                 border-radius: 4px;
                 background-color: #fff;
                 color: #222;
@@ -612,7 +613,7 @@ def tableau_ventes(request):
 
             .filter-box button {{
                 padding: 8px 20px;
-                background-color: #FFD700; /* Bouton jaune */
+                background-color: #c78c19; 
                 color: #222;
                 border: none;
                 border-radius: 4px;
@@ -685,11 +686,12 @@ def tableau_ventes(request):
             }}
 
             tr:nth-child(even) {{
-                background-color: #f9f9f9;
+                background-color:  #c78c19;
             }}
 
-            tr:hover {{
-                background-color: #fff9e0; /* Légère teinte jaune au survol */
+Lamisse Ntic, [18/05/2025 11:10]
+tr:hover {{
+                background-color:  #c78c19; /* Légère teinte jaune au survol */
             }}
 
             /* Couleurs pour les montants */
@@ -702,7 +704,7 @@ def tableau_ventes(request):
             }}
 
             .benefice {{
-                color: #FFD700;
+                color:  #c78c19;
                 font-weight: bold;
             }}
 
@@ -731,12 +733,15 @@ def tableau_ventes(request):
                     margin-right: 0;
                 }}
             }}
+            
         </style>
     </head>
     <body>
+    
         <h1>Tableau de Ventes</h1>
         
         <div class="filter-box">
+      <a href="/super/supadmin/" style="position: absolute; top: 10px; left: 10px; background-color: transparent; color: #c78c19; border: 2px solid #c78c19; padding: 6px 12px; font-weight: bold; cursor: pointer; transition: 0.3s; border-radius: 8px; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; font-size: 12px; width: 120px; text-align: center; box-sizing: border-box;" onmouseover="this.style.backgroundColor='#c78c19'; this.style.color='black'; this.style.boxShadow='0 0 15px rgba(199, 140, 25, 0.5)';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#c78c19'; this.style.boxShadow='none';">Retour</a>
             <form method="get">
                 <label for="restaurant">Restaurant:</label>
                 <select name="restaurant" id="restaurant">
@@ -797,7 +802,9 @@ def tableau_ventes(request):
                 formatted_date = str(dep.date)
                 
             html += f"""
-            <tr>
+
+Lamisse Ntic, [18/05/2025 11:10]
+<tr>
                 <td>{formatted_date}</td>
                 <td>{dep.produit}</td>
                 <td>{dep.prix} DA</td>
@@ -813,7 +820,6 @@ def tableau_ventes(request):
     """
     
     return HttpResponse(html)
-
     
  
 @login_required

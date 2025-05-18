@@ -116,6 +116,8 @@ h1 {
    left: 620px;
    font-size:40px ;
 }
+
+
 .body-text p{
     position: absolute;
     top: 1000px;
@@ -375,168 +377,6 @@ h1 {
     transition: transform 0.3s ease;
 }
 
-@media (max-width: 768px) {
-    .header-container img{
-        width:100%;
-    }
-    .header-text {
-        
-        font-size: 1rem;
-      }
-      nav {
-        top: 40px;
-        left: 380px;
-        width: 350px;
-        height: 30px;
-        font-size: 10px;
-     
-    }
-    .body-text h1 {
-        position: absolute;
-        top: 530px;
-        left: 360px;
-        font-size:25px ;
-     }
-     .body-text p{
-         position: absolute;
-         top: 570px;
-         left: 365px;
-         
-        font-size: 15px;
-        
-     }
-     .container1 h2 {
-        
-       
-        font-size: 1.5rem;
-        
-       
-    
-    }
-    .card {
-       
-        width: 150px;
-        height: 180px;
-        
-        
-    }
-    .container{
-        
-        
-        position: absolute;
-        top: 210%;
-        left: 10%;
-       
-    }
-    .icon img{
-        
-        width: 30px;
-    }
-    .card h3{
-        font-size: 12px;
-    }
-    .A1{
-        font-size: 10px;
-        margin-top: 15px;
-    }
-    .A{
-        font-size: 10px;
-      margin-top: 30px;
-    }
-    .plat h2{
-      margin-left: 315px;
-        font-size: 30px;
-       
-    }
-    .carousel-container {
-        width: 90%;
-    }
-    
-    .menu-item {
-        width: 150px;
-    }
-    .button{
-        width: 160px;
-    }
-    .voir{
-        margin-left: 300px;
-    }
-    .contact img{
-        width: 60%;
-    }
-    .over{
-        position: absolute;
-        left: 100px;
-        top: 3080px;
-        color: white;
-        font-size: 10px;
-        
-     
-     }
-    .contact h2{
-        margin-top: 250px;
-        font-size: 50px;
-    }
-   
-    .footer-container {
-        
-        
-        gap: 200px;
-       margin-left: 300px;
-      
-        
-    }
-    .logof{
-       
-
-
-        width: 500px;
-        height: 500px;
-      
-    }
-    
-    .footer-links{
-       font-size: 10px;
-      
-    }
-    .footer-bottom{
-        margin-top: 50px;
-        font-size: 12px;
-    }
-    .social-icons img{
-        display: block;
-        width: 20px;
-        height: 20px;
-        margin-top: 10px;
-        margin-left: 20px;
-    }
-    .footer-section h3{
-      font-size: 15px;
-    }
-    .social-icons a:hover{
-       transition: 0.5s;
-    }
-    footer {
-       
-       height: 200px;
-       margin-top: 80px;
-     
-    }
-    .over{
-        position: absolute;
-        left: 90px;
-        top: 2290px;
-        font-size: 13px;
-    }
-    .header-text input{
-       width: 150px;
-        font-size: 12px;
-       
-    
-    }
-
-}
-
 .user-menu {
     position: relative;
     display: inline-block;
@@ -598,3 +438,666 @@ h1 {
     margin-left: 10px;
     font-weight: bold;
 }
+
+
+/* Large Desktops (1200px and up) */
+@media (min-width: 1200px) {
+  .container {
+    
+  left: 8rem;
+  }
+  nav{
+     left: 35rem;
+  }
+  .header-text{
+    font-size: 25px;
+  }
+    header .logo{
+     width: 10rem;
+    height:5rem;
+    left: 2rem;
+   bottom: 20rem;
+    }
+    .plat h2{
+     margin-top: 18rem;
+    margin-left: 30.5rem;
+    }
+    .over{
+        top: 196rem;
+        left: 9rem;
+    }
+    .logof{
+         right: 60rem;
+    }
+    .footer-container{
+        margin-left: 33rem;
+        gap: 20rem;
+    }
+  .carousel-container {
+    max-width: 1140px;
+  }
+ 
+}
+
+/* Desktops (992px to 1199px) */
+@media (max-width: 1199px) {
+  header .logo {
+    right: 16rem;
+    bottom: 16rem;
+  }
+  nav{
+    left: 23rem;
+
+  }
+
+  
+ .header-text{
+    font-size: 23px;
+    top: 16rem;
+  }
+  .body-text h1 {
+ font-size:30px ;
+ top: 42rem;
+ left: 30rem;
+  }
+ .body-text p{
+   font-size: 20px;
+   left: 30rem;
+   top: 47rem;
+}
+  .container {
+  left: 3rem;
+  top: 90rem;
+  }
+
+   .plat h2{
+    
+    margin-left: 25rem;
+    }
+    .voir{
+  margin-left: 25rem;
+    }
+
+     .over{
+        top: 163rem;
+        left: 8rem;
+        font-size: 16px;
+    }
+     .logof{
+         right: 47rem;
+    }
+     .footer-container{
+        margin-left: 26rem;
+        gap: 16rem;
+    }
+    .fixed-nav {
+        width: 150%; 
+    }
+      .contact h2{
+       
+        font-size: 60px;
+    }
+}
+
+/* Tablets (768px to 991px) */
+@media (max-width: 991px) {
+  header .logo {
+    right: 12rem;
+    bottom: 13rem;
+    width: 150px;
+    height: 70px;
+  }
+
+  .header-text {
+    left: 35%;
+    font-size: 24px;
+  }
+
+  nav {
+   
+    left:20rem;
+    width: 50%;
+    height: 2rem;
+  }
+
+  ul li {
+    margin-right: 15px;
+  }
+
+ .header-text{
+    font-size: 17px;
+    left: 13rem;
+    top: 13rem;
+   
+  }
+  .body-text h1 {
+   font-size:23px ;
+   left: 24rem;
+   top: 34.5rem;
+  }
+
+  .body-text p {
+    font-size: 14px;
+    
+   left: 24rem;
+   top: 37rem;
+  }
+
+  .container1 h2 {
+    font-size: 1.5rem;
+  }
+
+  .card {
+    width: 160px;
+  }
+  .container {
+ left: 4rem;
+  top: 72rem;
+  }
+.plat h2{
+    margin-top: 10rem;
+    margin-left: 19rem;
+    font-size: 2rem;
+    }
+  .contact h2 {
+    font-size: 40px;
+  }
+ .voir{
+  margin-left: 19rem;
+    }
+.over{
+        top: 140rem;
+        left: 5rem;
+        font-size: 13.5px;
+    }
+    .logof{
+         right: 33rem;
+         height: 5rem;
+         width: 10rem;
+    }
+
+    .footer-container{
+        margin-left: 20rem;
+        gap: 13rem;
+    }
+}
+
+@media (max-width:990px) {
+    nav {
+    top: 50px;
+    width: 50%;
+    height: 40px;
+    left: 25rem;
+  } 
+    header .logo {
+    right: 15rem;
+   bottom: 18rem;
+   
+  }
+   .header-text {
+    top: 18rem;
+    left: 28%;
+    font-size: 19px;
+  }
+  .body-text h1 {
+   font-size:25px ;
+   left: 30rem;
+   top: 42rem;
+  }
+
+  .body-text p {
+    font-size: 17px;
+    
+   left: 30rem;
+   top: 45rem;
+  }
+   .card {
+    width: 180px;
+  }
+  .container {
+ left: 9rem;
+  top: 89rem;
+  }
+  .plat h2{
+    margin-top: 12rem;
+    margin-left: 25rem;
+    font-size: 2rem;
+    }
+     .voir{
+  margin-left: 24.5rem;
+    }
+
+     .over{
+        top: 161rem;
+        left: 8rem;
+        font-size: 16px;
+    }
+     .logof{
+         right: 47rem;
+    }
+     .footer-container{
+        margin-left: 26rem;
+        gap: 16rem;
+    }
+    .fixed-nav {
+        width: 150%; 
+    }
+}
+/* Small Tablets and Large Phones (576px to 767px) */
+@media (max-width: 767px) {
+  header .logo {
+    right: 6rem;
+    bottom: 11rem;
+    width: 130px;
+    height: 60px;
+    
+  }
+
+  .header-text {
+    font-size: 12px;
+    left: 9.5rem;
+    top: 11rem;
+   
+  }
+
+  .header-text input {
+    font-size: 14px;
+    padding: 5px 15px;
+  }
+
+  nav {
+    top: 30px;
+    left: 13rem;
+    width: 21.5rem;
+    height: 35px;
+  }
+
+  ul li {
+    margin-right: 8px;
+    font-size: 12px;
+  }
+
+  .body-text h1 {
+   font-size:20px ;
+   left: 17rem;
+   top: 25rem;
+  }
+
+  .body-text p {
+    font-size: 10px;
+    
+   left: 17rem;
+   top: 27rem;
+  }
+
+  .container1 h2 {
+    font-size: 1.5rem;
+  }
+
+  .card {
+    width: 130px;
+     height: 260px;
+  }
+  .container {
+    
+ left: 0.5rem;
+  top: 55rem;
+  }
+.voir{
+  margin-left: 13rem;
+    }
+ 
+  .plat h2 {
+   margin-top: 17rem;
+    margin-left: 13rem;
+    font-size: 2rem;
+  }
+
+ 
+
+  .over{
+        top: 130rem;
+        left: 5rem;
+        font-size: 11px;
+    }
+    .logof{
+         right: 33rem;
+         height: 5rem;
+         width: 10rem;
+    }
+
+    .footer-container{
+        margin-left: 20rem;
+        gap: 13rem;
+    }
+}
+
+
+@media (max-width: 575.33px) {
+ 
+  
+
+
+ 
+ 
+  header .logo {
+   right: 6rem;
+    
+  }
+.user-avatar{
+  width: 28px;
+  height: 28px;
+}
+
+
+  .header-text h1 {
+    font-size: 22px;
+  }
+
+  .header-text p {
+    font-size: 12px;
+  }
+
+  .header-text input {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+ 
+
+
+  .body-text h1 {
+    font-size: 1rem;
+  }
+
+  .body-text p {
+    font-size: 10px;
+  }
+
+  .container1 h2 {
+    font-size: 1.1rem;
+    
+  }
+
+  .container {
+    display: flex;
+    
+  
+
+  }
+
+  .card {
+    width: 25%;
+    padding: 15px;
+    
+  }
+.card p{
+  font-size: 0.7rem;
+}
+.card h3{
+  font-size: 0.9rem;
+}
+ 
+  .plat h2 {
+    font-size: 24px;
+  }
+
+
+  .menu-item {
+    
+   width: 150px;
+    padding: 15px;
+  }
+
+  .menu-item img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .menu-item h3 {
+    font-size: 16px;
+  }
+
+  .menu-item p {
+    font-size: 12px;
+  }
+
+  .button {
+    width: 150px;
+    height: 35px;
+    font-size: 14px;
+  }
+
+  
+  .contact h2 {
+    font-size:30px;
+  }
+
+  .over {
+    
+    font-size: 10px;
+    top: 120rem;
+    left: 4rem;
+  }
+
+ 
+  .logof{
+         right: 25rem;
+         height: 4rem;
+         width: 8rem;
+    }
+
+    .footer-container{
+      margin-left: 10rem;
+        gap: 4rem;
+       
+    }
+
+
+
+  .footer-section {
+    text-align: center;
+    width: 90%;
+    margin-top: 1rem;
+  }
+
+  .footer-links {
+    margin-top: 10px;
+  }
+
+ 
+
+
+}
+@media (max-width: 500px) {
+ header .logo {
+   right: 6rem;
+   
+  }
+nav{
+  width:17rem;
+  height: 2rem;
+}  
+ul li{
+  font-size: 0.6rem;
+  margin-left: -3px;
+}
+.user-avatar{
+  width: 20px;
+  height: 20px;
+}
+
+
+  .header-text h1 {
+    font-size: 20px;
+    margin-right: 45px;
+  }
+
+  .header-text p {
+    font-size: 11px;
+    margin-right: 50px;
+  }
+
+  .header-text input {
+    font-size: 12px;
+    padding: 5px 10px;
+    margin-right: 50px;
+  }
+
+ 
+
+
+  .body-text h1 {
+    font-size: 1rem;
+    top: 23rem;
+    left: 15rem;
+  }
+
+  .body-text p {
+    font-size:9px;
+    left: 15rem;
+    top: 25rem;
+    right: 3rem;
+  }
+
+  .container1 h2 {
+    font-size: 1rem;
+    
+  }
+
+  .container {
+    
+    top: 10rem;
+  top:45rem;
+    left: 12%;
+
+  }
+
+  .card {
+    width: 20%;
+    padding: 15px;
+    
+  }
+.card p{
+
+  font-size: 0.6rem;
+}
+.card h3{
+  font-size: 0.6rem;
+}
+ 
+  .plat h2 {
+    font-size: 22px;
+  margin-left: 12.5rem;
+  }
+
+
+  .menu-item {
+    
+   width: 100px;
+    padding: 15px;
+  }
+
+  .menu-item img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .menu-item h3 {
+    font-size: 16px;
+  }
+
+  .menu-item p {
+    font-size: 12px;
+  }
+
+  .button {
+    width: 150px;
+    height: 35px;
+    font-size: 14px;
+  }
+
+  
+  .contact h2 {
+    font-size:30px;
+  }
+.voir{
+margin-left: 10.5rem;
+}
+  .over {
+    
+    font-size: 9px;
+    top: 115rem;
+    left: 3rem;
+  }
+
+ 
+  .logof{
+         right: 21.5rem;
+         height: 3rem;
+         width: 7rem;
+    }
+
+    .footer-container{
+      margin-left: 10rem;
+        gap: 4rem;
+       
+    }
+
+
+
+  .footer-section {
+    text-align: center;
+    width: 90%;
+    margin-top: 0.5rem;
+  }
+  .footer-section h3{
+    font-size: 1rem;
+  }
+  .footer-links {
+    margin-top: 10px;
+  }
+  .footer-bottom{
+    margin-top: 5rem;
+    font-size: 0.7rem;
+  }
+
+
+}
+
+@media (max-width: 375px) {
+  .header-text {
+    font-size: 14px;
+  }
+
+  .header-text h1 {
+    font-size: 20px;
+  }
+
+  .header-text p {
+    font-size: 12px;
+  }
+
+  .body-text h1 {
+    font-size: 20px;
+  }
+
+  .body-text p {
+    font-size: 12px;
+  }
+
+  .container1 h2 {
+    font-size: 1rem;
+  }
+
+  .menu-item {
+    width: 160px;
+    min-width: 160px;
+  }
+
+  .contact h2 {
+    font-size: 24px;
+  }
+}
+
+
