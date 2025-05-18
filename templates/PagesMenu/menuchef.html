@@ -10,10 +10,11 @@
 <body>
     <div class="total">
         <div class="contenu">
-            <div class="titre"><h1>Menu</h1></div>
             <a href="javascript:history.back()">
-                <img src="{% static 'image/sortie.png' %}" alt="Retour" style="cursor: pointer;">
+                <button class="Retour">Retour</button>
             </a>
+            <div class="titre"><h1>Menu</h1></div>
+            
             <div class="user-avatar" id="userAvatar">
                 {% if user.is_authenticated %}
                     {{ user.first_name|first|default:user.username|first|upper }}

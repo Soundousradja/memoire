@@ -220,7 +220,7 @@
         }
         
         h1{
-            margin-bottom: 40px;
+            margin-bottom: 20px;
         }
         
         .enregistrer-tout {
@@ -251,15 +251,20 @@
             margin-bottom: 20px;
             width:150px;
         }
+        .Retour{
+            width:150px;
+            color:white;
+        }
     </style>
 </head>
 <body>
     <div class="total">
         <div class="contenu">
-            <div class="titre"><h2>Gestion des plats</h2></div>
+            
             <a href="javascript:history.back()">
-                <img src="{% static 'image/sortie.png' %}" alt="Retour" style="cursor: pointer;">
+                <button class="Retour">Retour</button>
             </a>
+            <div class="titre"><h1>Gestion des plats</h1></div>
         </div>
         <div class="point"></div>
     </div>

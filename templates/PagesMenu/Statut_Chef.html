@@ -20,16 +20,33 @@
             color: green;
             font-weight: bold;
         }
+        .Retour{
+            background-color: black;
+            color:rgb(223, 150, 14);
+            height:35px;
+        }
+        footer{
+    background-color:rgb(236, 143, 3);
+    height: 8vw;
+    margin-top: 200px;
+}
+footer p{
+    text-align: center;
+    font-weight: bold;
+    padding-top: 30px;
+}
+
     </style>
 </head>
 <body>
 
     <div class="total">
         <div class="container">
-            <div class="titre"><h1>Commande</h1></div>
-            <a href="javascript:history.back()">
-                <img src="{% static 'image/sortie.png' %}" alt="Retour" style="cursor: pointer;">
+             <a href="javascript:history.back()">
+                <button class="Retour">Retour</button>
             </a>
+            <div class="titre"><h1>Commande</h1></div>
+            
         </div>
     </div>
     <div class="TableContenu">
@@ -54,6 +71,10 @@
         <ul id="modal-liste-plats"></ul>
     </div>
 </div>
+<footer>
+        <p>© 2025 The LFS Spot Restaurant. Tous droits réservés.</p>
+       
+       </footer>
 
 
     <script>

@@ -19,6 +19,10 @@ body {
     right: 0;
     z-index: 1000;
 }
+footer{
+    background-color: rgb(236, 143, 3);
+    height: 8vw;
+}
 
 .container {
     display: flex;
@@ -381,4 +385,15 @@ background-color: white;
 }
 a{
     text-decoration: none;
+}
+.Retour{
+    background-color: black;
+   color: rgb(236, 143, 3);
+    
+     width:150px;
+     height: 35px;
+}
+.Retour:hover{
+background-color:rgb(22, 22, 22); 
+ color:white;
 }
