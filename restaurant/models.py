@@ -10,6 +10,10 @@ from mémoir import settings
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+   
+from django.db import models
+from django.utils import timezone
+from django.conf import settings
 
 # class Client(AbstractUser):
 #     phone = models.CharField(max_length=15, unique=True)
@@ -128,11 +132,6 @@ class Evaluation(models.Model):
 
     def __str__(self):
         return f"Évaluation de la commande {self.commande.id}: {self.note} étoiles"    
-    
-from django.db import models
-from django.utils import timezone
-from django.conf import settings
-
 class Livreur(models.Model):
     id_livr = models.AutoField(primary_key=True)
     nom_livr = models.CharField(max_length=100)

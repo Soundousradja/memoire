@@ -125,7 +125,7 @@ def modifier_utilisateur(request, user_id):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            user = CustomUser.objects.get(id=user_id)  # 🔹 Récupérer l'utilisateur
+            user = CustomUser.objects.get(id=user_id)  # Récupérer l'utilisateur
 
             # Mise à jour seulement des champs modifiés
             user.username = data.get("nom", user.username) or user.username
@@ -134,10 +134,16 @@ def modifier_utilisateur(request, user_id):
             user.role = data.get("role", user.role) or user.role
 
             email = data.get("email")
-            if email:  # 🔹 Modifier l'email seulement s'il est renseigné
+            if email:  # Modifier l'email seulement s'il est renseigné
                 user.email = email
+                
+            # Gestion du mot de passe
+            password = data.get("password")
+            if password and password.strip():  # Vérifier si un mot de passe a été fourni et n'est pas vide
+                user.set_password(password)  # Mettre à jour le mot de passe hashé
+                user.mot_de_passe_clair = password  # Mettre à jour le mot de passe en clair
 
-            user.save()  # 🔹 Enregistrer les modifications
+            user.save()  # Enregistrer les modifications
             return JsonResponse({"success": True})
         except CustomUser.DoesNotExist:
             return JsonResponse({"success": False, "error": "Utilisateur introuvable."}, status=404)

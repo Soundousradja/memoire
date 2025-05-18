@@ -8,7 +8,7 @@ body{
     display: flex;
 }
 .container{
-    background-color: rgb(26, 25, 25);
+    background-color: rgb(0, 0, 0);
     width:395px;
     height:350px;
     position: relative;
@@ -16,6 +16,7 @@ body{
     left:120px;
     text-align: center;
     border-radius: 15px;
+    box-shadow: 1px 1px 15px 15px rgb(54, 56, 56);
 
 }
 button{
@@ -24,12 +25,14 @@ button{
     height:43px;
     border:none;
     border-radius: 15px;
-    background-color: rgb(231, 161, 29);
+    background-color: rgb(77, 74, 74);
     margin-bottom: 30px;
+    color:white;
 }
 .button{
     text-align: center;
     margin-top: 40px;
+    color:white;
 }
 .logo{
     width:300px;
@@ -38,14 +41,20 @@ button{
     border-radius: 15px;
 }
 .dcn{
-    background-color: rgb(0, 0, 0);
-    color:white;
+    background-color: #f5b041;
+    color:rgb(0, 0, 0);
     width:150px;
     
+}
+.dcn:hover{
+    background-color: #f5b041;
 }
 button:hover{
     background-color: rgb(247, 183, 65);
     color:black;
+}
+i{
+    background-color: black;
 }
 
 

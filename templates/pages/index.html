@@ -594,20 +594,22 @@
         </table>
     </div>
     <!-- Formulaire de modification d'utilisateur -->
-<div id="update-overlay" class="overlay">
-    <div class="form-container">
-        <h3>Modifier un Utilisateur</h3>
-        <div class="LesChamps">
-            <input type="hidden" id="user-id-to-update">
-            <input type="text" id="update-nom" placeholder="Nom" required> <br>
-            <input type="email" id="update-email" placeholder="Email" required> <br>
-            <input type="text" id="update-adresse" placeholder="Adresse" required> <br>
-            <input type="text" id="update-telephone" placeholder="Téléphone" required> <br>
+    <div id="update-overlay" class="overlay">
+        <div class="form-container">
+            <h3>Modifier un Utilisateur</h3>
+            <div class="LesChamps">
+                <input type="hidden" id="user-id-to-update">
+                <input type="text" id="update-nom" placeholder="Nom" required> <br>
+                <input type="email" id="update-email" placeholder="Email" required> <br>
+                <input type="password" id="update-password" placeholder="Nouveau mot de passe (laisser vide pour ne pas changer)"> <br>
+                <input type="text" id="update-adresse" placeholder="Adresse" required> <br>
+                <input type="text" id="update-telephone" placeholder="Téléphone" required> <br>
+            </div>
+            <button class="button1" onclick="sauvegarderModifications()">Sauvegarder</button>
+            <button class="button1" onclick="toggleUpdateForm()">Annuler</button>
         </div>
-        <button class="button1" onclick="sauvegarderModifications()">Sauvegarder</button>
-        <button class="button1" onclick="toggleUpdateForm()">Annuler</button>
     </div>
-</div>
+    
     
     <script>
         const urlParams = new URLSearchParams(window.location.search);
@@ -823,45 +825,54 @@ function modifierUtilisateur(userId) {
 }
 
 function sauvegarderModifications() {
-    const userId = document.getElementById("user-id-to-update").value;
-    const nouveauNom = document.getElementById("update-nom").value;
-    const nouveauEmail = document.getElementById("update-email").value;
-    const nouvelleAdresse = document.getElementById("update-adresse").value;
-    const nouveauTelephone = document.getElementById("update-telephone").value;
-    
-    if (nouveauNom && nouvelleAdresse && nouveauTelephone) {
-        fetch(`/modifier_utilisateur/${userId}/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCSRFToken()
-            },
-            body: JSON.stringify({
+        const userId = document.getElementById("user-id-to-update").value;
+        const nouveauNom = document.getElementById("update-nom").value;
+        const nouveauEmail = document.getElementById("update-email").value;
+        const nouveauMdp = document.getElementById("update-password").value;
+        const nouvelleAdresse = document.getElementById("update-adresse").value;
+        const nouveauTelephone = document.getElementById("update-telephone").value;
+        
+        if (nouveauNom && nouvelleAdresse && nouveauTelephone) {
+            // Créer un objet de données à envoyer
+            let userData = {
                 nom: nouveauNom,
                 adresse: nouvelleAdresse,
                 telephone: nouveauTelephone,
                 email: nouveauEmail,
                 role: role
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert("Utilisateur modifié avec succès !");
-                toggleUpdateForm(); // Fermer le formulaire
-                afficherUtilisateurs(); // Mettre à jour le tableau
-            } else {
-                alert("Erreur : " + data.error);
+            };
+            
+            // Ajouter le mot de passe seulement s'il a été saisi
+            if (nouveauMdp && nouveauMdp.trim() !== '') {
+                userData.password = nouveauMdp;
             }
-        })
-        .catch(error => {
-            console.error("Erreur :", error);
-            alert("Une erreur est survenue lors de la modification");
-        });
-    } else {
-        alert("Les champs nom, adresse et téléphone sont requis !");
+            
+            fetch(`/modifier_utilisateur/${userId}/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken()
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Utilisateur modifié avec succès !");
+                    toggleUpdateForm(); // Fermer le formulaire
+                    afficherUtilisateurs(); // Mettre à jour le tableau
+                } else {
+                    alert("Erreur : " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Erreur :", error);
+                alert("Une erreur est survenue lors de la modification");
+            });
+        } else {
+            alert("Les champs nom, adresse et téléphone sont requis !");
+        }
     }
-}
 
         function supprimerUtilisateur(userId) {
             if (confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
