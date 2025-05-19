@@ -510,13 +510,26 @@ def commande_et_depenses(request):
             except ValueError:
                 erreur = "Format de prix invalide. Utilisez un nombre décimal."
 
-    commandes = Commande.objects.filter(restaurant=restaurant)
+    # Récupérer les commandes avec leurs évaluations (utilisation de prefetch_related)
+    commandes = Commande.objects.filter(restaurant=restaurant).prefetch_related(
+        'commandeplat_set__plat', 
+        'evaluation'
+    )
+    
+    # Calculer les totaux
+    total_journee_val = total_journee()
+    total_paye = sum(cmd.calculer_prix_total() for cmd in commandes.filter(statut='Paye'))
+    total_non_paye = sum(cmd.calculer_prix_total() for cmd in commandes.filter(statut='Non Paye'))
+    
+    # Récupérer les dépenses
     depenses = Depense.objects.filter(restaurant=restaurant).order_by('-date')
     total = sum(depense.prix for depense in depenses)
 
     context = {
         'commandes': commandes,
-        'total_journee': total_journee(),
+        'total_journee': total_journee_val,
+        'total_paye': total_paye,
+        'total_non_paye': total_non_paye,
         'depenses': depenses,
         'total': total,
         'success': success,
@@ -524,7 +537,6 @@ def commande_et_depenses(request):
     }
 
     return render(request, 'PagesMenu/Commande.html', context)
-
 # Fonction à ajouter dans views.py
 @csrf_exempt
 @login_required
