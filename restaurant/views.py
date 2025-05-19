@@ -7,7 +7,7 @@ from django.shortcuts import redirect,get_object_or_404
 from SuperAdmin.models import HistoriquePlat
 
 from django.contrib.auth import logout
-
+from django.db import transaction
 
 from home.models import Offre
 from django.utils.timezone import now
@@ -262,51 +262,89 @@ def passer_commande(request):
             return JsonResponse({"error": "Adresse ou téléphone manquant dans le profil utilisateur", "success": False}, status=400)
 
         try:
-            data = json.loads(request.body)
-            plats_commandes = data.get("plats", [])
+            # Utiliser une transaction pour garantir la cohérence des données
+            with transaction.atomic():
+                data = json.loads(request.body)
+                plats_commandes = data.get("plats", [])
 
-            if not plats_commandes:
-                return JsonResponse({"error": "Aucun plat sélectionné", "success": False}, status=400)
+                if not plats_commandes:
+                    return JsonResponse({"error": "Aucun plat sélectionné", "success": False}, status=400)
 
-            # Récupération de l'ID du restaurant et du mode de paiement
-            restaurant_id = data.get('restaurant')
-            mode_paiement = data.get('mode_paiement')
+                # Récupération de l'ID du restaurant et du mode de paiement
+                restaurant_id = data.get('restaurant')
+                mode_paiement = data.get('mode_paiement')
 
-            if not restaurant_id or not mode_paiement:
-                return JsonResponse({"error": "Restaurant ou mode de paiement manquant", "success": False}, status=400)
+                if not restaurant_id or not mode_paiement:
+                    return JsonResponse({"error": "Restaurant ou mode de paiement manquant", "success": False}, status=400)
 
-            # Récupérer l'objet restaurant
-            try:
-                restaurant = Restaurant.objects.get(id=restaurant_id)
-            except Restaurant.DoesNotExist:
-                return JsonResponse({"error": "Restaurant introuvable", "success": False}, status=400)
-
-            # Création de la commande
-            commande = Commande.objects.create(
-                client=user,
-                restaurant=restaurant,  # Utilise 'restaurant' au lieu de 'restaurant_id'
-                mode_paiement=mode_paiement,
-                adresse=adresse,
-                telephone=telephone
-            )
-
-            for plat_info in plats_commandes:
-                plat_id = plat_info.get("id")
-                quantite = plat_info.get("quantite", 1)
-
+                # Récupérer l'objet restaurant
                 try:
-                    plat = Plat.objects.get(id=plat_id)
-                    commande.plats.add(plat, through_defaults={'quantity': quantite})
-                except Plat.DoesNotExist:
-                    return JsonResponse({"error": f"Plat avec l'ID {plat_id} introuvable", "success": False}, status=400)
+                    restaurant = Restaurant.objects.get(id=restaurant_id)
+                except Restaurant.DoesNotExist:
+                    return JsonResponse({"error": "Restaurant introuvable", "success": False}, status=400)
 
-            return JsonResponse({"message": "Commande passée avec succès", "success": True}, status=201)
+                # Vérifier la disponibilité des plats avant de créer la commande
+                today = date.today()
+                for plat_info in plats_commandes:
+                    plat_id = plat_info.get("id")
+                    quantite_demandee = plat_info.get("quantite", 1)
+
+                    try:
+                        plat = Plat.objects.get(id=plat_id)
+                        # Vérifier la quantité disponible dans l'historique
+                        try:
+                            historique = HistoriquePlat.objects.get(
+                                plat=plat,
+                                date=today,
+                                restaurant=restaurant
+                            )
+                            if historique.quantite < quantite_demandee:
+                                return JsonResponse({
+                                    "error": f"Quantité insuffisante pour {plat.name}. Disponible: {historique.quantite}, Demandée: {quantite_demandee}",
+                                    "success": False
+                                }, status=400)
+                        except HistoriquePlat.DoesNotExist:
+                            return JsonResponse({
+                                "error": f"Plat {plat.name} non disponible aujourd'hui dans ce restaurant",
+                                "success": False
+                            }, status=400)
+                    except Plat.DoesNotExist:
+                        return JsonResponse({"error": f"Plat avec l'ID {plat_id} introuvable", "success": False}, status=400)
+
+                # Création de la commande
+                commande = Commande.objects.create(
+                    client=user,
+                    restaurant=restaurant,
+                    mode_paiement=mode_paiement,
+                    adresse=adresse,
+                    telephone=telephone
+                )
+
+                # Ajouter les plats à la commande et décrémenter les quantités
+                for plat_info in plats_commandes:
+                    plat_id = plat_info.get("id")
+                    quantite_commandee = plat_info.get("quantite", 1)
+
+                    plat = Plat.objects.get(id=plat_id)
+                    commande.plats.add(plat, through_defaults={'quantity': quantite_commandee})
+
+                    # Décrémenter la quantité dans HistoriquePlat
+                    historique = HistoriquePlat.objects.get(
+                        plat=plat,
+                        date=today,
+                        restaurant=restaurant
+                    )
+                    historique.quantite -= quantite_commandee
+                    historique.save()
+
+                return JsonResponse({"message": "Commande passée avec succès", "success": True}, status=201)
 
         except json.JSONDecodeError:
             return JsonResponse({"error": "Format JSON invalide", "success": False}, status=400)
+        except Exception as e:
+            return JsonResponse({"error": f"Erreur lors du traitement de la commande: {str(e)}", "success": False}, status=500)
 
     return JsonResponse({"error": "Méthode non autorisée", "success": False}, status=405)
-
 #offre
 
 
