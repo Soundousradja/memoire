@@ -276,6 +276,39 @@
         .toast.error {
             background-color: #f44336;
         }
+
+
+        <style>
+    .status-change-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .status-select {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        width: 100%;
+        font-size: 14px;
+    }
+    
+    .btn-update {
+        background-color: #4c7daf;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        width: 100%;
+    }
+    
+    .btn-update:hover {
+        background-color: #3a6491;
+    }
     </style>
 </head>
 <body>
@@ -348,327 +381,291 @@
     <div id="toast" class="toast"></div>
 
     <script>
-        // Configuration
-        const LIVREUR_ID = {{ livreur.id_livr }};
-        const API_URLS = {
-    getCommandes: "{% url 'get_commandes' %}",
-    updateDisponibilite: "{% url 'update_livreur_disponibilite' %}",
-    acceptDelivery: "{% url 'accept_delivery' %}",
-    markAsDelivered: "{% url 'mark_as_delivered' %}",
-    refuseDelivery: "{% url 'refuse_delivery' %}"
-};
-    
+       
         // Helper function to get status badge class
-        function getStatusBadgeClass(status) {
-            switch(status.toLowerCase()) {
-                case 'en_attente':
-                case 'en attente':
-                    return 'status-en-attente';
-                case 'en_cours':
-                case 'en cours':
-                case 'en cours de préparation':
-                    return 'status-en-cours';
-                case 'prête':
-                    return 'status-prete';
-                case 'livree':
-                case 'livrée':
-                    return 'status-livree';
-                case 'annulee':
-                case 'annulée':
-                    return 'status-annulee';
-                default:
-                    return '';
-            }
-        }
-    
-        // Helper function to format status display text
-        function formatStatus(status) {
-            switch(status.toLowerCase()) {
-                case 'en_attente':
-                    return 'En attente';
-                case 'en_cours':
-                    return 'En cours';
-                case 'prête':
-                    return 'Prête';
-                case 'livree':
-                    return 'Livrée';
-                case 'annulee':
-                    return 'Annulée';
-                default:
-                    return status.charAt(0).toUpperCase() + status.slice(1);
-            }
-        }
-    
-        // Create commande item HTML
-        function createCommandeItem(commande) {
-            const isReady = commande.statut.toLowerCase() === 'prête';
-            const isInProgress = commande.statut.toLowerCase() === 'en_cours' || commande.statut.toLowerCase() === 'en cours';
-            
-            let actionsHtml = '';
-            if (isReady) {
-                actionsHtml = `
-                    <button class="btn btn-accept" onclick="acceptDelivery(${commande.id})">Accepter</button>
-                    <button class="btn btn-refuse" onclick="refuseDelivery(${commande.id})">Refuser</button>
-                `;
-            } else if (isInProgress && commande.livreur_id == LIVREUR_ID) {
-                actionsHtml = `
-                    <button class="btn btn-accept" onclick="markAsDelivered(${commande.id})">Marquer comme livrée</button>
-                `;
-            }
-    
-            return `
-                <li class="commande-item" data-id="${commande.id}" data-status="${commande.statut}">
-                    <div class="commande-details">
-                        <div class="commande-field">
-                            <span>ID:</span> ${commande.id}
-                        </div>
-                        <div class="commande-field">
-                            <span>Client:</span> ${commande.client}
-                        </div>
-                        <div class="commande-field">
-                            <span>Adresse:</span> ${commande.adresse}
-                        </div>
-                        <div class="commande-field">
-                            <span>Téléphone:</span> ${commande.telephone}
-                        </div>
-                        <div class="commande-field">
-                            <span>Restaurant:</span> ${commande.restaurant.name || 'Non spécifié'}
-                        </div>
-                        <div class="commande-field">
-                            <span>Date:</span> ${new Date(commande.created_at).toLocaleString()}
-                        </div>
-                        <div class="commande-field">
-                            <span>Statut:</span> 
-                            <span class="status-badge ${getStatusBadgeClass(commande.statut)}">${formatStatus(commande.statut)}</span>
-                        </div>
-                        <div class="commande-field">
-                            <span>Paiement:</span> ${commande.mode_paiement === 'cash' ? 'Espèces' : 'Carte bancaire'}
-                        </div>
-                        <div class="commande-field">
-                            <span>Total:</span> ${commande.prix_total}€
-                        </div>
-                    </div>
-                    <div class="commande-actions">
-                        ${actionsHtml}
-                    </div>
-                </li>
-            `;
-        }
-    
-        // Show toast notification
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast show ' + type;
-            
-            setTimeout(() => {
-                toast.className = toast.className.replace('show', '');
-            }, 3000);
-        }
-    
-        // Load commandes from API
-        async function loadCommandes(status = 'all') {
-            try {
-                const loadingElement = document.querySelector(`#tab-${status} .loading`);
-                const listElement = document.querySelector(`#tab-${status} .commandes-list`);
-                
-                loadingElement.style.display = 'block';
-                listElement.innerHTML = '';
-                
-                const response = await fetch(`${API_URLS.getCommandes}?livreur_id=${LIVREUR_ID}&status=${status}`);
-                
-                if (!response.ok) {
-                    throw new Error('Erreur lors du chargement des commandes');
-                }
-                
-                const data = await response.json();
-                
-                if (data.commandes && data.commandes.length > 0) {
-                    data.commandes.forEach(commande => {
-                        listElement.innerHTML += createCommandeItem(commande);
-                    });
-                } else {
-                    listElement.innerHTML = `
-                        <div class="empty-state">
-                            <div>Aucune commande disponible</div>
-                        </div>
-                    `;
-                }
-                
-                loadingElement.style.display = 'none';
-                
-            } catch (error) {
-                console.error('Erreur:', error);
-                showToast('Erreur lors du chargement des commandes', 'error');
-            }
-        }
-    
-        // Toggle livreur availability
-        async function toggleAvailability() {
-            const toggle = document.getElementById('availability-toggle');
-            const statusElement = document.getElementById('availability-status');
-            
-            try {
-                const response = await fetch(API_URLS.updateDisponibilite, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        livreur_id: LIVREUR_ID,
-                        disponible: toggle.checked
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Erreur lors de la mise à jour');
-                }
-                
-                const data = await response.json();
-                statusElement.textContent = data.disponible ? 'Disponible' : 'Indisponible';
-                showToast(`Statut mis à jour: ${statusElement.textContent}`, 'success');
-                
-            } catch (error) {
-                console.error('Erreur:', error);
-                toggle.checked = !toggle.checked;
-                showToast('Erreur lors de la mise à jour de disponibilité', 'error');
-            }
-        }
-    
-       // Accept a delivery
-async function acceptDelivery(commandeId) {
-    try {
-        console.log("Accepting delivery for order ID:", commandeId);
-        console.log("API URL:", API_URLS.acceptDelivery);
-        console.log("Sending data:", { livreur_id: LIVREUR_ID, commande_id: commandeId });
-        
-        const response = await fetch(API_URLS.acceptDelivery, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCsrfToken()  // Make sure you have a function to get CSRF token
-            },
-            body: JSON.stringify({
-                livreur_id: LIVREUR_ID,
-                commande_id: commandeId
-            })
-        });
-        
-        console.log("Response status:", response.status);
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Error accepting order');
-        }
-        
-        const data = await response.json();
-        console.log("Response data:", data);
-        
-        showToast('Commande acceptée avec succès', 'success');
-        // Reload all tabs
-        ['all', 'ready', 'inprogress'].forEach(tab => loadCommandes(tab));
-        
-    } catch (error) {
-        console.error('Error:', error);
-        showToast('Erreur lors de l\'acceptation de la commande: ' + error.message, 'error');
-    }
-}
+       
+    // Configuration
+    const LIVREUR_ID = {{ livreur.id_livr }};
+    const API_URLS = {
+        getCommandes: "{% url 'get_commandes' %}",
+        updateDisponibilite: "{% url 'update_livreur_disponibilite' %}",
+        updateCommandeStatus: "{% url 'update_commande_status' %}",  // Nouvelle URL pour mise à jour de statut
+        markAsDelivered: "{% url 'mark_as_delivered' %}"
+    };
 
-// Helper function to get CSRF token (if you're using CSRF protection)
-function getCsrfToken() {
-    const csrfCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('csrftoken='));
-    return csrfCookie ? csrfCookie.split('=')[1] : '';
-}
-        async function markAsDelivered(commandeId) {
-            try {
-                const response = await fetch(API_URLS.markAsDelivered, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        livreur_id: LIVREUR_ID,
-                        commande_id: commandeId
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Erreur lors de la mise à jour');
-                }
-                
-                showToast('Commande marquée comme livrée', 'success');
-                // Reload all tabs
-                ['all', 'inprogress', 'delivered'].forEach(tab => loadCommandes(tab));
-                
-            } catch (error) {
-                console.error('Erreur:', error);
-                showToast('Erreur lors de la mise à jour de la commande', 'error');
-            }
+    // Helper function to get status badge class
+    function getStatusBadgeClass(status) {
+        switch(status.toLowerCase()) {
+            case 'en_attente':
+            case 'en attente':
+                return 'status-en-attente';
+            case 'en_cours':
+            case 'en cours':
+            case 'en cours de préparation':
+                return 'status-en-cours';
+            case 'prête':
+                return 'status-prete';
+            case 'livree':
+            case 'livrée':
+                return 'status-livree';
+            case 'annulee':
+            case 'annulée':
+                return 'status-annulee';
+            default:
+                return '';
         }
-    
-        // Refuse a delivery
-        async function refuseDelivery(commandeId) {
-            if (!confirm('Êtes-vous sûr de vouloir refuser cette commande?')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(API_URLS.refuseDelivery, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        livreur_id: LIVREUR_ID,
-                        commande_id: commandeId
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Erreur lors du refus');
-                }
-                
-                showToast('Commande refusée', 'success');
-                // Reload all tabs
-                ['all', 'ready'].forEach(tab => loadCommandes(tab));
-                
-            } catch (error) {
-                console.error('Erreur:', error);
-                showToast('Erreur lors du refus de la commande', 'error');
-            }
+    }
+
+    // Helper function to format status display text
+    function formatStatus(status) {
+        switch(status.toLowerCase()) {
+            case 'en_attente':
+                return 'En attente';
+            case 'en_cours':
+                return 'En cours';
+            case 'prête':
+                return 'Prête';
+            case 'livree':
+                return 'Livrée';
+            case 'annulee':
+                return 'Annulée';
+            default:
+                return status.charAt(0).toUpperCase() + status.slice(1);
         }
-    
-        // Tab switching functionality
-        function setupTabs() {
-            const tabs = document.querySelectorAll('.tab');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // Remove active class from all tabs and contents
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    
-                    // Add active class to clicked tab and corresponding content
-                    tab.classList.add('active');
-                    const tabName = tab.getAttribute('data-tab');
-                    document.getElementById(`tab-${tabName}`).classList.add('active');
-                    
-                    // Load data for this tab
-                    loadCommandes(tabName);
-                });
-            });
-        }
-    
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', () => {
-            // Setup availability toggle
-            const toggle = document.getElementById('availability-toggle');
-            toggle.addEventListener('change', toggleAvailability);
-            
-            // Setup tabs
-            setupTabs();
-            
-            // Load initial data
-            loadCommandes('all');
+    }
+
+    // Create commande item HTML
+    function createCommandeItem(commande) {
+        // Récupérer les options de statut depuis les choix du modèle
+        const statusOptions = [
+            {value: 'en_attente', label: 'En attente'},
+            {value: 'en_cours', label: 'En cours de livraison'},
+           
+            {value: 'livree', label: 'Livrée'},
+            {value: 'annulee', label: 'Annulée'}
+        ];
+        
+        // Créer les options du select
+        let statusOptionsHtml = '';
+        statusOptions.forEach(option => {
+            const selected = commande.statut.toLowerCase() === option.value.toLowerCase() ? 'selected' : '';
+            statusOptionsHtml += `<option value="${option.value}" ${selected}>${option.label}</option>`;
         });
+        
+        // Déterminer si le livreur est assigné à cette commande
+        const isAssignedToMe = commande.livreur_id == LIVREUR_ID;
+        
+        return `
+            <li class="commande-item" data-id="${commande.id}" data-status="${commande.statut}">
+                <div class="commande-details">
+                    <div class="commande-field">
+                        <span>ID:</span> ${commande.id}
+                    </div>
+                    <div class="commande-field">
+                        <span>Client:</span> ${commande.client}
+                    </div>
+                    <div class="commande-field">
+                        <span>Adresse:</span> ${commande.adresse}
+                    </div>
+                    <div class="commande-field">
+                        <span>Téléphone:</span> ${commande.telephone}
+                    </div>
+                    <div class="commande-field">
+                        <span>Restaurant:</span> ${commande.restaurant.name || 'Non spécifié'}
+                    </div>
+                    <div class="commande-field">
+                        <span>Date:</span> ${new Date(commande.created_at).toLocaleString()}
+                    </div>
+                    <div class="commande-field">
+                        <span>Statut actuel:</span> 
+                        <span class="status-badge ${getStatusBadgeClass(commande.statut)}">${formatStatus(commande.statut)}</span>
+                    </div>
+                    <div class="commande-field">
+                        <span>Paiement:</span> ${commande.mode_paiement === 'cash' ? 'Espèces' : 'Carte bancaire'}
+                    </div>
+                    <div class="commande-field">
+                        <span>Total:</span> ${commande.prix_total}€
+                    </div>
+                </div>
+                <div class="commande-actions">
+                    <div class="status-change-wrapper">
+                        <label for="status-select-${commande.id}">Changer le statut:</label>
+                        <select id="status-select-${commande.id}" class="status-select" data-commande-id="${commande.id}">
+                            ${statusOptionsHtml}
+                        </select>
+                        <button class="btn btn-update" onclick="updateCommandeStatus(${commande.id})">Mettre à jour</button>
+                    </div>
+                </div>
+            </li>
+        `;
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'info') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast show ' + type;
+        
+        setTimeout(() => {
+            toast.className = toast.className.replace('show', '');
+        }, 3000);
+    }
+
+    // Load commandes from API
+    async function loadCommandes(status = 'all') {
+        try {
+            const loadingElement = document.querySelector(`#tab-${status} .loading`);
+            const listElement = document.querySelector(`#tab-${status} .commandes-list`);
+            
+            loadingElement.style.display = 'block';
+            listElement.innerHTML = '';
+            
+            const response = await fetch(`${API_URLS.getCommandes}?livreur_id=${LIVREUR_ID}&status=${status}`);
+            
+            if (!response.ok) {
+                throw new Error('Erreur lors du chargement des commandes');
+            }
+            
+            const data = await response.json();
+            
+            if (data.commandes && data.commandes.length > 0) {
+                data.commandes.forEach(commande => {
+                    listElement.innerHTML += createCommandeItem(commande);
+                });
+                
+                // Ajouter les écouteurs d'événements pour les selects après avoir ajouté les éléments au DOM
+                document.querySelectorAll('.status-select').forEach(select => {
+                    select.addEventListener('change', function() {
+                        // On pourrait automatiquement soumettre le changement ici si souhaité
+                        // ou laisser l'utilisateur cliquer sur le bouton pour confirmer
+                    });
+                });
+            } else {
+                listElement.innerHTML = `
+                    <div class="empty-state">
+                        <div>Aucune commande disponible</div>
+                    </div>
+                `;
+            }
+            
+            loadingElement.style.display = 'none';
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            showToast('Erreur lors du chargement des commandes', 'error');
+        }
+    }
+
+    // Toggle livreur availability
+    async function toggleAvailability() {
+        const toggle = document.getElementById('availability-toggle');
+        const statusElement = document.getElementById('availability-status');
+        
+        try {
+            const response = await fetch(API_URLS.updateDisponibilite, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({
+                    livreur_id: LIVREUR_ID,
+                    disponible: toggle.checked
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Erreur lors de la mise à jour');
+            }
+            
+            const data = await response.json();
+            statusElement.textContent = data.disponible ? 'Disponible' : 'Indisponible';
+            showToast(`Statut mis à jour: ${statusElement.textContent}`, 'success');
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            toggle.checked = !toggle.checked;
+            showToast('Erreur lors de la mise à jour de disponibilité', 'error');
+        }
+    }
+
+    // Nouvelle fonction pour mettre à jour le statut d'une commande
+    async function updateCommandeStatus(commandeId) {
+        try {
+            const selectElement = document.getElementById(`status-select-${commandeId}`);
+            const newStatus = selectElement.value;
+            
+            console.log(`Mise à jour commande ${commandeId} vers statut: ${newStatus}`);
+            
+            const response = await fetch(API_URLS.updateCommandeStatus, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({
+                    livreur_id: LIVREUR_ID,
+                    commande_id: commandeId,
+                    nouveau_statut: newStatus
+                })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Erreur lors de la mise à jour du statut');
+            }
+            
+            const data = await response.json();
+            showToast(`Statut de la commande mis à jour: ${formatStatus(newStatus)}`, 'success');
+            
+            // Recharger toutes les listes pour refléter les changements
+            ['all', 'ready', 'inprogress', 'delivered'].forEach(tab => loadCommandes(tab));
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            showToast(`Erreur: ${error.message}`, 'error');
+        }
+    }
+
+    // Helper function to get CSRF token
+    function getCsrfToken() {
+        const csrfCookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('csrftoken='));
+        return csrfCookie ? csrfCookie.split('=')[1] : '';
+    }
+
+    // Tab switching functionality
+    function setupTabs() {
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                const tabName = tab.getAttribute('data-tab');
+                document.getElementById(`tab-${tabName}`).classList.add('active');
+                
+                // Load data for this tab
+                loadCommandes(tabName);
+            });
+        });
+    }
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', () => {
+        // Setup availability toggle
+        const toggle = document.getElementById('availability-toggle');
+        toggle.addEventListener('change', toggleAvailability);
+        
+        // Setup tabs
+        setupTabs();
+        
+        // Load initial data
+        loadCommandes('all');
+    });
+
+
         
     </script>

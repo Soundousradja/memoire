@@ -29,14 +29,15 @@ urlpatterns = [
     path('landing_page', views.landing_page, name='landing'),
     path('api/commandes/', views.get_commandes, name='get_commandes'),
     path('api/livreur/disponibilite/', views.update_livreur_disponibilite, name='update_livreur_disponibilite'),
-    path('api/livraison/accepter/', views.accept_delivery, name='accept_delivery'),
+    #path('api/livraison/accepter/', views.accept_delivery, name='accept_delivery'),
     path('api/livraison/livrer/', views.mark_as_delivered, name='mark_as_delivered'),
-    path('api/livraison/refuser/', views.refuse_delivery, name='refuse_delivery'),
+    #path('api/livraison/refuser/', views.refuse_delivery, name='refuse_delivery'),
 
 
     path('profile/', views.profile_view, name='profile'),
      path('logout/', views.logout_view, name='logout'),
      path('logout1/', views.logout_serveur, name='logout1'),
+     path('api/commande/update-status/', views.update_commande_status, name='update_commande_status')
 ]
    
 

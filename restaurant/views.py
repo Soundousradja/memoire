@@ -620,6 +620,46 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 import json
 
+
+    
+def landing_page(request):
+    return render(request, 'landing_page.html')
+
+
+@login_required
+def profile_view(request):
+    return render(request, 'profile.html')
+
+def logout_view(request):
+    logout(request)
+    return redirect('acceuil')
+
+def logout_serveur(request):
+    logout(request)
+    return redirect('login')
+
+@login_required
+def profile_view(request):
+    user = request.user
+
+    if request.method == 'POST':
+        
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        adresse = request.POST.get('adresse')
+        telephone = request.POST.get('telephone')
+
+      
+        user.username = username
+        user.email = email
+        user.adresse = adresse
+        user.telephone = telephone
+
+        user.save()  
+
+        return redirect('profile')  
+
+    return render(request, 'profile.html', {'user': user})
 @login_required
 def interface_livreur(request):
     if not request.user.is_authenticated or request.user.role != 'livreur':
@@ -649,6 +689,7 @@ def interface_livreur(request):
     }
     
     return render(request, 'interface_livreur.html', context)
+
 @login_required
 def get_commandes(request):
     livreur_id = request.GET.get('livreur_id')
@@ -715,6 +756,7 @@ def get_commandes(request):
                 'mode_paiement': commande.mode_paiement,
                 'prix_total': str(commande.calculer_prix_total()),
                 'livraison_id': livraison.id,
+                'livreur_id': int(livreur_id)  # Ajouter l'ID du livreur pour savoir si la commande lui est assignée
             })
 
     return JsonResponse({'commandes': result})
@@ -735,15 +777,14 @@ def update_livreur_disponibilite(request):
         livreur = get_object_or_404(Livreur, id_livr=livreur_id)
         livreur.set_disponible(disponible)
         
-        return JsonResponse({'success': True})
+        return JsonResponse({'success': True, 'disponible': disponible})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 @csrf_exempt
-@csrf_exempt
-def accept_delivery(request):
+def update_commande_status(request):
     """
-    API pour qu'un livreur accepte une commande.
+    API pour mettre à jour le statut d'une commande par le livreur.
     """
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Méthode non autorisée'}, status=405)
@@ -752,34 +793,80 @@ def accept_delivery(request):
         data = json.loads(request.body)
         commande_id = data.get('commande_id')
         livreur_id = data.get('livreur_id')
+        nouveau_statut = data.get('nouveau_statut')
         
-        print(f"Accepting delivery: commande_id={commande_id}, livreur_id={livreur_id}")  # Debug logging
+        if not commande_id or not livreur_id or not nouveau_statut:
+            return JsonResponse({'success': False, 'error': 'Paramètres manquants'}, status=400)
         
-        # Make sure both IDs are provided
-        if not commande_id or not livreur_id:
-            return JsonResponse({'success': False, 'error': 'commande_id et livreur_id sont requis'}, status=400)
-        
-        commande = get_object_or_404(Commande, id=commande_id)  # Changed from id_cmd to id
+        commande = get_object_or_404(Commande, id=commande_id)
         livreur = get_object_or_404(Livreur, id_livr=livreur_id)
         
-        # Vérifier que la commande est prête à être livrée
-        if commande.statut != 'Prête':
-            return JsonResponse({'success': False, 'error': 'Cette commande n\'est pas prête à être livrée'}, status=400)
-        
-        # Vérifier que le livreur est disponible
-        if not livreur.is_available():
+        # Vérifier si le livreur est disponible
+        if not livreur.is_available() and nouveau_statut in ['en_cours', 'Prête']:
             return JsonResponse({'success': False, 'error': 'Vous n\'êtes pas disponible pour accepter des livraisons'}, status=400)
         
-        # Assigner la commande au livreur
-        success = livreur.assign_delivery(commande)
+        # Gérer les différents cas selon le nouveau statut
+        if nouveau_statut == 'en_cours':
+            # Créer ou mettre à jour une livraison
+            livraison, created = Livraison.objects.get_or_create(
+                id_cmd=commande,
+                id_livr=livreur,
+                defaults={
+                    'etat_livraison': 'en_cours',
+                    'adresse': commande.adresse,
+                    'date': timezone.now()
+                }
+            )
+            
+            if not created:
+                livraison.etat_livraison = 'en_cours'
+                livraison.save()
+                
+        elif nouveau_statut == 'livree':
+            # Chercher la livraison existante
+            try:
+                livraison = Livraison.objects.get(id_cmd=commande, id_livr=livreur)
+                livraison.mark_as_delivered()
+            except Livraison.DoesNotExist:
+                # Si pas de livraison, en créer une et la marquer comme livrée
+                livraison = Livraison.objects.create(
+                    id_cmd=commande,
+                    id_livr=livreur,
+                    etat_livraison='livree',
+                    adresse=commande.adresse,
+                    date=timezone.now()
+                )
+                commande.statut = 'livree'
+                commande.save()
         
-        if success:
-            return JsonResponse({'success': True})
         else:
-            return JsonResponse({'success': False, 'error': 'Impossible d\'assigner la commande'}, status=400)
+            # Pour les autres statuts, simplement mettre à jour le statut de la commande
+            commande.statut = nouveau_statut
+            commande.save()
+            
+            # Mettre à jour la livraison si elle existe
+            livraison = Livraison.objects.filter(id_cmd=commande, id_livr=livreur).first()
+            if livraison:
+                # Mapper les statuts de commande aux statuts de livraison
+                if nouveau_statut == 'en_attente':
+                    livraison.etat_livraison = 'attente'
+                elif nouveau_statut == 'annulee':
+                    livraison.etat_livraison = 'annulee'
+                elif nouveau_statut == 'Prête':
+                    livraison.etat_livraison = 'attente'
+                else:
+                    livraison.etat_livraison = nouveau_statut
+                livraison.save()
+        
+        return JsonResponse({
+            'success': True, 
+            'statut': nouveau_statut,
+            'message': f'Statut mis à jour avec succès: {nouveau_statut}'
+        })
+        
     except Exception as e:
         import traceback
-        print(traceback.format_exc())  # Better error logging
+        print(traceback.format_exc())
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 @csrf_exempt
@@ -795,17 +882,11 @@ def mark_as_delivered(request):
         commande_id = data.get('commande_id')
         livreur_id = data.get('livreur_id')
         
-        print(f"Debug - Mark as delivered: commande_id={commande_id}, livreur_id={livreur_id}")
-        
         if not commande_id or not livreur_id:
             return JsonResponse({'success': False, 'error': 'commande_id et livreur_id sont requis'}, status=400)
         
         # Find the command
-        try:
-            commande = Commande.objects.get(id=commande_id)
-            print(f"Debug - Found commande: {commande.id}, current status: {commande.statut}")
-        except Commande.DoesNotExist:
-            return JsonResponse({'success': False, 'error': f'Commande {commande_id} non trouvée'}, status=404)
+        commande = get_object_or_404(Commande, id=commande_id)
         
         # Find the livraison
         try:
@@ -820,87 +901,19 @@ def mark_as_delivered(request):
                 livraison = Livraison.objects.create(
                     id_livr=livreur,
                     id_cmd=commande,
-                    etat_livraison='en_cours ',
+                    etat_livraison='en_cours',
                     adresse=commande.adresse,
                     date=timezone.now()
                 )
-                print(f"Debug - Created new livraison: {livraison.id}")
-            else:
-                print(f"Debug - Found livraison: {livraison.id}, current status: {livraison.etat_livraison}")
             
         except Exception as e:
-            print(f"Error finding livraison: {str(e)}")
             return JsonResponse({'success': False, 'error': f'Erreur lors de la recherche de la livraison: {str(e)}'}, status=500)
         
         # Update using the model's method for consistency
         livraison.mark_as_delivered()
-        print(f"Debug - Updated livraison status to: {livraison.etat_livraison}")
-        print(f"Debug - Updated commande status to: {livraison.id_cmd.statut}")
         
         return JsonResponse({'success': True})
     except Exception as e:
         import traceback
-        print(f"Exception in mark_as_delivered: {str(e)}")
         print(traceback.format_exc())
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
-@csrf_exempt
-def refuse_delivery(request):
-    """
-    API pour qu'un livreur refuse une commande.
-    """
-    if request.method != 'POST':
-        return JsonResponse({'success': False, 'error': 'Méthode non autorisée'}, status=405)
-    
-    try:
-        data = json.loads(request.body)
-        commande_id = data.get('commande_id')
-        
-        commande = get_object_or_404(Commande, id_cmd=commande_id)
-        
-        # On pourrait implémenter une logique pour marquer la commande comme refusée
-        # ou la réassigner à un autre livreur, mais pour l'instant on ne fait rien
-        
-        return JsonResponse({'success': True})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
-    
-def landing_page(request):
-    return render(request, 'landing_page.html')
-
-
-@login_required
-def profile_view(request):
-    return render(request, 'profile.html')
-
-def logout_view(request):
-    logout(request)
-    return redirect('acceuil')
-
-def logout_serveur(request):
-    logout(request)
-    return redirect('login')
-
-@login_required
-def profile_view(request):
-    user = request.user
-
-    if request.method == 'POST':
-        
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        adresse = request.POST.get('adresse')
-        telephone = request.POST.get('telephone')
-
-      
-        user.username = username
-        user.email = email
-        user.adresse = adresse
-        user.telephone = telephone
-
-        user.save()  
-
-        return redirect('profile')  
-
-    return render(request, 'profile.html', {'user': user})
-
